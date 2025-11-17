@@ -1,0 +1,26 @@
+{
+  "Day 1": {
+    "Type": "Welcome email",
+    "Subject": "Welcome to Relay Collections",
+    "Content": "Welcome message, link to onboarding guide, invite to community",
+    "CTA": "Get Started with Relay"
+  },
+  "Day 3": {
+    "Type": "Educational - Tutorial",
+    "Subject": "Send your first invoice in 5 minutes",
+    "Content": "Step-by-step guide, video tutorial, 'Aha moment' builder",
+    "CTA": "Send My First Invoice"
+  },
+  "Day 7": {
+    "Type": "Educational - Feature highlight (hint at premium)",
+    "Subject": "What happens when invoices go unpaid (hint: SMS helps)",
+    "Content": "Show problem, hint at SMS solution, case study of recovered \u00a35K",
+    "CTA": "See How SMS Helps"
+  },
+  "Day 14": {
+    "Type": "Soft Sell - Value proposition",
+    "Subject": "Your invoices are stuck. We can help. (60% discount inside)",
+    "Content": "Problem acknowledged, solution highlighted, limited-time offer",
+    "CTA": "Upgrade to Pro & Get 60% Off"
+  }
+}

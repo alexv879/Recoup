@@ -1,0 +1,34 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "email_delivered",
+    "description": "Triggered when SendGrid confirms successful delivery of a reminder email (webhook event)",
+    "type": "object",
+    "required": [
+        "sendgrid_message_id"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string",
+            "description": "Unique identifier for the invoice",
+            "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "reminder_level": {
+            "type": "string",
+            "description": "Which reminder template was delivered",
+            "enum": [
+                "day5",
+                "day15",
+                "day30"
+            ]
+        },
+        "sendgrid_message_id": {
+            "type": "string",
+            "description": "SendGrid's unique message identifier for tracking"
+        },
+        "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp in milliseconds when delivered"
+        }
+    },
+    "additionalProperties": false
+}

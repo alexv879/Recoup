@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "plan_cta_click",
+    "type": "object",
+    "required": [
+        "plan_id",
+        "context"
+    ],
+    "properties": {
+        "plan_id": {
+            "type": "string"
+        },
+        "context": {
+            "type": "string",
+            "enum": [
+                "monthly",
+                "annual"
+            ]
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

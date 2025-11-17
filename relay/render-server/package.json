@@ -1,0 +1,40 @@
+{
+  "name": "recoup-voice-server",
+  "version": "1.0.0",
+  "description": "WebSocket server for Recoup AI voice collections (Twilio + OpenAI Realtime)",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "websocket",
+    "twilio",
+    "openai",
+    "voice",
+    "collections"
+  ],
+  "author": "Recoup",
+  "license": "MIT",
+  "dependencies": {
+    "@twilio/voice-sdk": "^2.11.0",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.28.1",
+    "@fastify/websocket": "^10.0.1",
+    "openai": "^4.63.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "@types/ws": "^8.5.12",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.12"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

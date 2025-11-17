@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "retention_purge_executed",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "user_id_hash"
+    ],
+    "properties": {
+        "user_id_hash": {
+            "type": "string",
+            "pattern": "^usr_[a-f0-9]{8}$"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    }
+}

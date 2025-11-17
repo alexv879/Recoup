@@ -1,0 +1,27 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/reset-monthly-usage",
+      "schedule": "0 0 1 * *"
+    },
+    {
+      "path": "/api/cron/send-behavioral-emails",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/process-email-sequence",
+      "schedule": "0 * * * *",
+      "description": "Hourly check for overdue invoices and send Day 5/15/30 reminder emails"
+    },
+    {
+      "path": "/api/cron/process-escalations",
+      "schedule": "0 */6 * * *",
+      "description": "Every 6 hours - Auto-escalate overdue invoices through collections stages (gentle → firm → final → agency)"
+    },
+    {
+      "path": "/api/cron/check-verification-deadlines",
+      "schedule": "0 * * * *",
+      "description": "Hourly check for payment verification deadlines - Send reminders at 24h/6h marks, auto-resume collections if deadline expires"
+    }
+  ]
+}

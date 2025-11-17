@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "voice_recording_started",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "device_type",
+        "network_type"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string"
+        },
+        "device_type": {
+            "type": "string",
+            "enum": [
+                "desktop",
+                "mobile",
+                "tablet"
+            ]
+        },
+        "network_type": {
+            "type": "string",
+            "enum": [
+                "wifi",
+                "4g",
+                "5g",
+                "ethernet",
+                "unknown"
+            ]
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

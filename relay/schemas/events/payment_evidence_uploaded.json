@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "title": "Payment Evidence Uploaded Event",
+    "description": "Fired when a client uploads evidence file (bank statement, receipt, etc.) for payment verification. Phase 2 Task 7.",
+    "required": [
+        "claim_id",
+        "invoice_id",
+        "file_type",
+        "file_size",
+        "file_name"
+    ],
+    "properties": {
+        "claim_id": {
+            "type": "string",
+            "description": "Payment claim document ID"
+        },
+        "invoice_id": {
+            "type": "string",
+            "description": "Invoice document ID"
+        },
+        "file_type": {
+            "type": "string",
+            "enum": [
+                "application/pdf",
+                "image/png",
+                "image/jpeg"
+            ],
+            "description": "MIME type of uploaded file"
+        },
+        "file_size": {
+            "type": "number",
+            "description": "File size in bytes (max 10MB = 10485760 bytes)",
+            "minimum": 0,
+            "maximum": 10485760
+        },
+        "file_name": {
+            "type": "string",
+            "description": "Original filename"
+        },
+        "upload_method": {
+            "type": "string",
+            "enum": [
+                "drag_drop",
+                "click_browse"
+            ],
+            "description": "How the user uploaded the file"
+        }
+    }
+}

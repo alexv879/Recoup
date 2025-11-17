@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "pricing_toggle_annual",
+    "description": "User toggled between monthly and annual billing on pricing page (Phase 2 Task 8)",
+    "type": "object",
+    "required": [
+        "billing_cycle",
+        "timestamp"
+    ],
+    "properties": {
+        "billing_cycle": {
+            "type": "string",
+            "description": "Billing cycle after toggle",
+            "enum": [
+                "monthly",
+                "annual"
+            ]
+        },
+        "user_id": {
+            "type": "string",
+            "description": "Clerk user ID (if authenticated)"
+        },
+        "is_annual": {
+            "type": "boolean",
+            "description": "Legacy field: true if annual, false if monthly"
+        },
+        "current_tier": {
+            "type": "string",
+            "description": "User's current subscription tier",
+            "enum": [
+                "free",
+                "starter",
+                "growth",
+                "pro",
+                "business",
+                "paid"
+            ]
+        },
+        "page_variant": {
+            "type": "string",
+            "description": "Pricing page variant",
+            "enum": [
+                "v2",
+                "v3_three_tier"
+            ],
+            "default": "v3_three_tier"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp of toggle action"
+        }
+    },
+    "additionalProperties": false
+}

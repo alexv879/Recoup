@@ -1,0 +1,24 @@
+{
+  "Elements": {
+    "Most Popular Badge": {
+      "Tier": "Growth (\u00a339/month)",
+      "Why": "Decoy effect, highest perceived value",
+      "Placement": "Crown icon or ribbon"
+    },
+    "Annual Savings": {
+      "Display": "\u00a339 \u00d7 12 = \u00a3468 \u2192 Show as \u00a3374/year (save \u00a394)",
+      "Messaging": "Save \u00a394/year (20% discount)",
+      "Placement": "Directly on pricing card"
+    },
+    "Feature Comparison": {
+      "Format": "Table below tiers, show Free vs Starter vs Growth vs Pro",
+      "Key Differences": "Collections limit, SMS/email, AI analytics, team members",
+      "Interactive": "Hover for more info, toggle to show/hide table"
+    },
+    "Social Proof": {
+      "Testimonials": "'Relay helped me recover \u00a35K in 30 days' - Jane Smith",
+      "Logo Wall": "Trusted by 10,000+ freelancers and agencies",
+      "Stats": "\u00a32M collected through Relay in 2024"
+    }
+  }
+}

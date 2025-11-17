@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Support Ticket Escalated Event",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "ticket_id",
+        "priority",
+        "elapsed_hours"
+    ],
+    "properties": {
+        "ticket_id": {
+            "type": "string"
+        },
+        "priority": {
+            "type": "string",
+            "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+            ]
+        },
+        "elapsed_hours": {
+            "type": "number"
+        }
+    }
+}

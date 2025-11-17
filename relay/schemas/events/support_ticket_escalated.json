@@ -1,0 +1,34 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "support_ticket_escalated",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "ticket_id",
+        "priority",
+        "elapsed_hours"
+    ],
+    "properties": {
+        "ticket_id": {
+            "type": "string",
+            "minLength": 6
+        },
+        "priority": {
+            "type": "string",
+            "enum": [
+                "low",
+                "normal",
+                "high",
+                "critical"
+            ]
+        },
+        "elapsed_hours": {
+            "type": "number",
+            "minimum": 0
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    }
+}

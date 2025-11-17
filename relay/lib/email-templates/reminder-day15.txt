@@ -1,0 +1,31 @@
+⚠️ URGENT: Payment Required - Invoice {{invoice_number}}
+
+⚠️ THIS INVOICE IS SIGNIFICANTLY OVERDUE AND REQUIRES IMMEDIATE ATTENTION
+
+Dear {{client_name}},
+
+Despite my previous reminders, invoice #{{invoice_number}} remains unpaid and is now {{days_overdue}} days overdue.
+
+OUTSTANDING INVOICE
+-------------------
+Invoice Number: #{{invoice_number}}
+Amount Due: £{{amount}}
+Original Due Date: {{due_date}}
+Days Overdue: {{days_overdue}} days
+
+I REQUIRE PAYMENT WITHIN THE NEXT 7 DAYS.
+
+If you are experiencing difficulties with payment or have concerns about this invoice, please contact me immediately so we can discuss a resolution. Failure to respond may result in further collection action.
+
+If you have already sent payment, please provide me with the payment confirmation details and disregard this notice.
+
+Pay invoice now: {{payment_link}}
+
+I value our business relationship and would prefer to resolve this matter directly with you.
+
+Regards,
+{{freelancer_name}}
+
+---
+This is an automated payment reminder sent via Relay.
+Please contact {{freelancer_email}} if you have questions.

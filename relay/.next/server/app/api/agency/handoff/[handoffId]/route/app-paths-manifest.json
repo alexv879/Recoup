@@ -1,0 +1,3 @@
+{
+  "/api/agency/handoff/[handoffId]/route": "app/api/agency/handoff/[handoffId]/route.js"
+}

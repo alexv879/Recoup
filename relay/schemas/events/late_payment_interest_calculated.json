@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Late Payment Interest Calculated Event",
+    "description": "Fired when late payment interest calculator is displayed to user",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "days_overdue",
+        "principal_amount",
+        "total_interest",
+        "fixed_fee",
+        "total_claimable"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string",
+            "description": "Unique identifier for the invoice",
+            "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "days_overdue": {
+            "type": "integer",
+            "description": "Number of days past due date",
+            "minimum": 1
+        },
+        "principal_amount": {
+            "type": "number",
+            "description": "Original invoice amount in pounds (GBP)",
+            "minimum": 0
+        },
+        "total_interest": {
+            "type": "number",
+            "description": "Calculated statutory interest in pounds",
+            "minimum": 0
+        },
+        "fixed_fee": {
+            "type": "number",
+            "description": "Fixed compensation fee in pounds (£40/£70/£100)",
+            "enum": [
+                40,
+                70,
+                100
+            ]
+        },
+        "total_claimable": {
+            "type": "number",
+            "description": "Total amount claimable (interest + fixed fee) in pounds",
+            "minimum": 0
+        },
+        "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp when event occurred"
+        },
+        "page_url": {
+            "type": "string",
+            "description": "URL where calculator was displayed"
+        }
+    },
+    "additionalProperties": false
+}

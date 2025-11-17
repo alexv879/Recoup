@@ -1,0 +1,12 @@
+var R=require("../../../../../../chunks/[turbopack]_runtime.js")("server/app/api/agency/handoffs/[handoffId]/documents/route.js")
+R.c("server/chunks/[root-of-the-server]__293864b9._.js")
+R.c("server/chunks/[root-of-the-server]__003ec625._.js")
+R.c("server/chunks/node_modules_6088a8e8._.js")
+R.c("server/chunks/node_modules_next_dist_bfd7b269._.js")
+R.c("server/chunks/node_modules_zod_v4_classic_errors_6231ecd5.js")
+R.c("server/chunks/[root-of-the-server]__65f0ef50._.js")
+R.c("server/chunks/node_modules_next_f2da0d3e._.js")
+R.c("server/chunks/node_modules_f273d9fd._.js")
+R.c("server/chunks/ce889_server_app_api_agency_handoffs_[handoffId]_documents_route_actions_cf8d2d0b.js")
+R.m(62097)
+module.exports=R.m(62097).exports

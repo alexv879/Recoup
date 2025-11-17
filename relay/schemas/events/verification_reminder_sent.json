@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "title": "Verification Reminder Sent Event",
+    "description": "Fired when a verification deadline reminder email is sent to freelancer (24h or 6h before deadline). Phase 2 Task 7.",
+    "required": [
+        "claim_id",
+        "invoice_id",
+        "hours_remaining",
+        "is_urgent"
+    ],
+    "properties": {
+        "claim_id": {
+            "type": "string",
+            "description": "Payment claim document ID"
+        },
+        "invoice_id": {
+            "type": "string",
+            "description": "Invoice document ID"
+        },
+        "invoice_reference": {
+            "type": "string",
+            "description": "Human-readable invoice number (e.g., INV-2025-001)"
+        },
+        "hours_remaining": {
+            "type": "number",
+            "enum": [
+                24,
+                6
+            ],
+            "description": "Hours remaining until verification deadline"
+        },
+        "is_urgent": {
+            "type": "boolean",
+            "description": "True if this is the 6-hour urgent reminder"
+        },
+        "freelancer_id": {
+            "type": "string",
+            "description": "Freelancer user ID receiving the reminder"
+        },
+        "client_name": {
+            "type": "string",
+            "description": "Name of client who submitted payment claim"
+        },
+        "amount": {
+            "type": "number",
+            "description": "Claimed payment amount in GBP",
+            "minimum": 0
+        }
+    }
+}

@@ -1,0 +1,23 @@
+Company,Tier,Price (GBP),Clients,Key Features
+FreshBooks,Lite,15,5,Basic invoicing; Expense tracking
+FreshBooks,Plus,25,Unlimited,All Lite features; Project tracking
+FreshBooks,Premium,50,Unlimited,All Plus features; Multi-user (3+)
+FreshBooks,Select,Custom,Enterprise,All features; Dedicated support
+Xero,Early,13,20 invoices,Basic invoicing; Expense tracking
+Xero,Growing,37,Unlimited,All Early features; Multi-user
+Xero,Established,70,Unlimited,All Growing features; Advanced reporting
+Wave,Free,0,Unlimited,Basic invoicing; Expense tracking
+Wave,Pro,20,Unlimited,All Free features; Premium support
+Zoho Books,Starter,11,"1,000",Basic invoicing; Expense tracking
+Zoho Books,Standard,21,Unlimited,All Starter features; Multi-user
+Zoho Books,Professional,41,Unlimited,All Standard features; Advanced automation
+QuickBooks,Simple Start,14,Unlimited,Basic invoicing; Expense tracking
+QuickBooks,Essentials,28,Unlimited,All Simple Start features; Multi-user
+QuickBooks,Plus,42,Unlimited,All Essentials features; Inventory tracking
+Chaser,Growth,30,5,Invoice management; Auto reminders
+Chaser,Scale,60,20,All Growth features; Multi-user
+Chaser,Enterprise,150,Unlimited,All Scale features; Custom workflows
+Invoice Ninja,Pro,10,Unlimited,Core invoicing; Expense tracking
+Invoice Ninja,Enterprise,20,Unlimited,All Pro features; White labeling
+Square Invoices,Free,0,Unlimited,Basic invoicing; Payment processing
+Square Invoices,Premium,5,Unlimited,All Free features; Custom branding

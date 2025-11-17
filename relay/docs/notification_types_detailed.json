@@ -1,0 +1,94 @@
+{
+  "Payment Received": {
+    "Icon": "\u2713 (green checkmark or \ud83d\udcb0)",
+    "Color": "Green (#2ecc71)",
+    "Subject": "You got paid! \u00a31,200 from John Smith",
+    "Body": "Payment received: \u00a31,200 from John Smith (Acme Corp) for Invoice #1847 on Dec 15, 2025",
+    "Actions": [
+      "View Invoice",
+      "Withdraw Funds"
+    ],
+    "CTA_Priority": "Primary: Withdraw, Secondary: View",
+    "In_App_Copy": "You received \u00a31,200 from John Smith",
+    "Timestamp_Format": "Relative: '5 minutes ago' OR Absolute: '3:45 PM'"
+  },
+  "Invoice Overdue": {
+    "Icon": "\u26a0 (red warning or \u23f0)",
+    "Color": "Red (#e74c3c)",
+    "Subject": "Invoice #1847 is 15 days overdue (\u00a31,200)",
+    "Body": "Invoice #1847 has been overdue for 15 days. Total amount: \u00a31,200. Please follow up.",
+    "Actions": [
+      "Send Reminder",
+      "Mark Paid",
+      "View Invoice"
+    ],
+    "CTA_Priority": "Primary: Send Reminder",
+    "In_App_Copy": "Invoice #1847 is 15 days overdue",
+    "Timestamp_Format": "Relative: 'Overdue since Dec 1' OR Absolute: 'Due Dec 1, 2025'"
+  },
+  "Payment Claimed (Verification Needed)": {
+    "Icon": "\u2139 (blue info or \ud83d\udd0d)",
+    "Color": "Blue (#3498db)",
+    "Subject": "Payment verification needed for Invoice #1847",
+    "Body": "John Smith claims payment on Invoice #1847 (\u00a31,200). Verify or dispute by Dec 20.",
+    "Actions": [
+      "Verify Payment",
+      "Dispute Claim"
+    ],
+    "CTA_Priority": "Dual: Verify (primary), Dispute (secondary)",
+    "In_App_Copy": "John Smith claims payment on Invoice #1847",
+    "Timestamp_Format": "Relative with deadline: '3 days to verify'"
+  },
+  "Payment Verified": {
+    "Icon": "\u2713 (green checkmark)",
+    "Color": "Green (#27ae60)",
+    "Subject": "Invoice #1847 payment verified",
+    "Body": "Your payment from John Smith has been verified. Invoice #1847 marked as paid.",
+    "Actions": [
+      "View Receipt",
+      "View Invoice"
+    ],
+    "CTA_Priority": "Secondary only",
+    "In_App_Copy": "Invoice #1847 payment verified \u2713",
+    "Timestamp_Format": "Relative: '1 minute ago'"
+  },
+  "System Update": {
+    "Icon": "\u24d8 (gray info icon)",
+    "Color": "Gray (#95a5a6)",
+    "Subject": "New feature: AI invoice analysis now available",
+    "Body": "We've launched AI-powered invoice scanning. Automatically categorize and analyze expenses.",
+    "Actions": [
+      "Learn More",
+      "Try It"
+    ],
+    "CTA_Priority": "Primary: Learn More",
+    "In_App_Copy": "New feature available: AI invoice analysis",
+    "Timestamp_Format": "Relative: 'Today'"
+  },
+  "Reminder": {
+    "Icon": "\ud83d\udd14 (bell)",
+    "Color": "Orange (#f39c12)",
+    "Subject": "Reminder: Invoice #1847 is due tomorrow",
+    "Body": "Don't forget! Invoice #1847 for \u00a31,200 is due December 29, 2025.",
+    "Actions": [
+      "View Invoice",
+      "Send Reminder"
+    ],
+    "CTA_Priority": "Primary: View Invoice",
+    "In_App_Copy": "Invoice #1847 due tomorrow",
+    "Timestamp_Format": "Relative: 'Scheduled for 9:00 AM'"
+  },
+  "Error/Alert": {
+    "Icon": "\u274c (red X or \u26a0)",
+    "Color": "Red (#c0392b)",
+    "Subject": "Payment failed for Invoice #1847",
+    "Body": "Transaction failed: Card declined. Please update payment method.",
+    "Actions": [
+      "Retry Payment",
+      "Update Method"
+    ],
+    "CTA_Priority": "Primary: Retry Payment",
+    "In_App_Copy": "Payment failed - action required",
+    "Timestamp_Format": "Relative: '2 minutes ago'"
+  }
+}

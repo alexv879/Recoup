@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "payment_received",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "amount",
+        "days_since_due"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string"
+        },
+        "amount": {
+            "type": "number",
+            "minimum": 0
+        },
+        "days_since_due": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

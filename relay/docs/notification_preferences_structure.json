@@ -1,0 +1,51 @@
+{
+  "Page Layout": {
+    "Header": "Notification Preferences",
+    "Description": "Control what you're notified about and how",
+    "Tabs": [
+      "Email",
+      "Push",
+      "In-App",
+      "SMS (optional)"
+    ]
+  },
+  "Notification Type Toggles": {
+    "Payments": {
+      "Payment Received": "Toggle | Frequency dropdown",
+      "Payment Claimed": "Toggle | Frequency dropdown",
+      "Payment Verified": "Toggle | Frequency dropdown"
+    },
+    "Reminders": {
+      "Invoice Due Soon": "Toggle | Frequency dropdown",
+      "Overdue Invoices": "Toggle | Frequency dropdown"
+    },
+    "System": {
+      "New Features": "Toggle | Frequency dropdown",
+      "System Updates": "Toggle | Frequency dropdown"
+    }
+  },
+  "Frequency Options": {
+    "Real-time": "Instant notification (default for critical)",
+    "Hourly": "Batch notifications every hour",
+    "Daily Digest": "Single email/notification daily at 9 AM",
+    "Weekly Digest": "Single email/notification weekly (Tuesdays)",
+    "Off": "Disable this notification type"
+  },
+  "Channel Selection": {
+    "Email": "Checkbox - enable/disable",
+    "Push": "Checkbox - enable/disable (if PWA)",
+    "In-App": "Checkbox - enable/disable",
+    "SMS": "Checkbox - enable/disable (if available)"
+  },
+  "Quiet Hours": {
+    "Enable": "Toggle on/off",
+    "Start Time": "Time picker (e.g., 10 PM)",
+    "End Time": "Time picker (e.g., 8 AM)",
+    "Critical Only": "Checkbox - allow critical alerts during quiet hours"
+  },
+  "Save State": {
+    "Save Button": "Primary CTA",
+    "Confirmation": "Toast message - 'Preferences saved'",
+    "Auto-Save": "Optional - autosave on toggle (show spinner)"
+  }
+}

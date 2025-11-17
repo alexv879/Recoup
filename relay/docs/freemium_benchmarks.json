@@ -1,0 +1,31 @@
+{
+  "Conversion Rate Ranges": {
+    "Typical B2B SaaS": "2-5%",
+    "Top Performers": "5-10%",
+    "Exceptional (Slack, Spotify)": "30%+",
+    "By Customer Type": {
+      "SMB (self-serve freemium)": "3-5%",
+      "SMB (sales-assisted freemium)": "5-7%",
+      "Mid-market": "3-5%",
+      "Enterprise": "1-3% (lower due to sales complexity)"
+    },
+    "By Model": {
+      "Freemium self-serve": "2-5%",
+      "Sales-assisted freemium": "5-7%",
+      "Free trial": "8-25% (higher than freemium)"
+    }
+  },
+  "Time to Convert": {
+    "Median": "30-90 days",
+    "Quick converters": "7-14 days (15% of users)",
+    "Slow converters": "90+ days (10% of users)",
+    "Sweet spot": "30-45 days"
+  },
+  "Top Performers": {
+    "Slack": "30%+ conversion, 40% cohorts to enterprise",
+    "Dropbox": "10%+ conversion, low CAC",
+    "Notion": "40% of enterprise customers started free",
+    "Canva": "Subtle upselling, high conversion",
+    "HubSpot": "50% of new customers from free users"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "Intercom": {
+    "Best For": "Early-stage SaaS, strong onboarding focus",
+    "Strengths": [
+      "Easy setup (5 minutes)",
+      "Contextual messages based on user behavior",
+      "Built-in chatbot (Fin AI)",
+      "Good integrations"
+    ],
+    "Weaknesses": [
+      "Expensive at scale (confusing pricing)",
+      "UI overwhelming for simple use cases",
+      "Support quality issues"
+    ],
+    "Pricing": "$39-100/month starting",
+    "Best For Relay": "Good for in-app messaging + help widget combo"
+  },
+  "Help Scout Beacon": {
+    "Best For": "Support-focused, customer service teams",
+    "Strengths": [
+      "Dedicated help widget (Beacon)",
+      "Simple, beautiful design",
+      "Good knowledge base integration",
+      "Friendly support",
+      "Less expensive"
+    ],
+    "Weaknesses": [
+      "Limited AI/automation",
+      "Smaller feature set",
+      "Not great for complex workflows"
+    ],
+    "Pricing": "$20-50/month",
+    "Best For Relay": "RECOMMENDED for documentation + support"
+  },
+  "Zendesk": {
+    "Best For": "Enterprise, complex support operations",
+    "Strengths": [
+      "Most powerful automation",
+      "Best for large teams",
+      "Excellent reporting",
+      "Very customizable"
+    ],
+    "Weaknesses": [
+      "Expensive",
+      "Steep learning curve",
+      "Slow customer support",
+      "Overkill for small SaaS"
+    ],
+    "Pricing": "$50-150+/month",
+    "Best For Relay": "Overkill unless 50+ support team"
+  }
+}

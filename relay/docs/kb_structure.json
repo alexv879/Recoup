@@ -1,0 +1,61 @@
+{
+  "Categories": {
+    "Getting Started": {
+      "description": "Onboarding and first steps",
+      "articles": [
+        "Welcome to Relay Collections",
+        "Create your first invoice (5 min tutorial)",
+        "Send invoice to client",
+        "Create your first collection",
+        "Set up team members"
+      ]
+    },
+    "Invoicing": {
+      "description": "Creating and managing invoices",
+      "articles": [
+        "How to create an invoice",
+        "Add line items and costs",
+        "Set payment terms and due date",
+        "Send invoice to client",
+        "Edit invoice (before sending)",
+        "Duplicate invoice (use as template)",
+        "Understand invoice status"
+      ]
+    },
+    "Collections": {
+      "description": "Automating payment recovery",
+      "articles": [
+        "What are collections?",
+        "Create a collection for overdue invoice",
+        "How collection reminders work",
+        "Add SMS reminders (Pro feature)",
+        "Add WhatsApp reminders (Pro feature)",
+        "Set escalation rules",
+        "Understand collection status"
+      ]
+    },
+    "Payments": {
+      "description": "Payment verification and setup",
+      "articles": [
+        "Connect Stripe payment processor",
+        "Enable BACS bank transfers",
+        "Client claims payment (verify or dispute)",
+        "What happens when payment verified?",
+        "Download payment receipt",
+        "Refund a payment"
+      ]
+    },
+    "Account Settings": {
+      "description": "Profile, billing, and notifications",
+      "articles": [
+        "Update profile information",
+        "Manage billing information",
+        "View and download invoices (your own)",
+        "Manage notification preferences",
+        "Invite team members",
+        "Set role permissions (Pro feature)",
+        "Delete account"
+      ]
+    }
+  }
+}

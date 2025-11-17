@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "signup_completed",
+    "type": "object",
+    "required": [
+        "user_id",
+        "plan"
+    ],
+    "properties": {
+        "user_id": {
+            "type": "string"
+        },
+        "plan": {
+            "type": "string",
+            "enum": [
+                "free",
+                "starter",
+                "growth",
+                "pro"
+            ]
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

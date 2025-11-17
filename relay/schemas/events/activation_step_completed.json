@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "activation_step_completed",
+    "type": "object",
+    "required": [
+        "user_id",
+        "step_key"
+    ],
+    "properties": {
+        "user_id": {
+            "type": "string"
+        },
+        "step_key": {
+            "type": "string",
+            "enum": [
+                "first_invoice",
+                "first_reminder",
+                "first_payment",
+                "voice_enabled"
+            ]
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

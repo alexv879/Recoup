@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: recoup-voice-server
+    env: node
+    region: frankfurt # EU region for UK compliance
+    plan: starter # $7/month - upgrade to standard ($25) for production
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: OPENAI_API_KEY
+        sync: false # Set manually in Render dashboard
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: FCA_FIRM_REFERENCE
+        sync: false
+      - key: COMPANY_NAME
+        value: Recoup Collections Ltd
+      - key: COMPANY_ADDRESS
+        value: 123 Collection Street, London, UK
+      - key: RECOUP_API_URL
+        value: https://recoup-app.vercel.app
+      - key: RECOUP_WEBHOOK_SECRET
+        sync: false

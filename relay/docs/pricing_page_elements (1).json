@@ -1,0 +1,31 @@
+{
+  "Header": {
+    "Headline": "Help & Documentation",
+    "Subheadline": "Get instant answers to your questions"
+  },
+  "Search Bar": {
+    "Type": "Algolia-powered search",
+    "Placeholder": "Search guides, FAQs, troubleshooting...",
+    "Features": [
+      "Autocomplete",
+      "Instant results",
+      "Recent searches"
+    ]
+  },
+  "Featured Articles": {
+    "Section": "Popular Right Now",
+    "Articles": [
+      "Create Your First Invoice",
+      "What Are Collections?",
+      "Why Is My Reminder Delayed?",
+      "Connect Stripe Payment Processor"
+    ]
+  },
+  "Categories": {
+    "Getting Started": "icon + 'Start here'",
+    "Invoicing": "icon + 'Create & manage'",
+    "Collections": "icon + 'Automate payment'",
+    "Payments": "icon + 'Verify & track'",
+    "Account": "icon + 'Settings & profile'"
+  }
+}

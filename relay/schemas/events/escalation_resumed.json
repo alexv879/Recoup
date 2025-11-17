@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://recoup.app/schemas/events/escalation_resumed.json",
+    "title": "Escalation Resumed Event",
+    "description": "Fired when collections automation is resumed for a paused invoice (manual resume or auto-resume after deadline)",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "invoice_reference",
+        "reason",
+        "freelancer_id"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string",
+            "description": "Unique identifier of the invoice"
+        },
+        "invoice_reference": {
+            "type": "string",
+            "description": "Human-readable invoice reference (e.g., INV-20250115-00001)"
+        },
+        "reason": {
+            "type": "string",
+            "description": "Reason for resuming collections (e.g., 'Manual resume by user', 'auto_resume_deadline_passed')"
+        },
+        "freelancer_id": {
+            "type": "string",
+            "description": "Clerk user ID of the freelancer"
+        }
+    },
+    "additionalProperties": false
+}
