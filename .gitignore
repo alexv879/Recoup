@@ -1,0 +1,10 @@
+# Ignore node_modules and other unnecessary files
+node_modules/
+*.log
+.DS_Store
+*.tmp
+*.swp
+*.swo
+.env*
+.claude/
+package-lock.json
