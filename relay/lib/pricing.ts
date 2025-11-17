@@ -1,0 +1,286 @@
+/**
+ * Pricing Utilities & Calculations
+ * 
+ * Based on: pricing-implementation-framework.md §1-2
+ * Research: saas-pricing-optimization-guide.md
+ * 
+ * Pricing V3 Structure:
+ * - Starter: £19/month or £182/year (10 collections)
+ * - Growth: £39/month or £374/year (50 collections)
+ * - Pro: £75/month or £720/year (unlimited)
+ * 
+ * Annual discount: 20% (equivalent to 2.4 months free)
+ * 
+ * Phase 2 Task 8
+ */
+
+export type PricingTier = 'starter' | 'growth' | 'pro';
+export type LegacyTier = 'free' | 'paid' | 'business';
+export type AllTiers = PricingTier | LegacyTier;
+
+export interface TierPricing {
+    monthly: number;
+    annual: number;
+    annualSavings: number;
+    collectionsLimit: number | null; // null = unlimited
+    teamMembers: number | null; // null = unlimited
+    features: string[];
+}
+
+export const PRICING_TIERS: Record<PricingTier, TierPricing> = {
+    starter: {
+        monthly: 19,
+        annual: 182, // £19 × 12 × 0.8 = £182.40 (rounded down)
+        annualSavings: 46, // £228 - £182 = £46
+        collectionsLimit: 10,
+        teamMembers: 1,
+        features: [
+            'Email reminders',
+            'Manual collection tracking',
+            'Invoice management',
+            'Payment claims',
+            'Email support (48h response)',
+        ],
+    },
+    growth: {
+        monthly: 39,
+        annual: 374, // £39 × 12 × 0.8 = £374.40 (rounded down)
+        annualSavings: 94, // £468 - £374 = £94
+        collectionsLimit: 50,
+        teamMembers: 5,
+        features: [
+            'Smart reminders (Email + SMS + WhatsApp)',
+            'Payment verification system',
+            'Collections escalation automation',
+            'Basic AI analytics',
+            'Behavioral email sequences',
+            'Email support (24h response)',
+        ],
+    },
+    pro: {
+        monthly: 75,
+        annual: 720, // £75 × 12 × 0.8 = £720
+        annualSavings: 180, // £900 - £720 = £180
+        collectionsLimit: null, // Unlimited
+        teamMembers: null, // Unlimited
+        features: [
+            'All channels (Email/SMS/WhatsApp/Phone)',
+            'AI-powered recovery strategies',
+            'Advanced analytics & insights',
+            'Custom escalation workflows',
+            'API access & integrations',
+            'Dedicated account manager',
+            'Priority support (2h response)',
+        ],
+    },
+};
+
+/**
+ * Get price for a tier
+ * 
+ * @param tier - Tier name
+ * @param isAnnual - Whether annual billing
+ * @returns Price in GBP
+ */
+export function getTierPrice(tier: PricingTier, isAnnual: boolean = false): number {
+    const pricing = PRICING_TIERS[tier];
+    return isAnnual ? pricing.annual : pricing.monthly;
+}
+
+/**
+ * Get collections limit for a tier
+ * 
+ * @param tier - Tier name
+ * @returns Collections per month (null = unlimited)
+ */
+export function getTierCollectionsLimit(tier: PricingTier): number | null {
+    return PRICING_TIERS[tier].collectionsLimit;
+}
+
+/**
+ * Get team members limit for a tier
+ * 
+ * @param tier - Tier name
+ * @returns Team members allowed (null = unlimited)
+ */
+export function getTierTeamMembersLimit(tier: PricingTier): number | null {
+    return PRICING_TIERS[tier].teamMembers;
+}
+
+/**
+ * Calculate annual savings
+ * 
+ * @param tier - Tier name
+ * @returns Savings in GBP when paying annually
+ */
+export function getAnnualSavings(tier: PricingTier): number {
+    return PRICING_TIERS[tier].annualSavings;
+}
+
+/**
+ * Calculate monthly equivalent price for annual plans
+ * 
+ * @param tier - Tier name
+ * @returns Monthly equivalent price (annual / 12)
+ */
+export function getMonthlyEquivalentPrice(tier: PricingTier): number {
+    return Math.round(PRICING_TIERS[tier].annual / 12);
+}
+
+/**
+ * Map legacy tier to Pricing V3 tier
+ * 
+ * Migration mapping:
+ * - free → starter (with trial)
+ * - paid → growth (legacy catch-all)
+ * - business → pro (upgrade path)
+ * 
+ * @param legacyTier - Old subscription tier
+ * @returns Equivalent V3 tier
+ */
+export function mapLegacyTierToV3(legacyTier: LegacyTier): PricingTier {
+    const mapping: Record<LegacyTier, PricingTier> = {
+        free: 'starter',
+        paid: 'growth',
+        business: 'pro',
+    };
+
+    return mapping[legacyTier];
+}
+
+/**
+ * Check if user has exceeded their collections limit
+ * 
+ * @param tier - User's subscription tier
+ * @param collectionsUsed - Collections used this month
+ * @returns true if limit exceeded
+ */
+export function hasExceededCollectionsLimit(
+    tier: PricingTier,
+    collectionsUsed: number
+): boolean {
+    const limit = getTierCollectionsLimit(tier);
+
+    // Unlimited tiers never exceed
+    if (limit === null) return false;
+
+    return collectionsUsed >= limit;
+}
+
+/**
+ * Calculate overage cost for additional collections
+ * 
+ * Based on: pricing-implementation-framework.md (£1-2 per collection)
+ * 
+ * @param tier - User's subscription tier
+ * @param collectionsUsed - Collections used this month
+ * @returns Overage cost in GBP
+ */
+export function calculateOverageCost(
+    tier: PricingTier,
+    collectionsUsed: number
+): number {
+    const limit = getTierCollectionsLimit(tier);
+
+    // No overage for unlimited tiers
+    if (limit === null) return 0;
+
+    // No overage if under limit
+    if (collectionsUsed <= limit) return 0;
+
+    const overage = collectionsUsed - limit;
+
+    // Tiered overage pricing
+    if (tier === 'starter') {
+        return overage * 2; // £2 per collection for Starter
+    } else if (tier === 'growth') {
+        return overage * 1.5; // £1.50 per collection for Growth
+    }
+
+    return 0; // Pro has unlimited, no overage
+}
+
+/**
+ * Get recommended upgrade tier
+ * 
+ * Suggests upgrade if user is consistently hitting limits
+ * 
+ * @param currentTier - User's current tier
+ * @param collectionsUsed - Collections used this month
+ * @returns Recommended tier or null if no upgrade needed
+ */
+export function getRecommendedUpgrade(
+    currentTier: PricingTier,
+    collectionsUsed: number
+): PricingTier | null {
+    const limit = getTierCollectionsLimit(currentTier);
+
+    // No upgrade needed for Pro tier
+    if (currentTier === 'pro') return null;
+
+    // If no limit, no upgrade needed
+    if (limit === null) return null;
+
+    // Recommend upgrade if using >80% of limit
+    const usagePercentage = (collectionsUsed / limit) * 100;
+
+    if (usagePercentage >= 80) {
+        if (currentTier === 'starter') return 'growth';
+        if (currentTier === 'growth') return 'pro';
+    }
+
+    return null;
+}
+
+/**
+ * Calculate LTV (Lifetime Value) for a tier
+ * 
+ * Assumptions:
+ * - Average retention: 12 months (industry standard for SMB SaaS)
+ * - Churn rate: ~8.3% per month (1/12)
+ * 
+ * @param tier - Subscription tier
+ * @param isAnnual - Whether annual billing
+ * @returns Estimated LTV in GBP
+ */
+export function calculateLTV(tier: PricingTier, isAnnual: boolean = false): number {
+    const monthlyPrice = getTierPrice(tier, false);
+    const averageRetentionMonths = 12;
+
+    if (isAnnual) {
+        // Annual customers typically have 1.5x longer retention
+        return getTierPrice(tier, true) * 1.5;
+    }
+
+    return monthlyPrice * averageRetentionMonths;
+}
+
+/**
+ * Format price for display
+ * 
+ * @param price - Price in GBP
+ * @param showPence - Whether to show .00 decimals
+ * @returns Formatted price string (e.g., "£39" or "£39.00")
+ */
+export function formatPrice(price: number, showPence: boolean = false): string {
+    if (showPence || price % 1 !== 0) {
+        return `£${price.toFixed(2)}`;
+    }
+    return `£${price}`;
+}
+
+/**
+ * Calculate discount percentage for annual plans
+ * 
+ * @param tier - Tier name
+ * @returns Discount percentage (e.g., 20 for 20%)
+ */
+export function getAnnualDiscountPercentage(tier: PricingTier): number {
+    const monthly = getTierPrice(tier, false);
+    const annual = getTierPrice(tier, true);
+
+    const fullYearCost = monthly * 12;
+    const savings = fullYearCost - annual;
+
+    return Math.round((savings / fullYearCost) * 100);
+}

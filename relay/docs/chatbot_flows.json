@@ -1,0 +1,30 @@
+{
+  "Tier 0: Automated Responses": {
+    "Trigger": "User submits support request",
+    "Chatbot Action": "Immediate acknowledgment + ticket number",
+    "Example": "Thanks for contacting Relay! Your ticket #12345 is confirmed. We'll respond within [SLA]."
+  },
+  "Tier 1: FAQ Matching": {
+    "Trigger": "Support team receives ticket",
+    "Chatbot Action": "Auto-match FAQ + KB articles to ticket",
+    "Example": "Ticket mentions 'invoice not sending' \u2192 Link: 'Why didn't my invoice send?' + troubleshooting",
+    "Escalation": "If no match found, escalate to human"
+  },
+  "Tier 2: Knowledge Base Search": {
+    "Trigger": "Before escalating to human",
+    "Chatbot Action": "Search KB for answer, suggest to customer",
+    "Example": "We found an article that might help: 'How to resend invoice' - Yes / No / Need more help",
+    "Escalation": "If customer selects 'Need more help', escalate"
+  },
+  "Tier 3: AI Resolution Bot": {
+    "Trigger": "After 2 failed escalations",
+    "Chatbot Action": "Use AI (Fin, Answer Bot) to provide comprehensive answer",
+    "Example": "Based on your question about SMS reminders: [AI generates detailed answer]",
+    "Escalation": "If AI unsure, escalate with context to human"
+  },
+  "Tier 4: Human Escalation": {
+    "Trigger": "After 3 failed attempts or complex issue",
+    "Human Action": "Full context + chat history provided, agent takes over",
+    "SLA": "Depends on support tier (4-24 hours)"
+  }
+}

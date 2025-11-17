@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "voice_transcript_finalized",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "segments",
+        "latency_ms_avg"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string"
+        },
+        "segments": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "latency_ms_avg": {
+            "type": "number",
+            "minimum": 0
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

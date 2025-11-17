@@ -1,0 +1,18 @@
+{
+  "Downgrade Flow": {
+    "Trigger": "User clicks 'Cancel' button",
+    "Step 1": "Show exit survey (3 multiple choice options)",
+    "Step 2": "Offer targeted retention (discount, downgrade, pause)",
+    "Step 3": "Final confirmation (don't make it too easy)"
+  },
+  "Exit Survey Questions": [
+    "Why are you canceling? (Cost / Not using / Switching / Other)",
+    "How satisfied were you? (1-5 rating)",
+    "What would help you stay? (Open-ended)"
+  ],
+  "Retention Offers": {
+    "For 'Too Expensive'": "Downgrade offer (\u00a339 \u2192 \u00a319/month)",
+    "For 'Not Using'": "Pause subscription (90 days free to return)",
+    "For 'Switching'": "25% lifetime discount"
+  }
+}

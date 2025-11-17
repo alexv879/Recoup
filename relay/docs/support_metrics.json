@@ -1,0 +1,26 @@
+{
+  "First Response Time (FRT)": {
+    "Phone": "2 minutes average",
+    "Chat": "10 minutes average",
+    "Email": "2-6 hours target",
+    "Industry Benchmark": "Under 2 hours = top tier",
+    "Customer Expectation": "60% expect response within 10 minutes"
+  },
+  "Resolution Time": {
+    "Simple Issues": "4 hours",
+    "Complex Issues": "24-48 hours",
+    "Industry Benchmark": "Most teams aim for 24 hours",
+    "Target": "First contact resolution 70%+"
+  },
+  "CSAT (Customer Satisfaction)": {
+    "Target": "90%+ satisfied",
+    "Survey Timing": "After ticket closed",
+    "Scale": "1-5 or 1-10",
+    "SaaS Benchmark": ">90% is excellent"
+  },
+  "Chat": {
+    "Resolution Rate": "60-80% (depending on AI)",
+    "CSAT": "85-92%",
+    "Volume": "Can handle 3-5 concurrent chats per agent"
+  }
+}

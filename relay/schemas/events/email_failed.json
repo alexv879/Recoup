@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "email_failed",
+    "description": "Triggered when a reminder email fails to send or bounces (SendGrid webhook or send error)",
+    "type": "object",
+    "required": [
+        "error_message"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string",
+            "description": "Unique identifier for the invoice",
+            "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "reminder_level": {
+            "type": "string",
+            "description": "Which reminder template failed",
+            "enum": [
+                "day5",
+                "day15",
+                "day30"
+            ]
+        },
+        "sendgrid_message_id": {
+            "type": "string",
+            "description": "SendGrid's message identifier (if available)"
+        },
+        "error_message": {
+            "type": "string",
+            "description": "Error description or bounce reason"
+        },
+        "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp in milliseconds when failure occurred"
+        }
+    },
+    "additionalProperties": false
+}

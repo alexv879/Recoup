@@ -1,0 +1,73 @@
+{
+  "Free Tier": {
+    "Channels": [
+      "Help Center (KB + search)"
+    ],
+    "Support Type": "Self-service only",
+    "Response Time": "N/A (asynchronous)",
+    "Features": [
+      "Unlimited access to KB",
+      "Community forum (optional)",
+      "Status page"
+    ],
+    "Escalation": "Encourage upgrade to Starter"
+  },
+  "Starter (\u00a319)": {
+    "Channels": [
+      "Email support"
+    ],
+    "Support Type": "Email-based",
+    "Response Time": "24 hours for first response, 48 hours resolution target",
+    "Features": [
+      "Priority KB access",
+      "Dedicated support inbox",
+      "Email-only"
+    ],
+    "Escalation": "Upgrade to Pro for chat access"
+  },
+  "Growth (\u00a339)": {
+    "Channels": [
+      "Email support",
+      "Live chat (if budget allows)"
+    ],
+    "Support Type": "Email + optional chat",
+    "Response Time": "12 hours for first response (business hours), 24 hours resolution target",
+    "Features": [
+      "Priority support",
+      "Chat during business hours (Mon-Fri 9-5 GMT)",
+      "KB access"
+    ],
+    "Escalation": "Upgrade to Pro for phone/priority"
+  },
+  "Pro (\u00a375)": {
+    "Channels": [
+      "Email support",
+      "Live chat",
+      "Phone support"
+    ],
+    "Support Type": "Premium multi-channel",
+    "Response Time": "4 hours for first response, 24 hours resolution target",
+    "Features": [
+      "Phone support (weekdays)",
+      "24/7 chat",
+      "Priority queue",
+      "Dedicated point of contact"
+    ],
+    "Escalation": "Enterprise for custom SLA"
+  },
+  "Enterprise": {
+    "Channels": [
+      "All channels",
+      "Dedicated account manager"
+    ],
+    "Support Type": "White-glove service",
+    "Response Time": "1 hour for first response (custom SLA)",
+    "Features": [
+      "Dedicated support team",
+      "Custom integrations",
+      "Training",
+      "Quarterly reviews"
+    ],
+    "Escalation": "Custom arrangements"
+  }
+}

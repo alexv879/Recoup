@@ -1,0 +1,134 @@
+{
+  "Live Chat": {
+    "Platforms": {
+      "Intercom": {
+        "Best For": "Chat-first, sales + support, high automation",
+        "Strengths": [
+          "Advanced AI (Fin)",
+          "Multi-channel",
+          "Automation",
+          "Proactive messages"
+        ],
+        "Weaknesses": [
+          "Complex setup",
+          "Expensive at scale",
+          "Steep learning curve"
+        ],
+        "Pricing": "$29/seat/month starting",
+        "Free Tier": "Limited",
+        "Best For Relay": "Only if building entire communication platform"
+      },
+      "Help Scout": {
+        "Best For": "Email-first with chat, simple setup",
+        "Strengths": [
+          "Beautiful design",
+          "Integrated KB",
+          "Shared inbox",
+          "Simple"
+        ],
+        "Weaknesses": [
+          "Less advanced AI",
+          "Limited proactive features"
+        ],
+        "Pricing": "$0-100/month",
+        "Free Tier": "Yes, full features",
+        "Best For Relay": "RECOMMENDED for balanced approach"
+      },
+      "Drift": {
+        "Best For": "Sales teams, conversational marketing",
+        "Strengths": [
+          "Sales-focused",
+          "Good for lead capture",
+          "Easy routing"
+        ],
+        "Weaknesses": [
+          "Less support-focused",
+          "Pricier than Help Scout"
+        ],
+        "Pricing": "$50-200/month starting",
+        "Free Tier": "Limited trial",
+        "Best For Relay": "If sales conversations priority"
+      }
+    },
+    "Recommendation": "Help Scout for chat (if budget allows), otherwise focus on email + knowledge base"
+  },
+  "Email Support": {
+    "Platforms": {
+      "Help Scout": {
+        "Best For": "Email-first with shared inbox",
+        "Strengths": [
+          "Beautiful interface",
+          "Shared inbox",
+          "Easy collaboration"
+        ],
+        "Weaknesses": [
+          "Limited integrations"
+        ],
+        "Pricing": "$0-100/month",
+        "Best For Relay": "PRIMARY RECOMMENDATION"
+      },
+      "Front": {
+        "Best For": "Team collaboration, Gmail-like UX",
+        "Strengths": [
+          "Advanced automation",
+          "Team workflows",
+          "Comment threads"
+        ],
+        "Weaknesses": [
+          "Expensive",
+          "Overkill for small team"
+        ],
+        "Pricing": "$60-100/month starting",
+        "Best For Relay": "Only if >5 support team"
+      },
+      "Zendesk": {
+        "Best For": "Enterprise scale, complex workflows",
+        "Strengths": [
+          "Most powerful",
+          "Best reporting",
+          "Integrations"
+        ],
+        "Weaknesses": [
+          "Expensive",
+          "Steep learning curve"
+        ],
+        "Pricing": "$50-150+/month",
+        "Best For Relay": "Overkill until 50+ tickets/day"
+      }
+    },
+    "Recommendation": "Help Scout as primary (email + shared inbox)"
+  },
+  "Phone Support": {
+    "Platforms": {
+      "Aircall": {
+        "Best For": "Cloud phone for small teams",
+        "Strengths": [
+          "Easy setup (<5 min)",
+          "High quality calls",
+          "Good integrations"
+        ],
+        "Weaknesses": [
+          "Limited to phone",
+          "Priced per user"
+        ],
+        "Pricing": "$30-50/user/month",
+        "Best For Relay": "RECOMMENDED if offering phone"
+      },
+      "Twilio": {
+        "Best For": "Custom phone solutions, developers",
+        "Strengths": [
+          "Highly flexible",
+          "Scalable",
+          "Worldwide"
+        ],
+        "Weaknesses": [
+          "Requires development",
+          "Complex setup"
+        ],
+        "Pricing": "Pay-per-minute + setup",
+        "Best For Relay": "Only if custom needs"
+      }
+    },
+    "Recommendation": "Aircall for Business tier (if phone offered)"
+  }
+}

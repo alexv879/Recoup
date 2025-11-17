@@ -1,0 +1,33 @@
+{
+  "Trigger Events": {
+    "Usage-Based": [
+      "User creates 5 invoices (Starter limit: 10, show banner)",
+      "User has 3 invoices stuck at 15+ days overdue",
+      "User collects first \u00a3100 (show 'unlock SMS' modal)",
+      "User hits storage limit"
+    ],
+    "Time-Based": [
+      "Day 7 (after first invoice): Gentle nudge via email",
+      "Day 14 (no conversion): Stronger upgrade prompt",
+      "Day 30 (free trial end): Critical upgrade modal",
+      "Day 60 (long-term free user): Deprecation warning"
+    ],
+    "Engagement-Based": [
+      "User logs in after 5 days inactive: 'See what Pro users enjoy'",
+      "User visits Settings page: Show upgrade banner",
+      "User clicks 'Learn More' on paid feature: Show pricing"
+    ]
+  },
+  "Notification Format": {
+    "Banners": "Persistent, top of screen, for non-critical",
+    "Modals": "Blocking, for critical/time-sensitive (trial ending)",
+    "In-App": "Inline prompts, feature suggestion",
+    "Email": "Drip campaigns, soft sell"
+  },
+  "Recommended Sequence": {
+    "First Trigger (Day 7)": "Banner: 'See what Pro users enjoy'",
+    "Second Trigger (Day 14)": "Email: 'Collect \u00a32K faster with SMS reminders'",
+    "Third Trigger (Day 21)": "Modal: 'Your trial ends in 9 days - upgrade now'",
+    "Final (Day 30)": "Modal: 'Trial ends today - 30% off first month'"
+  }
+}

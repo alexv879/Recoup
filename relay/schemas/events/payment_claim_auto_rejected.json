@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "title": "Payment Claim Auto-Rejected Event",
+    "description": "Fired when a payment claim is automatically rejected due to verification deadline expiry (48 hours). Phase 2 Task 7.",
+    "required": [
+        "claim_id",
+        "invoice_id",
+        "reason"
+    ],
+    "properties": {
+        "claim_id": {
+            "type": "string",
+            "description": "Payment claim document ID"
+        },
+        "invoice_id": {
+            "type": "string",
+            "description": "Invoice document ID"
+        },
+        "invoice_reference": {
+            "type": "string",
+            "description": "Human-readable invoice number (e.g., INV-2025-001)"
+        },
+        "reason": {
+            "type": "string",
+            "enum": [
+                "deadline_expired"
+            ],
+            "description": "Reason for auto-rejection"
+        },
+        "freelancer_id": {
+            "type": "string",
+            "description": "Freelancer user ID who failed to verify in time"
+        },
+        "hours_since_claim": {
+            "type": "number",
+            "description": "Hours elapsed since claim creation",
+            "minimum": 48
+        }
+    }
+}

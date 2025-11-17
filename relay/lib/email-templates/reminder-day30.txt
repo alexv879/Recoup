@@ -1,0 +1,82 @@
+⚠️ FINAL NOTICE BEFORE LEGAL ACTION ⚠️
+Invoice {{invoice_number}}
+
+🚨 FINAL NOTICE - IMMEDIATE PAYMENT REQUIRED 🚨
+
+Dear {{client_name}},
+
+This is a FINAL NOTICE regarding the outstanding payment for invoice #{{invoice_number}}, which is now {{days_overdue}} days overdue.
+
+Despite multiple reminders, this invoice remains unpaid. I am writing to formally notify you of your legal obligations and the actions I am entitled to take under UK law.
+
+OUTSTANDING INVOICE DETAILS
+----------------------------
+Invoice Number: #{{invoice_number}}
+Original Amount: £{{amount}}
+Original Due Date: {{due_date}}
+Days Overdue: {{days_overdue}} days
+
+
+📋 YOUR RIGHTS UNDER UK LAW
+============================
+
+Late Payment of Commercial Debts (Interest) Act 1998
+
+As the creditor, I am legally entitled to claim:
+
+Statutory Interest: £{{statutory_interest}}
+  (Bank of England base rate {{base_rate_percentage}} + 8% statutory = {{annual_rate_percentage}} annual rate)
+
+Fixed Compensation Fee: £{{fixed_compensation}}
+  ({{fixed_fee_tier}})
+
+Total Amount You May Owe: £{{total_with_interest}}
+
+PLEASE NOTE: This calculation is provided for informational purposes. I have the right to claim this amount under UK law, but the decision to do so is mine. This does not constitute automatic addition to your invoice.
+
+
+⚖️ NEXT STEPS IF PAYMENT IS NOT RECEIVED
+==========================================
+
+If full payment of the original invoice amount (£{{amount}}) is not received within 14 days of this notice, I may pursue one or more of the following actions:
+
+• Claim the statutory interest and fixed compensation fee detailed above
+• Report this debt to credit reference agencies
+• Instruct a debt collection agency
+• Commence legal proceedings to recover the debt
+• Apply for a County Court Judgment (CCJ)
+
+These actions will incur additional costs, which you will be liable for.
+
+PAY NOW TO AVOID LEGAL ACTION: {{payment_link}}
+
+
+💬 CONTACT ME IMMEDIATELY
+=========================
+
+If you believe this invoice is incorrect, have already paid, or wish to discuss payment arrangements, please contact me IMMEDIATELY at:
+
+Email: {{freelancer_email}}
+Phone: {{freelancer_phone}}
+
+I prefer to resolve this matter amicably and would welcome the opportunity to discuss this with you before taking further action.
+
+However, if I do not receive payment or hear from you within 14 days, I will have no choice but to proceed with formal collection procedures.
+
+Yours sincerely,
+
+{{freelancer_name}}
+{{freelancer_company}}
+
+---
+
+LEGAL REFERENCE:
+This notice is issued in accordance with the Late Payment of Commercial Debts (Interest) Act 1998.
+For more information, visit: https://www.gov.uk/late-commercial-payments-interest-debt-recovery
+
+---
+
+FINAL NOTICE - LEGAL ACTION MAY FOLLOW
+
+This automated notice was sent via Relay on behalf of {{freelancer_name}}.
+Date sent: {{sent_date}}

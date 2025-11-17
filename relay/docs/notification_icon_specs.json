@@ -1,0 +1,30 @@
+{
+  "Badge Count Display": {
+    "1-9 notifications": "Show exact number (e.g., 3)",
+    "10-99 notifications": "Show exact number or 9+ if capped",
+    "100+ notifications": "Show '99+' (cap at 99 to avoid overwhelming)",
+    "Unread vs Total": "Show unread count only (more actionable)",
+    "Best Practice": "1-9 numbers work well; for 10+ use 9+ or digest"
+  },
+  "Icon Placement": {
+    "Location": "Top-right corner (standard across web)",
+    "Size": "32-48px container (icon 20-24px)",
+    "Spacing from edge": "12-16px from corner",
+    "Mobile": "Same top-right, adjust size to 28-32px",
+    "Best Practice": "Match brand color; add green dot for unread"
+  },
+  "Color Coding": {
+    "Success/Positive": "Green (#2ecc71, #27ae60)",
+    "Warning/Needs Action": "Orange (#f39c12) or Yellow (#f1c40f)",
+    "Error/Critical": "Red (#e74c3c, #c0392b)",
+    "Info/Neutral": "Blue (#3498db) or Gray (#95a5a6)",
+    "Best Practice": "Use color + icon combo (never rely on color alone)"
+  },
+  "Icon Animation": {
+    "Attention Getter": "Pulse animation on new notification",
+    "Duration": "Animate for 2-4 seconds, then settle",
+    "Transition": "Use cubic-bezier for smooth motion",
+    "Mobile": "Reduce animation intensity to conserve battery",
+    "Best Practice": "Animate bell shake (not bounce), \u00b115deg rotation"
+  }
+}

@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "reminder_scheduled",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "schedule_offset_days"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string"
+        },
+        "schedule_offset_days": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

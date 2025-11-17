@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Notice - Legal Action May Follow - Invoice {{invoice_number}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 30px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+
+        .final-notice-banner {
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            padding: 20px;
+            margin: 20px 0;
+            font-weight: 700;
+            color: #991b1b;
+            text-align: center;
+            border-radius: 6px;
+        }
+
+        .content {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .invoice-details {
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+
+        .legal-rights {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .interest-breakdown {
+            background: #fefce8;
+            border: 1px solid #fbbf24;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #dc2626;
+            color: white;
+            padding: 16px 40px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        td {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td:last-child {
+            text-align: right;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 style="margin: 0; font-size: 28px;">⚠️ FINAL NOTICE BEFORE LEGAL ACTION</h1>
+    </div>
+
+    <div class="content">
+        <div class="final-notice-banner">
+            🚨 FINAL NOTICE - IMMEDIATE PAYMENT REQUIRED 🚨
+        </div>
+
+        <p>Dear {{client_name}},</p>
+
+        <p>This is a <strong>FINAL NOTICE</strong> regarding the outstanding payment for invoice
+            <strong>#{{invoice_number}}</strong>, which is now <strong>{{days_overdue}} days overdue</strong>.</p>
+
+        <p>Despite multiple reminders, this invoice remains unpaid. I am writing to formally notify you of your legal
+            obligations and the actions I am entitled to take under UK law.</p>
+
+        <div class="invoice-details">
+            <strong>Outstanding Invoice Details:</strong>
+            <table>
+                <tr>
+                    <td>Invoice Number:</td>
+                    <td>#{{invoice_number}}</td>
+                </tr>
+                <tr>
+                    <td>Original Amount:</td>
+                    <td>£{{amount}}</td>
+                </tr>
+                <tr>
+                    <td>Original Due Date:</td>
+                    <td>{{due_date}}</td>
+                </tr>
+                <tr>
+                    <td>Days Overdue:</td>
+                    <td><strong>{{days_overdue}} days</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="legal-rights">
+            <h3 style="margin-top: 0; color: #1e40af;">📋 Your Rights Under UK Law</h3>
+
+            <p><strong>Late Payment of Commercial Debts (Interest) Act 1998</strong></p>
+
+            <p>As the creditor, I am legally entitled to claim:</p>
+
+            <div class="interest-breakdown">
+                <table style="margin: 0;">
+                    <tr>
+                        <td><strong>Statutory Interest:</strong><br>
+                            <small>(Bank of England base rate {{base_rate_percentage}} + 8% statutory =
+                                {{annual_rate_percentage}} annual rate)</small>
+                        </td>
+                        <td><strong>£{{statutory_interest}}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fixed Compensation Fee:</strong><br>
+                            <small>({{fixed_fee_tier}})</small>
+                        </td>
+                        <td><strong>£{{fixed_compensation}}</strong></td>
+                    </tr>
+                    <tr style="border-top: 2px solid #f59e0b;">
+                        <td><strong>Total Amount You May Owe:</strong></td>
+                        <td style="font-size: 18px; color: #92400e;"><strong>£{{total_with_interest}}</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <p style="font-size: 14px; color: #6b7280; margin-top: 15px;">
+                <strong>Please note:</strong> This calculation is provided for informational purposes.
+                I have the right to claim this amount under UK law, but the decision to do so is mine.
+                This does not constitute automatic addition to your invoice.
+            </p>
+        </div>
+
+        <h3 style="color: #991b1b;">⚖️ Next Steps if Payment Is Not Received</h3>
+
+        <p>If full payment of the original invoice amount (<strong>£{{amount}}</strong>) is not received within
+            <strong>14 days</strong> of this notice, I may pursue one or more of the following actions:</p>
+
+        <ul style="line-height: 1.8;">
+            <li>Claim the statutory interest and fixed compensation fee detailed above</li>
+            <li>Report this debt to credit reference agencies</li>
+            <li>Instruct a debt collection agency</li>
+            <li>Commence legal proceedings to recover the debt</li>
+            <li>Apply for a County Court Judgment (CCJ)</li>
+        </ul>
+
+        <p><strong>These actions will incur additional costs, which you will be liable for.</strong></p>
+
+        <center>
+            <a href="{{payment_link}}" class="cta-button">PAY NOW TO AVOID LEGAL ACTION</a>
+        </center>
+
+        <h3>💬 Contact Me Immediately</h3>
+
+        <p>If you believe this invoice is incorrect, have already paid, or wish to discuss payment arrangements, please
+            contact me <strong>immediately</strong> at:</p>
+
+        <ul>
+            <li>Email: {{freelancer_email}}</li>
+            <li>Phone: {{freelancer_phone}}</li>
+        </ul>
+
+        <p><strong>I prefer to resolve this matter amicably</strong> and would welcome the opportunity to discuss this
+            with you before taking further action.</p>
+
+        <p>However, if I do not receive payment or hear from you within 14 days, I will have no choice but to proceed
+            with formal collection procedures.</p>
+
+        <p>Yours sincerely,</p>
+
+        <p><strong>{{freelancer_name}}</strong><br>
+            {{freelancer_company}}</p>
+
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+        <p style="font-size: 13px; color: #6b7280;">
+            <strong>Legal Reference:</strong><br>
+            This notice is issued in accordance with the Late Payment of Commercial Debts (Interest) Act 1998.
+            For more information, visit: <a
+                href="https://www.gov.uk/late-commercial-payments-interest-debt-recovery">gov.uk/late-commercial-payments</a>
+        </p>
+    </div>
+
+    <div class="footer">
+        <p><strong>FINAL NOTICE - LEGAL ACTION MAY FOLLOW</strong></p>
+        <p>This automated notice was sent via Relay on behalf of {{freelancer_name}}.<br>
+            Date sent: {{sent_date}}</p>
+    </div>
+</body>
+
+</html>

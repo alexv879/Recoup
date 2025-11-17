@@ -1,0 +1,57 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "email_sent",
+    "description": "Triggered when a Day 5/15/30 reminder email is successfully sent via SendGrid",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "reminder_level",
+        "days_overdue",
+        "recipient_email",
+        "amount"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string",
+            "description": "Unique identifier for the invoice",
+            "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "reminder_level": {
+            "type": "string",
+            "description": "Which reminder template was sent",
+            "enum": [
+                "day5",
+                "day15",
+                "day30"
+            ]
+        },
+        "days_overdue": {
+            "type": "integer",
+            "description": "Number of days the invoice is overdue",
+            "minimum": 0
+        },
+        "recipient_email": {
+            "type": "string",
+            "description": "Email address of the client who received the reminder",
+            "format": "email"
+        },
+        "amount": {
+            "type": "number",
+            "description": "Invoice amount in pounds (GBP)",
+            "minimum": 0
+        },
+        "manual_trigger": {
+            "type": "boolean",
+            "description": "Whether this email was manually triggered by the user (true) or automatically sent by the worker (false)"
+        },
+        "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp in milliseconds"
+        },
+        "page_url": {
+            "type": "string",
+            "description": "URL where the event occurred (for manual triggers)"
+        }
+    },
+    "additionalProperties": false
+}

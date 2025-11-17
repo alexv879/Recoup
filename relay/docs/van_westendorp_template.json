@@ -1,0 +1,12 @@
+{
+  "question_1": "At what price would you consider this product to be so expensive that you would not consider buying it?",
+  "question_2": "At what price would you consider this product to be priced so low that you would feel the quality couldn't be very good?",
+  "question_3": "At what price would you consider this product starting to get expensive, so it is not out of the question, but you'd have to think about it?",
+  "question_4": "At what price would you consider this product to be a bargain\u2014a great buy for the money?",
+  "output_metrics": {
+    "Point of Marginal Cheapness (PMC)": "Intersection of 'too cheap' and 'expensive' lines = lower price bound",
+    "Point of Marginal Expensiveness (PME)": "Intersection of 'cheap' and 'too expensive' lines = upper price bound",
+    "Indifference Price Point": "Intersection of 'cheap' and 'expensive' = optimal price",
+    "Optimal Price Range": "Between PMC and PME"
+  }
+}

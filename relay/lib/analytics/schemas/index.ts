@@ -1,0 +1,36 @@
+// Event schemas for validation
+import type { AnalyticsEventType } from '../types';
+
+export const schemas: Record<AnalyticsEventType, Record<string, any>> = {
+    signup_initiated: { type: 'signup_initiated', userId: '', timestamp: 0 },
+    signup_completed: { type: 'signup_completed', userId: '', timestamp: 0 },
+    email_verified: { type: 'email_verified', userId: '', timestamp: 0 },
+    referral_applied: { type: 'referral_applied', userId: '', timestamp: 0 },
+    first_invoice_created: { type: 'first_invoice_created', userId: '', timestamp: 0 },
+    invoice_details_filled: { type: 'invoice_details_filled', userId: '', timestamp: 0 },
+    invoice_sent_to_client: { type: 'invoice_sent_to_client', userId: '', timestamp: 0 },
+    first_reminder_set: { type: 'first_reminder_set', userId: '', timestamp: 0 },
+    payment_received_via_relay: { type: 'payment_received_via_relay', userId: '', timestamp: 0 },
+    invoice_view: { type: 'invoice_view', userId: '', timestamp: 0 },
+    reminder_delivered: { type: 'reminder_delivered', userId: '', timestamp: 0 },
+    report_generated: { type: 'report_generated', userId: '', timestamp: 0 },
+    automation_rule_created: { type: 'automation_rule_created', userId: '', timestamp: 0 },
+    help_content_viewed: { type: 'help_content_viewed', userId: '', timestamp: 0 },
+    upgrade_cta_shown: { type: 'upgrade_cta_shown', userId: '', timestamp: 0 },
+    upgrade_cta_clicked: { type: 'upgrade_cta_clicked', userId: '', timestamp: 0 },
+    upgrade_started: { type: 'upgrade_started', userId: '', timestamp: 0 },
+    payment_failed: { type: 'payment_failed', userId: '', timestamp: 0 },
+    subscription_activated: { type: 'subscription_activated', userId: '', timestamp: 0 },
+    invoice_dispute_filed: { type: 'invoice_dispute_filed', userId: '', timestamp: 0 },
+    user_login: { type: 'user_login', userId: '', timestamp: 0 },
+    subscription_renewed: { type: 'subscription_renewed', userId: '', timestamp: 0 },
+    subscription_cancelled: { type: 'subscription_cancelled', userId: '', timestamp: 0 },
+    // Batch 2 events (imported JSON schemas)
+    notification_delivered: require('./events/notification_delivered.json'),
+    badge_awarded: require('./events/badge_awarded.json'),
+    support_ticket_escalated: require('./events/support_ticket_escalated.json'),
+    experiment_exposed: require('./events/experiment_exposed.json'),
+    retention_purge_executed: require('./events/retention_purge_executed.json'),
+    fraud_flagged: require('./events/fraud_flagged.json'),
+    social_proof_impression: require('./events/social_proof_impression.json'),
+};

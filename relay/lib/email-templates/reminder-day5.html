@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Reminder - Invoice {{invoice_number}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+
+        .content {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .invoice-details {
+            background: #f9fafb;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 style="margin: 0; font-size: 24px;">Friendly Payment Reminder</h1>
+    </div>
+
+    <div class="content">
+        <p>Hi {{client_name}},</p>
+
+        <p>I hope this email finds you well! This is a friendly reminder that invoice
+            <strong>#{{invoice_number}}</strong> is now {{days_overdue}} days past its due date.</p>
+
+        <div class="invoice-details">
+            <strong>Invoice Details:</strong><br>
+            Invoice Number: #{{invoice_number}}<br>
+            Amount Due: <strong>£{{amount}}</strong><br>
+            Original Due Date: {{due_date}}<br>
+            Days Overdue: {{days_overdue}} days
+        </div>
+
+        <p>I understand that things can get busy, so I wanted to send you a gentle nudge. If payment has already been
+            sent, please disregard this message and accept my thanks!</p>
+
+        <p>If you have any questions about this invoice or need to discuss payment arrangements, please don't hesitate
+            to reach out.</p>
+
+        <center>
+            <a href="{{payment_link}}" class="cta-button">View Invoice & Pay Now</a>
+        </center>
+
+        <p>Thank you for your business!</p>
+
+        <p>Best regards,<br>
+            {{freelancer_name}}</p>
+    </div>
+
+    <div class="footer">
+        <p>This is an automated reminder sent via Relay.<br>
+            If you've already paid, please ignore this message.</p>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Interest Manually Added Initiated Event",
+    "description": "Fired when user clicks button to manually add interest to invoice",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "amount_added"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string",
+            "description": "Unique identifier for the invoice",
+            "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "amount_added": {
+            "type": "number",
+            "description": "Total interest amount user chose to add in pounds",
+            "minimum": 0
+        },
+        "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp when event occurred"
+        },
+        "page_url": {
+            "type": "string",
+            "description": "URL where action was initiated"
+        }
+    },
+    "additionalProperties": false
+}

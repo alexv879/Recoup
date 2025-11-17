@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Payment Reminder - Invoice {{invoice_number}}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f9fafb;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2563EB;
+    }
+
+    .content {
+      padding: 30px 0;
+    }
+
+    .invoice-summary {
+      background: #f9fafb;
+      border-left: 4px solid #2563EB;
+      padding: 16px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .invoice-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .invoice-label {
+      color: #666;
+    }
+
+    .invoice-amount {
+      font-weight: bold;
+      color: #111;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: #2563EB;
+      color: white;
+      padding: 12px 32px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      margin: 20px 0;
+    }
+
+    .cta-button:hover {
+      background: #1e40af;
+    }
+
+    .footer {
+      background: #f9fafb;
+      padding: 20px;
+      margin-top: 30px;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #eee;
+    }
+
+    .footer-link {
+      color: #2563EB;
+      text-decoration: none;
+    }
+
+    .footer-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+
+      .invoice-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">Recoup</div>
+    </div>
+
+    <!-- Greeting -->
+    <div class="content">
+      <p>Hi {{client_first_name}},</p>
+
+      <p>I hope this email finds you well.</p>
+
+      <p>I wanted to send you a quick reminder that invoice <strong>#{{invoice_number}}</strong> for
+        <strong>£{{invoice_amount}}</strong> is due on <strong>{{due_date}}</strong>.</p>
+
+      <!-- Invoice Summary -->
+      <div class="invoice-summary">
+        <div class="invoice-row">
+          <span class="invoice-label">Invoice Number:</span>
+          <span class="invoice-amount">#{{invoice_number}}</span>
+        </div>
+        <div class="invoice-row">
+          <span class="invoice-label">Amount:</span>
+          <span class="invoice-amount">£{{invoice_amount}}</span>
+        </div>
+        <div class="invoice-row">
+          <span class="invoice-label">Due Date:</span>
+          <span class="invoice-amount">{{due_date}}</span>
+        </div>
+        <div class="invoice-row">
+          <span class="invoice-label">Description:</span>
+          <span class="invoice-amount">{{invoice_description}}</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div style="text-align: center;">
+        <a href="{{payment_link}}" class="cta-button">Pay Now</a>
+      </div>
+
+      <p>If you've already processed this, please disregard this email. If you have any questions about the invoice or
+        need help setting up payment, feel free to reach out.</p>
+
+      <p>Thanks,<br>
+        {{sender_name}}<br>
+        {{company_name}}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p><strong>{{company_name}}</strong><br>
+        {{company_address}}</p>
+      <p>Phone: {{company_phone}} | Email: <a href="mailto:{{company_email}}" class="footer-link">{{company_email}}</a>
+      </p>
+      <p>
+        <a href="{{privacy_policy_link}}" class="footer-link">Privacy Policy</a>
+      </p>
+      <p style="margin-top: 10px; font-size: 11px;">
+        GDPR Compliance: Your data is safe with us. <a href="{{privacy_policy_link}}" class="footer-link">Learn more</a>
+      </p>
+    </div>
+  </div>
+</body>
+
+</html>

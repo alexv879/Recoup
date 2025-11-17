@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "fraud_flagged",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "user_id",
+        "score"
+    ],
+    "properties": {
+        "user_id": {
+            "type": "string",
+            "minLength": 6
+        },
+        "score": {
+            "type": "number",
+            "minimum": 0
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    }
+}

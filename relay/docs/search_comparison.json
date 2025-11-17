@@ -1,0 +1,40 @@
+{
+  "Algolia": {
+    "Best For": "Instant search, e-commerce, autocomplete",
+    "Strengths": [
+      "Instant results (<50ms)",
+      "Excellent autocomplete",
+      "Pre-built integrations (Shopify, WooCommerce)",
+      "CDN-distributed globally",
+      "Easy setup (hours)"
+    ],
+    "Weaknesses": [
+      "Expensive at scale (10M+ docs: $10-20k/month)",
+      "Limited complex querying",
+      "Less flexible than Elasticsearch"
+    ],
+    "Response Time": "<50ms typical",
+    "Setup Time": "Hours",
+    "Cost (100K docs)": "$100-300/month",
+    "Best For Relay": "RECOMMENDED for knowledge base search"
+  },
+  "Elasticsearch": {
+    "Best For": "Complex search, analytics, logs",
+    "Strengths": [
+      "Most flexible",
+      "Powerful query language",
+      "Good for logs + search combined",
+      "Cheaper at very large scale (10M+ docs)"
+    ],
+    "Weaknesses": [
+      "Steep learning curve",
+      "Self-hosted complexity",
+      "Requires infrastructure management",
+      "Slower setup (days to weeks)"
+    ],
+    "Response Time": "50-200ms (with tuning)",
+    "Setup Time": "Days-Weeks",
+    "Cost (100K docs)": "$500-2000/month (self-hosted)",
+    "Best For Relay": "Only if very custom needs + large team"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "Ultra-low price (<\u00a310)": {
+    "typical_discount": "25-35%",
+    "equivalent_months_free": "3-4.2",
+    "rationale": "Higher churn risk, incentivize commitment",
+    "example": "\u00a39/month -> \u00a35.75/month annual (\u00a369/year)"
+  },
+  "Low price (\u00a310-20)": {
+    "typical_discount": "20-25%",
+    "equivalent_months_free": "2.4-3",
+    "rationale": "Balance CAC payback with conversion",
+    "example": "\u00a319/month -> \u00a314.25/month annual (\u00a3171/year)"
+  },
+  "Mid price (\u00a320-50)": {
+    "typical_discount": "15-20%",
+    "equivalent_months_free": "1.8-2.4",
+    "rationale": "Standard discount range for SMB SaaS",
+    "example": "\u00a335/month -> \u00a328/month annual (\u00a3336/year)"
+  },
+  "High price (\u00a350+)": {
+    "typical_discount": "10-15%",
+    "equivalent_months_free": "1.2-1.8",
+    "rationale": "Premium positioning, less discount needed",
+    "example": "\u00a399/month -> \u00a384/month annual (\u00a31,008/year)"
+  }
+}

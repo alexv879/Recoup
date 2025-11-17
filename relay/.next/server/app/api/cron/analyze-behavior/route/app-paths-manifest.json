@@ -1,0 +1,3 @@
+{
+  "/api/cron/analyze-behavior/route": "app/api/cron/analyze-behavior/route.js"
+}

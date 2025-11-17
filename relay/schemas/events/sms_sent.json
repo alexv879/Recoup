@@ -1,0 +1,49 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://recoup.app/schemas/events/sms_sent.json",
+    "title": "SMS Sent Event",
+    "description": "Fired when a collections reminder SMS is successfully sent via Twilio",
+    "type": "object",
+    "required": [
+        "sms_type",
+        "escalation_level",
+        "invoice_id",
+        "days_overdue"
+    ],
+    "properties": {
+        "sms_type": {
+            "type": "string",
+            "enum": [
+                "collections_reminder",
+                "payment_link",
+                "other"
+            ],
+            "description": "Type of SMS sent"
+        },
+        "escalation_level": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "gentle",
+                "firm",
+                "final",
+                "agency"
+            ],
+            "description": "Current escalation level when SMS sent"
+        },
+        "invoice_id": {
+            "type": "string",
+            "description": "Unique identifier of the invoice"
+        },
+        "days_overdue": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Number of days the invoice is overdue"
+        },
+        "message_sid": {
+            "type": "string",
+            "description": "Twilio message SID for tracking"
+        }
+    },
+    "additionalProperties": false
+}

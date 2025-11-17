@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "signup_started",
+    "type": "object",
+    "required": [
+        "source"
+    ],
+    "properties": {
+        "source": {
+            "type": "string",
+            "description": "Acquisition source tag (utm or ref)"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

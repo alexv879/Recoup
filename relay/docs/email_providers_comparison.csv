@@ -1,0 +1,6 @@
+Provider,Best For,Free Trial,Pricing,Deliverability,API,Support,Features
+Postmark,"Transactional emails, reliability, deliverability",100 emails/month free,$15-100+/month,Excellent (99.9%+ typical),"Simple, well-documented",Ticket support at base tier,"Advanced analytics, webhooks, templates, dedicated IP options"
+SendGrid,"Startups, both transactional & marketing, integrations",100 emails/day (30 days),$19.95-89.95+/month (transactional),Good (can vary on shared IPs),"Very developer-friendly, SDKs in multiple languages",Paid support plans only,"Dynamic templates, subaccounts, integrations, automation"
+Amazon SES,"Scale, cost-conscious, AWS ecosystem","62,000 emails/month from EC2","$0.10 per 1,000 emails (lowest at scale)",Excellent (AWS infrastructure),Powerful but requires AWS knowledge,Limited support without paid plan,"Scalable, can send to 50k+ daily, basic analytics"
+Mailgun,"Flexibility, API-first approach","3,000 emails/month",$35/month (transactional plans),Good to excellent,"Flexible, good documentation",Ticket support at base tier,"Message validation, webhooks, logs, EU region support"
+Brevo (Sendinblue),"GDPR compliance, EU businesses",300 emails/day free,Free + $20+/month (with features),Good,Solid API support,Ticket support,"GDPR compliant, SMS included, chat support"

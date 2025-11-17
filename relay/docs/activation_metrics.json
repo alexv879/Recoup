@@ -1,0 +1,24 @@
+{
+  "Key Metrics": {
+    "Activation Rate": {
+      "Definition": "% of users reaching aha moment / all signups",
+      "Benchmark": "40-60% target",
+      "Importance": "Best predictor of eventual conversion"
+    },
+    "Time to Activation": {
+      "Definition": "Time from signup to first aha moment",
+      "Benchmark": "1-7 days optimal",
+      "Importance": "Faster = higher conversion"
+    },
+    "Aha Moment": {
+      "For Invoicing": "User sends first invoice OR creates first collection",
+      "For Collections": "User creates first collection AND sees first payment recovery",
+      "Importance": "When user first realizes value"
+    },
+    "Free-to-Paid Conversion": {
+      "Definition": "% of free users upgrading to paid",
+      "Benchmark": "2-5% average, 10-15% top performers",
+      "Timing": "30-45 days average"
+    }
+  }
+}

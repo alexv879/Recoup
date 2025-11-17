@@ -1,0 +1,49 @@
+{
+  "Invoice Sent": {
+    "Subject_Option_1": "Invoice #123 sent to John Smith",
+    "Subject_Option_2": "Your invoice is on its way",
+    "Recommended": "Invoice #123 has been sent",
+    "Key_Content": [
+      "Invoice summary",
+      "PDF attachment",
+      "View/Download link",
+      "Payment instructions",
+      "Due date"
+    ]
+  },
+  "Payment Received": {
+    "Subject_Option_1": "You got paid! \u00a31,200 from John Smith",
+    "Subject_Option_2": "Payment received",
+    "Recommended": "Payment received: \u00a31,200 from John Smith",
+    "Key_Content": [
+      "Payment amount",
+      "Payer name",
+      "Invoice reference",
+      "Payment date",
+      "Remaining balance if any"
+    ]
+  },
+  "Payment Verified": {
+    "Subject_Option_1": "Payment verified - Invoice #123 marked as paid",
+    "Subject_Option_2": "Invoice #123 payment confirmed",
+    "Recommended": "Payment verified - Invoice #123",
+    "Key_Content": [
+      "Verification confirmation",
+      "Payment amount",
+      "Invoice details",
+      "Thank you message"
+    ]
+  },
+  "Payment Rejected": {
+    "Subject_Option_1": "Payment not verified - Please pay Invoice #123",
+    "Subject_Option_2": "Payment verification needed",
+    "Recommended": "Payment verification needed for Invoice #123",
+    "Key_Content": [
+      "Reason for rejection",
+      "Action required",
+      "How to dispute",
+      "Pay now link",
+      "Support contact"
+    ]
+  }
+}

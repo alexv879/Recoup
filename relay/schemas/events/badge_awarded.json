@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "badge_awarded",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "user_id",
+        "badge_key"
+    ],
+    "properties": {
+        "user_id": {
+            "type": "string",
+            "minLength": 6
+        },
+        "badge_key": {
+            "type": "string",
+            "minLength": 3
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    }
+}

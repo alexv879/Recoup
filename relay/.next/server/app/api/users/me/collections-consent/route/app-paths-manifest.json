@@ -1,0 +1,3 @@
+{
+  "/api/users/me/collections-consent/route": "app/api/users/me/collections-consent/route.js"
+}

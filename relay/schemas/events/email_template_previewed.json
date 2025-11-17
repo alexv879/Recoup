@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Email Template Previewed Event",
+    "description": "Fired when user previews an email reminder template before sending",
+    "type": "object",
+    "required": [
+        "invoice_id",
+        "reminder_level",
+        "days_overdue"
+    ],
+    "properties": {
+        "invoice_id": {
+            "type": "string",
+            "description": "Unique identifier for the invoice",
+            "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "reminder_level": {
+            "type": "string",
+            "description": "Email reminder level/tone",
+            "enum": [
+                "day5",
+                "day15",
+                "day30"
+            ]
+        },
+        "days_overdue": {
+            "type": "integer",
+            "description": "Number of days past due date",
+            "minimum": 0
+        },
+        "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp when event occurred"
+        },
+        "page_url": {
+            "type": "string",
+            "description": "URL where event occurred"
+        }
+    },
+    "additionalProperties": false
+}

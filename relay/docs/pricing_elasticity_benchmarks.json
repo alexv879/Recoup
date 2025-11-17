@@ -1,0 +1,29 @@
+{
+  "Low elasticity (Inelastic)": {
+    "range": "0.0 - 0.5",
+    "description": "Demand barely changes with price increases",
+    "examples": [
+      "Enterprise solutions (vendor lock-in)",
+      "Critical business software"
+    ],
+    "recommendation": "Can raise prices 10%+ without hurting conversions"
+  },
+  "Medium elasticity (Unit elastic)": {
+    "range": "0.5 - 1.0",
+    "description": "Moderate price sensitivity",
+    "examples": [
+      "SMB accounting software",
+      "Project management tools"
+    ],
+    "recommendation": "Price increases 5-10% typically reduce conversions 5-10%"
+  },
+  "High elasticity (Elastic)": {
+    "range": "1.0 - 1.5+",
+    "description": "Demand drops significantly with price increases",
+    "examples": [
+      "Commodity SaaS",
+      "Free/freemium alternatives available"
+    ],
+    "recommendation": "Pricing more than 10% increase causes significant conversion drop"
+  }
+}
