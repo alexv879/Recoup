@@ -1,0 +1,23 @@
+# AI Voice Agent Service Dependencies
+
+# FastAPI framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Twilio SDK
+twilio==8.10.0
+
+# OpenAI SDK
+openai==1.3.7
+
+# WebSocket support
+websockets==12.0
+
+# Data validation
+pydantic==2.5.0
+
+# Logging
+python-json-logger==2.0.7
+
+# Environment variables
+python-dotenv==1.0.0

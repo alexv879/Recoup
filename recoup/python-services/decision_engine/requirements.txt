@@ -1,0 +1,17 @@
+# Decision Engine Service Dependencies
+
+# FastAPI framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Data validation
+pydantic==2.5.0
+
+# Optional: scikit-learn for ML-based decisions (future)
+# scikit-learn==1.3.2
+
+# Logging
+python-json-logger==2.0.7
+
+# Environment variables
+python-dotenv==1.0.0

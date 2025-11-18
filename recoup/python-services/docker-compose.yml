@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Voice Processing Service
+  voice_service:
+    build:
+      context: ./voice_service
+      dockerfile: Dockerfile
+    container_name: recoup-voice-service
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    networks:
+      - recoup-network
+
+  # Analytics & Predictions Service
+  analytics_service:
+    build:
+      context: ./analytics_service
+      dockerfile: Dockerfile
+    container_name: recoup-analytics-service
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    networks:
+      - recoup-network
+
+  # AI Voice Agent Service
+  ai_voice_agent:
+    build:
+      context: ./ai_voice_agent
+      dockerfile: Dockerfile
+    container_name: recoup-ai-voice-agent
+    ports:
+      - "8003:8003"
+    environment:
+      - PORT=8003
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - BASE_URL=${BASE_URL:-http://localhost:8003}
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    networks:
+      - recoup-network
+
+  # Decision Engine Service
+  decision_engine:
+    build:
+      context: ./decision_engine
+      dockerfile: Dockerfile
+    container_name: recoup-decision-engine
+    ports:
+      - "8004:8004"
+    environment:
+      - PORT=8004
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    networks:
+      - recoup-network
+
+  # PDF Service (existing)
+  pdf_service:
+    build:
+      context: ./pdf_service
+      dockerfile: Dockerfile
+    container_name: recoup-pdf-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    restart: unless-stopped
+    networks:
+      - recoup-network
+
+networks:
+  recoup-network:
+    driver: bridge
