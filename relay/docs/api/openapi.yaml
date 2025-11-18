@@ -1,0 +1,1179 @@
+openapi: 3.1.0
+info:
+  title: Recoup API
+  description: |
+    Recoup API for invoice management, payment tracking, and automated collections.
+
+    ## Authentication
+    All API endpoints require authentication via Clerk. Include the session token in the Authorization header:
+    ```
+    Authorization: Bearer <clerk_session_token>
+    ```
+
+    ## Rate Limiting
+    - General endpoints: 10 requests per 10 seconds
+    - Auth endpoints: 5 requests per 60 seconds
+    - AI endpoints: 3 requests per 60 seconds
+
+    ## Error Codes
+    - 400: Bad Request - Invalid parameters
+    - 401: Unauthorized - Missing or invalid authentication
+    - 403: Forbidden - Insufficient permissions or quota exceeded
+    - 404: Not Found - Resource doesn't exist
+    - 429: Too Many Requests - Rate limit exceeded
+    - 500: Internal Server Error - Server error
+
+  version: 1.0.0
+  contact:
+    name: Recoup Support
+    url: https://relaysoftware.co.uk
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://relaysoftware.co.uk/api
+    description: Production
+  - url: http://localhost:3000/api
+    description: Local Development
+
+tags:
+  - name: Invoices
+    description: Invoice management operations
+  - name: Collections
+    description: Payment collection and reminder operations
+  - name: Dashboard
+    description: Analytics and reporting
+  - name: Payment Claims
+    description: BACS payment claims and verification
+  - name: Voice
+    description: Voice transcription and AI calls
+  - name: Webhooks
+    description: Webhook endpoints for external services
+  - name: User
+    description: User management and settings
+  - name: Cron
+    description: Scheduled job endpoints
+
+components:
+  securitySchemes:
+    ClerkAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk session token
+    CronSecret:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Cron job secret for scheduled tasks
+
+  schemas:
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique invoice identifier
+        userId:
+          type: string
+          description: Owner user ID
+        clientId:
+          type: string
+          description: Client ID
+        clientName:
+          type: string
+          description: Client full name
+        clientEmail:
+          type: string
+          format: email
+        clientCompany:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: double
+          description: Invoice amount
+        currency:
+          type: string
+          enum: [GBP, USD, EUR]
+          default: GBP
+        dueDate:
+          type: string
+          format: date
+        issueDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [draft, sent, paid, overdue, in_collections, disputed, cancelled]
+        escalationLevel:
+          type: string
+          enum: [pending, gentle, firm, final, agency]
+          description: Current escalation stage
+        description:
+          type: string
+          nullable: true
+        lineItems:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              quantity:
+                type: number
+              rate:
+                type: number
+              amount:
+                type: number
+        paymentLink:
+          type: string
+          nullable: true
+          description: Stripe payment link
+        collectionAttempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CollectionAttempt'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - clientName
+        - clientEmail
+        - amount
+        - dueDate
+
+    CollectionAttempt:
+      type: object
+      properties:
+        id:
+          type: string
+        invoiceId:
+          type: string
+        type:
+          type: string
+          enum: [email, sms, letter, ai_call, agency]
+        status:
+          type: string
+          enum: [pending, sent, delivered, failed, bounced]
+        sentAt:
+          type: string
+          format: date-time
+        deliveredAt:
+          type: string
+          format: date-time
+          nullable: true
+        openedAt:
+          type: string
+          format: date-time
+          nullable: true
+        clickedAt:
+          type: string
+          format: date-time
+          nullable: true
+        provider:
+          type: string
+          enum: [sendgrid, twilio, lob]
+        providerMessageId:
+          type: string
+          nullable: true
+        transcript:
+          type: string
+          nullable: true
+          description: AI call transcript
+        outcome:
+          type: string
+          nullable: true
+          description: Call outcome
+
+    PaymentClaim:
+      type: object
+      properties:
+        id:
+          type: string
+        invoiceId:
+          type: string
+        userId:
+          type: string
+        clientEmail:
+          type: string
+        amount:
+          type: number
+        paymentMethod:
+          type: string
+          enum: [bacs, bank_transfer, cheque, cash, other]
+        reference:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        evidence:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              filename:
+                type: string
+              uploadedAt:
+                type: string
+                format: date-time
+        status:
+          type: string
+          enum: [pending, verified, rejected]
+        deadline:
+          type: string
+          format: date-time
+          description: 48-hour verification deadline
+        verifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+        rejectionReason:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalRevenue:
+          type: number
+          description: Total revenue across all invoices
+        collectedRevenue:
+          type: number
+          description: Successfully collected revenue
+        outstandingRevenue:
+          type: number
+          description: Unpaid invoice total
+        overdueRevenue:
+          type: number
+          description: Overdue invoice total
+        invoiceCount:
+          type: object
+          properties:
+            total:
+              type: integer
+            paid:
+              type: integer
+            overdue:
+              type: integer
+            inCollections:
+              type: integer
+        collectionStats:
+          type: object
+          properties:
+            successRate:
+              type: number
+              format: percentage
+            averageDaysToPayment:
+              type: number
+            totalAttempts:
+              type: integer
+        currentStreak:
+          type: integer
+          description: Days without new overdue invoices
+        longestStreak:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          nullable: true
+
+security:
+  - ClerkAuth: []
+
+paths:
+  /invoices/{id}:
+    get:
+      tags:
+        - Invoices
+      summary: Get invoice details
+      description: Retrieve a single invoice by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Invoice ID
+      responses:
+        '200':
+          description: Invoice details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+              example:
+                id: "inv_abc123"
+                userId: "user_xyz"
+                clientName: "John Smith"
+                clientEmail: "john@example.com"
+                clientCompany: "Smith Ltd"
+                amount: 1500.00
+                currency: "GBP"
+                dueDate: "2025-12-01"
+                status: "sent"
+                escalationLevel: "pending"
+                description: "Website redesign project"
+                lineItems:
+                  - description: "Design mockups"
+                    quantity: 1
+                    rate: 500
+                    amount: 500
+                  - description: "Development"
+                    quantity: 1
+                    rate: 1000
+                    amount: 1000
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Invoice not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Invoices
+      summary: Update invoice
+      description: Update an existing invoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clientName:
+                  type: string
+                clientEmail:
+                  type: string
+                amount:
+                  type: number
+                dueDate:
+                  type: string
+                  format: date
+                status:
+                  type: string
+                description:
+                  type: string
+                lineItems:
+                  type: array
+            example:
+              clientName: "John Smith"
+              amount: 2000.00
+              dueDate: "2025-12-15"
+              description: "Updated project scope"
+      responses:
+        '200':
+          description: Invoice updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '400':
+          description: Invalid request
+        '404':
+          description: Invoice not found
+
+    delete:
+      tags:
+        - Invoices
+      summary: Delete invoice
+      description: Soft delete an invoice (sets status to cancelled)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: Invoice not found
+
+  /invoices/{id}/claim-payment:
+    post:
+      tags:
+        - Invoices
+      summary: Client claims payment made
+      description: Allows client to claim they have made a BACS payment
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paymentMethod:
+                  type: string
+                  enum: [bacs, bank_transfer, cheque, cash, other]
+                reference:
+                  type: string
+                amount:
+                  type: number
+                notes:
+                  type: string
+              required:
+                - paymentMethod
+                - amount
+            example:
+              paymentMethod: "bacs"
+              reference: "REF123456"
+              amount: 1500.00
+              notes: "Paid via bank transfer on 2025-11-15"
+      responses:
+        '200':
+          description: Payment claim created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  claimId:
+                    type: string
+                  deadline:
+                    type: string
+                    format: date-time
+                  message:
+                    type: string
+        '400':
+          description: Invalid request
+
+  /invoices/{id}/verify-payment-claim:
+    post:
+      tags:
+        - Invoices
+      summary: Verify or reject payment claim
+      description: Freelancer verifies or rejects a client's payment claim
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                claimId:
+                  type: string
+                verified:
+                  type: boolean
+                rejectionReason:
+                  type: string
+                  nullable: true
+              required:
+                - claimId
+                - verified
+      responses:
+        '200':
+          description: Claim processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  status:
+                    type: string
+                    enum: [verified, rejected]
+
+  /invoices/{id}/escalation:
+    get:
+      tags:
+        - Invoices
+      summary: Get escalation status
+      description: Retrieve current escalation level and history
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Escalation details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentLevel:
+                    type: string
+                  isPaused:
+                    type: boolean
+                  pausedUntil:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  history:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CollectionAttempt'
+
+    post:
+      tags:
+        - Invoices
+      summary: Update escalation level
+      description: Manually change escalation level
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                level:
+                  type: string
+                  enum: [pending, gentle, firm, final, agency]
+              required:
+                - level
+      responses:
+        '200':
+          description: Escalation updated
+
+  /invoices/{id}/escalation/pause:
+    post:
+      tags:
+        - Invoices
+      summary: Pause escalation
+      description: Temporarily pause automated escalation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pauseDays:
+                  type: integer
+                  minimum: 1
+                  maximum: 30
+                reason:
+                  type: string
+              required:
+                - pauseDays
+      responses:
+        '200':
+          description: Escalation paused
+
+  /collections/sms:
+    post:
+      tags:
+        - Collections
+      summary: Send SMS reminder
+      description: Send SMS payment reminder (Premium feature)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoiceId:
+                  type: string
+                phoneNumber:
+                  type: string
+                  pattern: '^\+[1-9]\d{1,14}$'
+                  description: E.164 format
+                message:
+                  type: string
+                  maxLength: 160
+              required:
+                - invoiceId
+                - phoneNumber
+            example:
+              invoiceId: "inv_abc123"
+              phoneNumber: "+447700900123"
+              message: "Payment reminder for invoice INV-001. Due: £1,500. Pay now: https://pay.link/abc"
+      responses:
+        '200':
+          description: SMS sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  messageId:
+                    type: string
+                  status:
+                    type: string
+        '403':
+          description: Premium feature or quota exceeded
+        '429':
+          description: Rate limit exceeded
+
+  /collections/send-reminder:
+    post:
+      tags:
+        - Collections
+      summary: Send email reminder
+      description: Send payment reminder email via SendGrid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoiceId:
+                  type: string
+                reminderType:
+                  type: string
+                  enum: [gentle, firm, final]
+              required:
+                - invoiceId
+                - reminderType
+      responses:
+        '200':
+          description: Email sent
+        '403':
+          description: Quota exceeded
+
+  /collections/letter:
+    post:
+      tags:
+        - Collections
+      summary: Send physical letter
+      description: Send Letter Before Action via Lob (Premium feature)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoiceId:
+                  type: string
+                address:
+                  type: object
+                  properties:
+                    line1:
+                      type: string
+                    line2:
+                      type: string
+                    city:
+                      type: string
+                    postcode:
+                      type: string
+                    country:
+                      type: string
+                  required:
+                    - line1
+                    - city
+                    - postcode
+              required:
+                - invoiceId
+                - address
+      responses:
+        '200':
+          description: Letter queued
+        '403':
+          description: Premium feature required
+
+  /collections/ai-call:
+    post:
+      tags:
+        - Collections
+      summary: Initiate AI voice call
+      description: Start automated collection call (Premium feature)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoiceId:
+                  type: string
+                phoneNumber:
+                  type: string
+              required:
+                - invoiceId
+                - phoneNumber
+      responses:
+        '200':
+          description: Call initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  callId:
+                    type: string
+                  status:
+                    type: string
+        '403':
+          description: Premium feature required
+
+  /collections/agency-handoff:
+    post:
+      tags:
+        - Collections
+      summary: Escalate to collection agency
+      description: Hand off invoice to partnered collection agency (Premium feature)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoiceId:
+                  type: string
+                agencyId:
+                  type: string
+                notes:
+                  type: string
+              required:
+                - invoiceId
+      responses:
+        '200':
+          description: Handoff created
+        '403':
+          description: Premium feature required
+
+  /dashboard/summary:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard summary
+      description: Retrieve key metrics and statistics
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+              example:
+                totalRevenue: 45000.00
+                collectedRevenue: 38000.00
+                outstandingRevenue: 7000.00
+                overdueRevenue: 2500.00
+                invoiceCount:
+                  total: 32
+                  paid: 26
+                  overdue: 4
+                  inCollections: 2
+                collectionStats:
+                  successRate: 84.3
+                  averageDaysToPayment: 12.5
+                  totalAttempts: 48
+                currentStreak: 15
+                longestStreak: 42
+
+  /dashboard/predictions:
+    get:
+      tags:
+        - Dashboard
+      summary: Get payment predictions
+      description: AI-powered payment predictions for outstanding invoices
+      responses:
+        '200':
+          description: Predictions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  predictions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        invoiceId:
+                          type: string
+                        predictedPaymentDate:
+                          type: string
+                          format: date
+                        confidence:
+                          type: number
+                          format: percentage
+                        factors:
+                          type: array
+                          items:
+                            type: string
+
+  /dashboard/export/pdf:
+    get:
+      tags:
+        - Dashboard
+      summary: Export dashboard as PDF
+      description: Generate PDF report of dashboard metrics
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /dashboard/export/csv:
+    get:
+      tags:
+        - Dashboard
+      summary: Export data as CSV
+      description: Export invoice data as CSV file
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /payment-claims/{id}:
+    get:
+      tags:
+        - Payment Claims
+      summary: Get payment claim
+      description: Retrieve payment claim details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Claim details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentClaim'
+
+    put:
+      tags:
+        - Payment Claims
+      summary: Update payment claim
+      description: Update claim status or add notes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [verified, rejected]
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Claim updated
+
+  /payment-claims/{id}/evidence:
+    post:
+      tags:
+        - Payment Claims
+      summary: Upload payment evidence
+      description: Upload proof of payment (bank statement, screenshot)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Evidence uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  filename:
+                    type: string
+
+  /voice/transcribe:
+    post:
+      tags:
+        - Voice
+      summary: Transcribe voice to text
+      description: Transcribe voice recording using OpenAI gpt-4o-mini-transcribe
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file (MP3, M4A, WAV)
+      responses:
+        '200':
+          description: Transcription result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text:
+                    type: string
+                  confidence:
+                    type: number
+                  duration:
+                    type: number
+              example:
+                text: "Invoice for John Smith, company ABC Ltd, amount fifteen hundred pounds, due December first"
+                confidence: 0.98
+                duration: 8.5
+        '429':
+          description: Rate limit exceeded (3 req/60s)
+
+  /user/quota:
+    get:
+      tags:
+        - User
+      summary: Get user quota
+      description: Check remaining collections quota for current billing period
+      responses:
+        '200':
+          description: Quota information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tier:
+                    type: string
+                    enum: [free, starter, growth, pro, business]
+                  monthlyLimit:
+                    type: integer
+                  used:
+                    type: integer
+                  remaining:
+                    type: integer
+                  resetDate:
+                    type: string
+                    format: date
+              example:
+                tier: "growth"
+                monthlyLimit: 50
+                used: 23
+                remaining: 27
+                resetDate: "2025-12-01"
+
+  /webhook/stripe:
+    post:
+      tags:
+        - Webhooks
+      summary: Stripe webhook
+      description: Handle Stripe payment events
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed
+        '400':
+          description: Invalid signature
+
+  /webhook/sendgrid:
+    post:
+      tags:
+        - Webhooks
+      summary: SendGrid webhook
+      description: Handle email delivery events (opens, clicks, bounces)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+      responses:
+        '200':
+          description: Events processed
+
+  /webhooks/clerk:
+    post:
+      tags:
+        - Webhooks
+      summary: Clerk webhook
+      description: Handle user authentication events
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Event processed
+
+  /cron/reset-monthly-usage:
+    post:
+      tags:
+        - Cron
+      summary: Reset monthly usage
+      description: Reset collection quotas (1st of month)
+      security:
+        - CronSecret: []
+      responses:
+        '200':
+          description: Usage reset complete
+        '401':
+          description: Invalid cron secret
+
+  /cron/process-escalations:
+    post:
+      tags:
+        - Cron
+      summary: Process escalations
+      description: Auto-escalate overdue invoices (every 6 hours)
+      security:
+        - CronSecret: []
+      responses:
+        '200':
+          description: Escalations processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                  escalated:
+                    type: integer
+
+  /cron/send-behavioral-emails:
+    post:
+      tags:
+        - Cron
+      summary: Send behavioral emails
+      description: Send triggered emails (invoice drought, incomplete invoices) - Daily 10am
+      security:
+        - CronSecret: []
+      responses:
+        '200':
+          description: Emails sent
+
+  /cron/process-email-sequence:
+    post:
+      tags:
+        - Cron
+      summary: Process email sequences
+      description: Send scheduled reminder emails (hourly)
+      security:
+        - CronSecret: []
+      responses:
+        '200':
+          description: Sequences processed
+
+  /cron/check-verification-deadlines:
+    post:
+      tags:
+        - Cron
+      summary: Check payment verification deadlines
+      description: Process expired 48-hour deadlines (hourly)
+      security:
+        - CronSecret: []
+      responses:
+        '200':
+          description: Deadlines checked

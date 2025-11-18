@@ -1,0 +1,494 @@
+{
+  "info": {
+    "name": "Recoup API",
+    "description": "Complete collection for testing Recoup API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{clerk_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://relaysoftware.co.uk/api",
+      "type": "string"
+    },
+    {
+      "key": "local_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "clerk_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invoice_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "claim_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Get Invoice",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/invoices/{{invoice_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "{{invoice_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Invoice",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientName\": \"John Smith\",\n  \"clientEmail\": \"john@example.com\",\n  \"amount\": 1500.00,\n  \"dueDate\": \"2025-12-01\",\n  \"description\": \"Website redesign\",\n  \"lineItems\": [\n    {\n      \"description\": \"Design\",\n      \"quantity\": 1,\n      \"rate\": 500,\n      \"amount\": 500\n    },\n    {\n      \"description\": \"Development\",\n      \"quantity\": 1,\n      \"rate\": 1000,\n      \"amount\": 1000\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/invoices/{{invoice_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "{{invoice_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Invoice",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/invoices/{{invoice_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "{{invoice_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Client Claim Payment",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"bacs\",\n  \"reference\": \"REF123456\",\n  \"amount\": 1500.00,\n  \"notes\": \"Paid via bank transfer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/invoices/{{invoice_id}}/claim-payment",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "{{invoice_id}}", "claim-payment"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Payment Claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claimId\": \"{{claim_id}}\",\n  \"verified\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/invoices/{{invoice_id}}/verify-payment-claim",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "{{invoice_id}}", "verify-payment-claim"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Escalation Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/invoices/{{invoice_id}}/escalation",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "{{invoice_id}}", "escalation"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Escalation Level",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"firm\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/invoices/{{invoice_id}}/escalation",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "{{invoice_id}}", "escalation"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pause Escalation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pauseDays\": 7,\n  \"reason\": \"Client requested extension\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/invoices/{{invoice_id}}/escalation/pause",
+              "host": ["{{base_url}}"],
+              "path": ["invoices", "{{invoice_id}}", "escalation", "pause"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Collections",
+      "item": [
+        {
+          "name": "Send SMS Reminder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoice_id}}\",\n  \"phoneNumber\": \"+447700900123\",\n  \"message\": \"Payment reminder for invoice INV-001. Amount due: £1,500. Pay now at: https://pay.link/abc\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/collections/sms",
+              "host": ["{{base_url}}"],
+              "path": ["collections", "sms"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Email Reminder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoice_id}}\",\n  \"reminderType\": \"gentle\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/collections/send-reminder",
+              "host": ["{{base_url}}"],
+              "path": ["collections", "send-reminder"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Physical Letter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoice_id}}\",\n  \"address\": {\n    \"line1\": \"123 Main Street\",\n    \"line2\": \"Suite 100\",\n    \"city\": \"London\",\n    \"postcode\": \"SW1A 1AA\",\n    \"country\": \"GB\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/collections/letter",
+              "host": ["{{base_url}}"],
+              "path": ["collections", "letter"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Initiate AI Call",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoice_id}}\",\n  \"phoneNumber\": \"+447700900123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/collections/ai-call",
+              "host": ["{{base_url}}"],
+              "path": ["collections", "ai-call"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Escalate to Agency",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoice_id}}\",\n  \"agencyId\": \"agency_123\",\n  \"notes\": \"Multiple collection attempts failed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/collections/agency-handoff",
+              "host": ["{{base_url}}"],
+              "path": ["collections", "agency-handoff"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/summary",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "summary"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Predictions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/predictions",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "predictions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Export PDF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/export/pdf",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "export", "pdf"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Export CSV",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/export/csv?startDate=2025-01-01&endDate=2025-12-31",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", "export", "csv"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment Claims",
+      "item": [
+        {
+          "name": "Get Payment Claim",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payment-claims/{{claim_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["payment-claims", "{{claim_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Payment Claim",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"verified\",\n  \"notes\": \"Payment confirmed in bank account\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment-claims/{{claim_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["payment-claims", "{{claim_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Evidence",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/payment-claims/{{claim_id}}/evidence",
+              "host": ["{{base_url}}"],
+              "path": ["payment-claims", "{{claim_id}}", "evidence"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Voice",
+      "item": [
+        {
+          "name": "Transcribe Audio",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "audio",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/voice/transcribe",
+              "host": ["{{base_url}}"],
+              "path": ["voice", "transcribe"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get Quota",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/quota",
+              "host": ["{{base_url}}"],
+              "path": ["user", "quota"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
