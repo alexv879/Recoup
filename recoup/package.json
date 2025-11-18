@@ -24,7 +24,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
     "@clerk/nextjs": "^6.35.1",
+    "@google/generative-ai": "^0.21.0",
     "@hookform/resolvers": "^5.2.2",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.203.0",
     "@opentelemetry/instrumentation": "^0.203.0",
@@ -63,6 +65,7 @@
     "react-toastify": "^11.0.5",
     "recharts": "^3.4.1",
     "recordrtc": "^5.6.2",
+    "resend": "^4.0.2",
     "stripe": "^19.3.1",
     "svix": "^1.81.0",
     "tailwind-merge": "^3.4.0",
@@ -76,7 +79,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
-    "jest-axe": "^7.1.0",
+    "jest-axe": "^9.0.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/jest": "^30.0.0",
     "@types/json2csv": "^5.0.7",
