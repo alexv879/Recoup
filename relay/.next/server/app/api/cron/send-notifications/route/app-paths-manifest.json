@@ -1,3 +1,0 @@
-{
-  "/api/cron/send-notifications/route": "app/api/cron/send-notifications/route.js"
-}

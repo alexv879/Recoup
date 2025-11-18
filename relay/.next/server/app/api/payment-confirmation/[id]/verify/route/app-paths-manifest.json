@@ -1,3 +1,0 @@
-{
-  "/api/payment-confirmation/[id]/verify/route": "app/api/payment-confirmation/[id]/verify/route.js"
-}

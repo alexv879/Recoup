@@ -1,0 +1,42 @@
+// NOTE: This implementation assumes the existence of helper functions and database schemas
+// as defined in the technical specification (e.g., db access, Referral type, FieldValue).
+
+/* Mocked data and functions for demonstration
+import { db } from '../lib/firebase'; // Assumed
+import { FieldValue } from 'firebase-admin/firestore'; // Assumed
+*/
+
+function generateSecureCode(length: number): string {
+  // Using crypto for better randomness than Math.random()
+  const crypto = require('crypto');
+  const chars = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789';
+  let result = 'REL-';
+  const randomBytes = crypto.randomBytes(length);
+  for (let i = 0; i < length; i++) {
+    result += chars[randomBytes[i] % chars.length];
+  }
+  return result;
+}
+
+export async function generateReferralCode(userId: string): Promise<string> {
+  const code = generateSecureCode(6);
+  // await db.collection('users').doc(userId).update({ referralCode: code });
+  console.log(`Generated referral code ${code} for user ${userId}`);
+  return code;
+}
+
+export async function processReferral(referralCode: string, newUserId: string) {
+  // const referrerSnapshot = await db.collection('users').where('referralCode', '==', referralCode).limit(1).get();
+  // if (referrerSnapshot.empty) { throw new Error('Invalid referral code'); }
+  // const referrerId = referrerSnapshot.docs[0].id;
+  // const referral: Referral = { ... };
+  // await db.collection('referrals').doc(referral.referralId).set(referral);
+  // await addAccountCredit(referrerId, 5);
+  // await addAccountCredit(newUserId, 5);
+  console.log(`Processing referral code ${referralCode} for new user ${newUserId}`);
+}
+
+export async function addAccountCredit(userId: string, amount: number) {
+  // await db.collection('users').doc(userId).update({ accountCredit: FieldValue.increment(amount) });
+  console.log(`Adding ${amount} credit to user ${userId}`);
+}

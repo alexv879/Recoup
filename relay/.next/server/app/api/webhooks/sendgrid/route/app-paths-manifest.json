@@ -1,3 +1,0 @@
-{
-  "/api/webhooks/sendgrid/route": "app/api/webhooks/sendgrid/route.js"
-}

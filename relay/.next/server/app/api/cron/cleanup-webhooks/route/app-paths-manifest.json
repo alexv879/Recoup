@@ -1,3 +1,0 @@
-{
-  "/api/cron/cleanup-webhooks/route": "app/api/cron/cleanup-webhooks/route.js"
-}

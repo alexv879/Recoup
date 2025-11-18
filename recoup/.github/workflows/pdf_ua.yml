@@ -1,0 +1,28 @@
+name: PDF/UA Validator
+
+on:
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    validate-pdf:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Python 3.11
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.11"
+            - name: Install dependencies
+              run: npm ci
+              working-directory: ./recoup
+            - name: Generate sample PDF (Python)
+              run: |
+                  pip install -r python-services/pdf_service/requirements.txt
+                  python3 scripts/generate_test_pdf.py
+              working-directory: ./recoup
+            - name: Validate PDF with veraPDF
+              # veraPDF CLI container will verify PDF/A and PDF/UA. Adjust format for your desired profile
+              run: |
+                  docker run --rm -v ${{ github.workspace }}:/work -w /work/recoup veraPDF/veraPDF verapdf --format pdfa-3b coverage/pdf-test-sample.pdf
