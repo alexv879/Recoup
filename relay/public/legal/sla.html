@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Level Agreement - Recoup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #0066cc;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #333;
+            margin-top: 20px;
+        }
+        .version-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 30px;
+        }
+        .sla-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .sla-table th,
+        .sla-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .sla-table th {
+            background-color: #0066cc;
+            color: white;
+        }
+        .sla-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .metric-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .important {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+        .highlight {
+            background: #ffffcc;
+            padding: 2px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="version-info">
+        <strong>Document Version:</strong> 1.0<br>
+        <strong>Effective Date:</strong> 18 November 2025<br>
+        <strong>Last Updated:</strong> 18 November 2025<br>
+        <strong>Applies to:</strong> All subscription plans
+    </div>
+
+    <h1>Service Level Agreement (SLA)</h1>
+
+    <h2>1. Introduction</h2>
+
+    <h3>1.1 Purpose</h3>
+    <p>
+        This Service Level Agreement ("SLA") defines the service levels that Recoup Ltd ("Recoup", "we", "us")
+        commits to provide to customers ("you", "Customer") using our payment automation platform ("Service").
+    </p>
+
+    <h3>1.2 Scope</h3>
+    <p>
+        This SLA applies to all paid subscription plans. Free trial users and freemium tier users
+        receive service on a best-effort basis without SLA guarantees.
+    </p>
+
+    <h3>1.3 Incorporation</h3>
+    <p>
+        This SLA is incorporated into and forms part of our Terms of Service. In the event of conflict,
+        the Terms of Service prevail.
+    </p>
+
+    <h2>2. Service Availability</h2>
+
+    <h3>2.1 Uptime Commitment</h3>
+
+    <table class="sla-table">
+        <thead>
+            <tr>
+                <th>Subscription Tier</th>
+                <th>Monthly Uptime Commitment</th>
+                <th>Allowed Downtime/Month</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Free/Trial</td>
+                <td>Best effort (no guarantee)</td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td>Starter</td>
+                <td>99.5%</td>
+                <td>~3.6 hours</td>
+            </tr>
+            <tr>
+                <td>Professional</td>
+                <td>99.9%</td>
+                <td>~43 minutes</td>
+            </tr>
+            <tr>
+                <td>Enterprise</td>
+                <td>99.95%</td>
+                <td>~21 minutes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>2.2 Uptime Calculation</h3>
+    <p>
+        Uptime percentage is calculated as:
+    </p>
+    <div class="metric-box">
+        <strong>Uptime % = ((Total Minutes in Month - Downtime Minutes) / Total Minutes in Month) × 100</strong>
+    </div>
+
+    <h3>2.3 Exclusions from Uptime Calculation</h3>
+    <p>
+        The following are excluded from downtime calculations:
+    </p>
+    <ul>
+        <li>Scheduled maintenance (with at least 48 hours notice)</li>
+        <li>Emergency security patches (reasonable notice given)</li>
+        <li>Issues caused by your actions or configurations</li>
+        <li>Third-party service failures (Stripe, Twilio, SendGrid, Lob, Firebase, Clerk)</li>
+        <li>Force majeure events (natural disasters, war, strikes, etc.)</li>
+        <li>DDoS attacks or other malicious activity</li>
+        <li>Internet backbone failures outside our control</li>
+        <li>Your network or ISP issues</li>
+        <li>Beta features or experimental functionality</li>
+    </ul>
+
+    <h3>2.4 Scheduled Maintenance</h3>
+    <p>
+        We will schedule maintenance windows as follows:
+    </p>
+    <ul>
+        <li><strong>Frequency:</strong> Maximum once per month</li>
+        <li><strong>Duration:</strong> Typically 1-2 hours, maximum 4 hours</li>
+        <li><strong>Timing:</strong> During off-peak hours (typically Sunday 22:00-02:00 GMT)</li>
+        <li><strong>Notice:</strong> Minimum 48 hours advance notification via email and status page</li>
+    </ul>
+
+    <h2>3. Performance Metrics</h2>
+
+    <h3>3.1 API Response Time</h3>
+
+    <table class="sla-table">
+        <thead>
+            <tr>
+                <th>API Endpoint Type</th>
+                <th>Target Response Time (95th percentile)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Dashboard and UI endpoints</td>
+                <td>&lt; 500ms</td>
+            </tr>
+            <tr>
+                <td>Invoice creation/updates</td>
+                <td>&lt; 1 second</td>
+            </tr>
+            <tr>
+                <td>Payment verification</td>
+                <td>&lt; 2 seconds</td>
+            </tr>
+            <tr>
+                <td>Analytics and reporting</td>
+                <td>&lt; 3 seconds</td>
+            </tr>
+            <tr>
+                <td>Bulk operations</td>
+                <td>&lt; 10 seconds</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="important">
+        <strong>Note:</strong> Response times depend on third-party services. Times are measured for our
+        Service only and exclude external API calls (e.g., Stripe payment processing).
+    </div>
+
+    <h3>3.2 Communication Delivery Times</h3>
+
+    <table class="sla-table">
+        <thead>
+            <tr>
+                <th>Communication Type</th>
+                <th>Target Delivery Time</th>
+                <th>Dependent Service</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Email reminders</td>
+                <td>&lt; 5 minutes from scheduled time</td>
+                <td>SendGrid</td>
+            </tr>
+            <tr>
+                <td>SMS notifications</td>
+                <td>&lt; 2 minutes from scheduled time</td>
+                <td>Twilio</td>
+            </tr>
+            <tr>
+                <td>Voice calls</td>
+                <td>&lt; 5 minutes from scheduled time</td>
+                <td>Twilio</td>
+            </tr>
+            <tr>
+                <td>Physical mail</td>
+                <td>Submitted within 24 hours; delivery per Lob SLA</td>
+                <td>Lob</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>3.3 Data Processing</h3>
+    <ul>
+        <li><strong>Invoice imports:</strong> Processed within 10 minutes</li>
+        <li><strong>Bulk client uploads:</strong> Completed within 30 minutes (up to 1,000 records)</li>
+        <li><strong>Analytics updates:</strong> Refreshed every 15 minutes</li>
+        <li><strong>Payment status sync:</strong> Checked every 5 minutes</li>
+    </ul>
+
+    <h2>4. Support Services</h2>
+
+    <h3>4.1 Support Channels</h3>
+
+    <table class="sla-table">
+        <thead>
+            <tr>
+                <th>Subscription Tier</th>
+                <th>Available Channels</th>
+                <th>Support Hours (GMT)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Free/Trial</td>
+                <td>Email, documentation</td>
+                <td>Best effort</td>
+            </tr>
+            <tr>
+                <td>Starter</td>
+                <td>Email, documentation, community forum</td>
+                <td>Mon-Fri, 9:00-17:00</td>
+            </tr>
+            <tr>
+                <td>Professional</td>
+                <td>Email, live chat, phone, documentation</td>
+                <td>Mon-Fri, 8:00-20:00</td>
+            </tr>
+            <tr>
+                <td>Enterprise</td>
+                <td>Priority email, dedicated Slack channel, phone, documentation</td>
+                <td>24/7 for critical issues</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>4.2 Response Times</h3>
+
+    <table class="sla-table">
+        <thead>
+            <tr>
+                <th>Priority Level</th>
+                <th>Definition</th>
+                <th>Starter</th>
+                <th>Professional</th>
+                <th>Enterprise</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Critical (P1)</strong></td>
+                <td>Service unavailable; complete loss of functionality</td>
+                <td>4 hours</td>
+                <td>2 hours</td>
+                <td>1 hour</td>
+            </tr>
+            <tr>
+                <td><strong>High (P2)</strong></td>
+                <td>Major feature broken; significant impact</td>
+                <td>8 hours</td>
+                <td>4 hours</td>
+                <td>2 hours</td>
+            </tr>
+            <tr>
+                <td><strong>Medium (P3)</strong></td>
+                <td>Minor feature issue; limited impact</td>
+                <td>2 business days</td>
+                <td>1 business day</td>
+                <td>8 hours</td>
+            </tr>
+            <tr>
+                <td><strong>Low (P4)</strong></td>
+                <td>General questions; feature requests</td>
+                <td>5 business days</td>
+                <td>2 business days</td>
+                <td>1 business day</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="important">
+        <strong>Response Time vs. Resolution Time:</strong> Response times indicate our initial reply acknowledging
+        your issue. Resolution times vary based on complexity. We commit to providing regular updates
+        (at least every 48 hours for P1/P2 issues).
+    </div>
+
+    <h3>4.3 Support Languages</h3>
+    <p>
+        Support is provided in English. We may accommodate other languages on a best-effort basis.
+    </p>
+
+    <h2>5. Data Protection and Security</h2>
+
+    <h3>5.1 Data Backup</h3>
+    <ul>
+        <li><strong>Frequency:</strong> Continuous replication with point-in-time recovery</li>
+        <li><strong>Retention:</strong> 30 days of backup history</li>
+        <li><strong>Geographic redundancy:</strong> Data replicated across multiple UK/EEA regions</li>
+        <li><strong>Recovery Time Objective (RTO):</strong> 4 hours for critical data</li>
+        <li><strong>Recovery Point Objective (RPO):</strong> Maximum 1 hour of data loss</li>
+    </ul>
+
+    <h3>5.2 Security Measures</h3>
+    <ul>
+        <li>Encryption in transit (TLS 1.2+) and at rest (AES-256)</li>
+        <li>Regular security audits and penetration testing (minimum annually)</li>
+        <li>Vulnerability scanning and patch management</li>
+        <li>DDoS protection and rate limiting</li>
+        <li>Multi-factor authentication support</li>
+        <li>Role-based access control (RBAC)</li>
+    </ul>
+
+    <h3>5.3 Compliance</h3>
+    <ul>
+        <li>UK GDPR and Data Protection Act 2018 compliance</li>
+        <li>Privacy and Electronic Communications Regulations (PECR) compliance</li>
+        <li>PCI DSS compliance (via Stripe for payment processing)</li>
+        <li>Regular compliance audits</li>
+    </ul>
+
+    <h2>6. Service Credits</h2>
+
+    <h3>6.1 Eligibility</h3>
+    <p>
+        If we fail to meet our uptime commitment, you may be eligible for service credits:
+    </p>
+
+    <table class="sla-table">
+        <thead>
+            <tr>
+                <th>Monthly Uptime Achieved</th>
+                <th>Service Credit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>99.0% - 99.5% (Starter)</td>
+                <td>10% of monthly fee</td>
+            </tr>
+            <tr>
+                <td>&lt; 99.0% (Starter)</td>
+                <td>25% of monthly fee</td>
+            </tr>
+            <tr>
+                <td>99.0% - 99.9% (Professional)</td>
+                <td>10% of monthly fee</td>
+            </tr>
+            <tr>
+                <td>98.0% - 99.0% (Professional)</td>
+                <td>25% of monthly fee</td>
+            </tr>
+            <tr>
+                <td>&lt; 98.0% (Professional)</td>
+                <td>50% of monthly fee</td>
+            </tr>
+            <tr>
+                <td>99.5% - 99.95% (Enterprise)</td>
+                <td>15% of monthly fee</td>
+            </tr>
+            <tr>
+                <td>99.0% - 99.5% (Enterprise)</td>
+                <td>25% of monthly fee</td>
+            </tr>
+            <tr>
+                <td>&lt; 99.0% (Enterprise)</td>
+                <td>50% of monthly fee</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>6.2 Credit Limitations</h3>
+    <ul>
+        <li>Maximum credit per month: 50% of monthly subscription fee</li>
+        <li>Maximum credit per year: 3 months of subscription fees</li>
+        <li>Credits applied to future invoices only (no cash refunds)</li>
+        <li>Credits expire if not used within 12 months</li>
+    </ul>
+
+    <h3>6.3 Claiming Credits</h3>
+    <p>
+        To claim service credits:
+    </p>
+    <ol>
+        <li>Submit a request to support@recoup.com within 30 days of the incident</li>
+        <li>Include:
+            <ul>
+                <li>Your account details</li>
+                <li>Dates and times of downtime experienced</li>
+                <li>Description of impact</li>
+                <li>Evidence of downtime (screenshots, error messages)</li>
+            </ul>
+        </li>
+        <li>We will verify the claim within 10 business days</li>
+        <li>Approved credits applied to your next invoice</li>
+    </ol>
+
+    <div class="important">
+        <strong>Important:</strong> Service credits are your sole remedy for SLA breaches. By accepting
+        credits, you waive any other claims for damages related to service availability.
+    </div>
+
+    <h2>7. Monitoring and Reporting</h2>
+
+    <h3>7.1 Status Page</h3>
+    <p>
+        We maintain a public status page at <span class="highlight">[status.recoup.com]</span> showing:
+    </p>
+    <ul>
+        <li>Current service status</li>
+        <li>Scheduled maintenance windows</li>
+        <li>Incident history and post-mortems</li>
+        <li>Real-time uptime metrics</li>
+        <li>Component-level status (API, dashboard, communications, etc.)</li>
+    </ul>
+
+    <h3>7.2 Incident Communication</h3>
+    <p>
+        During incidents, we will:
+    </p>
+    <ul>
+        <li>Update the status page within 15 minutes of detection</li>
+        <li>Send email notifications to affected users (for P1/P2 incidents)</li>
+        <li>Provide updates every 30-60 minutes until resolution</li>
+        <li>Publish post-incident reports within 5 business days (for major incidents)</li>
+    </ul>
+
+    <h3>7.3 Monthly Reports</h3>
+    <p>
+        Professional and Enterprise customers receive monthly SLA reports including:
+    </p>
+    <ul>
+        <li>Uptime percentage achieved</li>
+        <li>Average API response times</li>
+        <li>Support ticket metrics</li>
+        <li>Incident summary</li>
+        <li>Planned maintenance schedule</li>
+    </ul>
+
+    <h2>8. Third-Party Dependencies</h2>
+
+    <h3>8.1 Critical Third-Party Services</h3>
+    <p>
+        The Service depends on the following third-party providers:
+    </p>
+
+    <table class="sla-table">
+        <thead>
+            <tr>
+                <th>Provider</th>
+                <th>Function</th>
+                <th>Their SLA</th>
+                <th>Impact if Down</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Firebase (Google)</td>
+                <td>Database, storage</td>
+                <td>99.95%</td>
+                <td>Complete service unavailability</td>
+            </tr>
+            <tr>
+                <td>Clerk</td>
+                <td>Authentication</td>
+                <td>99.99%</td>
+                <td>Cannot log in (existing sessions work)</td>
+            </tr>
+            <tr>
+                <td>Stripe</td>
+                <td>Payments</td>
+                <td>99.99%</td>
+                <td>Cannot process new subscriptions</td>
+            </tr>
+            <tr>
+                <td>Twilio</td>
+                <td>SMS, voice</td>
+                <td>99.95%</td>
+                <td>SMS/call reminders delayed</td>
+            </tr>
+            <tr>
+                <td>SendGrid</td>
+                <td>Email</td>
+                <td>99.9%</td>
+                <td>Email reminders delayed</td>
+            </tr>
+            <tr>
+                <td>Lob</td>
+                <td>Physical mail</td>
+                <td>99.9%</td>
+                <td>Physical mail delayed</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>8.2 Third-Party Outages</h3>
+    <p>
+        If a third-party service fails:
+    </p>
+    <ul>
+        <li>We will update our status page immediately</li>
+        <li>We will work with the provider to resolve the issue</li>
+        <li>Downtime caused by third parties is excluded from our SLA calculations</li>
+        <li>We will implement workarounds where possible</li>
+    </ul>
+
+    <h2>9. Customer Responsibilities</h2>
+
+    <h3>9.1 Your Obligations</h3>
+    <p>
+        To receive SLA benefits, you must:
+    </p>
+    <ul>
+        <li>Use supported browsers and up-to-date software</li>
+        <li>Maintain your account in good standing (payments current)</li>
+        <li>Follow our Terms of Service and acceptable use policies</li>
+        <li>Report issues promptly through proper support channels</li>
+        <li>Provide accurate information when submitting support requests</li>
+        <li>Not abuse or misuse the Service</li>
+        <li>Maintain adequate internet connectivity</li>
+    </ul>
+
+    <h3>9.2 Supported Environments</h3>
+    <p>
+        The SLA applies when using:
+    </p>
+    <ul>
+        <li><strong>Browsers:</strong> Latest two versions of Chrome, Firefox, Safari, Edge</li>
+        <li><strong>Operating Systems:</strong> Windows 10+, macOS 11+, iOS 14+, Android 10+</li>
+        <li><strong>Internet:</strong> Minimum 1 Mbps connection</li>
+    </ul>
+
+    <h2>10. Amendments and Updates</h2>
+
+    <h3>10.1 Changes to SLA</h3>
+    <p>
+        We may update this SLA from time to time. Material changes will be communicated via:
+    </p>
+    <ul>
+        <li>Email notification (30 days advance notice)</li>
+        <li>Update on our website</li>
+        <li>In-app notification</li>
+    </ul>
+
+    <h3>10.2 Acceptance</h3>
+    <p>
+        Continued use of the Service after the effective date of changes constitutes acceptance.
+        If you do not agree to changes, you may cancel your subscription.
+    </p>
+
+    <h2>11. Definitions</h2>
+
+    <ul>
+        <li><strong>Downtime:</strong> Period when the Service is unavailable or returns errors for valid requests</li>
+        <li><strong>Business Day:</strong> Monday-Friday, excluding UK public holidays</li>
+        <li><strong>Business Hours:</strong> 9:00-17:00 GMT on business days</li>
+        <li><strong>Incident:</strong> Unplanned service disruption or performance degradation</li>
+        <li><strong>Monthly Uptime Percentage:</strong> Uptime calculation for a calendar month</li>
+        <li><strong>Service Credit:</strong> Credit applied to future invoices, not cash refund</li>
+    </ul>
+
+    <h2>12. Contact Information</h2>
+
+    <p>
+        For SLA-related inquiries or to report service issues:
+    </p>
+
+    <p>
+        <strong>Support Email:</strong> support@recoup.com<br>
+        <strong>SLA Questions:</strong> sla@recoup.com<br>
+        <strong>Status Page:</strong> [status.recoup.com]<br>
+        <strong>Emergency Phone (Enterprise only):</strong> [Phone Number]
+    </p>
+
+    <div class="footer">
+        <p>&copy; 2025 Recoup Ltd. All rights reserved.</p>
+        <p>
+            <a href="terms-of-service.html">Terms of Service</a> |
+            <a href="privacy-policy.html">Privacy Policy</a> |
+            <a href="cookie-policy.html">Cookie Policy</a> |
+            <a href="dpa.html">Data Processing Agreement</a>
+        </p>
+    </div>
+</body>
+</html>
