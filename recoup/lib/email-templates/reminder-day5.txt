@@ -1,0 +1,27 @@
+Payment Reminder - Invoice {{invoice_number}}
+
+Hi {{client_name}},
+
+This is a friendly reminder that invoice #{{invoice_number}} is now {{days_overdue}} days past its due date.
+
+INVOICE DETAILS
+---------------
+Invoice Number: #{{invoice_number}}
+Amount Due: £{{amount}}
+Original Due Date: {{due_date}}
+Days Overdue: {{days_overdue}} days
+
+I understand that things can get busy, so I wanted to send you a gentle nudge. If payment has already been sent, please disregard this message and accept my thanks!
+
+If you have any questions about this invoice or need to discuss payment arrangements, please don't hesitate to reach out.
+
+View invoice and pay now: {{payment_link}}
+
+Thank you for your business!
+
+Best regards,
+{{freelancer_name}}
+
+---
+This is an automated reminder sent via Recoup.
+If you've already paid, please ignore this message.

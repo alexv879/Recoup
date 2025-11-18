@@ -1,0 +1,34 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "error_occurred",
+    "type": "object",
+    "required": [
+        "feature",
+        "severity",
+        "trace_id"
+    ],
+    "properties": {
+        "feature": {
+            "type": "string"
+        },
+        "severity": {
+            "type": "string",
+            "enum": [
+                "low",
+                "medium",
+                "high"
+            ]
+        },
+        "trace_id": {
+            "type": "string"
+        },
+        "message_hash": {
+            "type": "string"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "additionalProperties": false
+}

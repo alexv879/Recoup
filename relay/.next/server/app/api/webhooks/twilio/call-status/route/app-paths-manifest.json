@@ -1,3 +1,0 @@
-{
-  "/api/webhooks/twilio/call-status/route": "app/api/webhooks/twilio/call-status/route.js"
-}

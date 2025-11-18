@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand color variables */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --primary: #2563eb;
+  /* Blue */
+  --secondary: #f59e42;
+  /* Orange */
+  --success: #22c55e;
+  /* Green */
+  --danger: #ef4444;
+  /* Red */
+  --warning: #facc15;
+  /* Yellow */
+  --info: #38bdf8;
+  /* Light Blue */
+  --gray: #64748b;
+  /* Add more as needed */
+}
+
+body {
+  background-color: var(--background);
+  color: #0f172a;
+}
+
+/* Accessibility: Validate color contrast for all brand colors */
+/* Example usage (pseudo-code):
+   validateColorContrast('#2563eb', '#fff'); // Primary on white
+   validateColorContrast('#f59e42', '#0f172a'); // Secondary on dark
+   validateColorContrast('#22c55e', '#fff'); // Success on white
+   validateColorContrast('#ef4444', '#fff'); // Danger on white
+   validateColorContrast('#facc15', '#0f172a'); // Warning on dark
+   validateColorContrast('#38bdf8', '#0f172a'); // Info on dark
+   validateColorContrast('#64748b', '#fff'); // Gray on white
+*/
+
+/* Motion reduction support - respects user's prefers-reduced-motion setting */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode toggle */
+html.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --primary: #ffff00;
+  --secondary: #ff6b35;
+  --success: #00ff00;
+  --danger: #ff0000;
+  --warning: #ffff00;
+  --info: #00ffff;
+  --gray: #c0c0c0;
+
+  filter: contrast(200%);
+}
+
+html.high-contrast body {
+  background-color: black !important;
+  color: white !important;
+}
+
+html.high-contrast * {
+  border-color: white !important;
+}
+
+/* Emergency animation stop (can be triggered via keyboard shortcut) */
+html.emergency-stop * {
+  animation: none !important;
+  transition: none !important;
+}

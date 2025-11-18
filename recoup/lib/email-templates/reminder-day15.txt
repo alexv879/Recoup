@@ -1,0 +1,48 @@
+⚠️ URGENT: Overdue Invoice {{invoice_number}} - Action Required
+
+⚠️ THIS INVOICE IS SIGNIFICANTLY OVERDUE AND REQUIRES IMMEDIATE ATTENTION
+
+Dear {{client_name}},
+
+Despite my previous reminder, invoice #{{invoice_number}} remains unpaid and is now **{{days_overdue}} days overdue**.
+
+As per the Late Payment of Commercial Debts (Interest) Act 1998, statutory interest and compensation are now accruing.
+
+OUTSTANDING INVOICE & ACCRUED CHARGES
+-------------------------------------
+Invoice Number: #{{invoice_number}}
+Original Amount: £{{amount}}
+Original Due Date: {{due_date}}
+Days Overdue: {{days_overdue}} days
+
+Statutory Interest: £{{statutory_interest}}
+  (Accruing daily)
+
+Fixed Compensation Fee: £{{fixed_compensation}}
+  ({{fixed_fee_tier}})
+
+**New Amount Due: £{{total_with_interest}}**
+
+---
+
+**I REQUIRE PAYMENT OF THE ORIGINAL AMOUNT (£{{amount}}) WITHIN THE NEXT 7 DAYS.**
+
+Failure to pay the original amount within this period will result in a new invoice being issued for the total amount including all statutory charges (£{{total_with_interest}}), and may lead to the initiation of formal debt recovery proceedings as outlined in my final notice.
+
+If you are experiencing difficulties with payment or have concerns about this invoice, please contact me immediately so we can discuss a resolution. Failure to respond may result in further collection action.
+
+If you have already sent payment, please provide me with the payment confirmation details and disregard this notice.
+
+Pay original amount now to halt proceedings: {{payment_link}}
+
+I value our business relationship and would prefer to resolve this matter directly with you.
+
+Regards,
+{{freelancer_name}}
+
+This is an automated payment reminder sent via Recoup.
+Please contact {{freelancer_email}} if you have questions.
+
+LEGAL REFERENCE:
+This notice is issued in accordance with the Late Payment of Commercial Debts (Interest) Act 1998.
+For more information, visit: https://www.gov.uk/late-commercial-payments-interest-debt-recovery
