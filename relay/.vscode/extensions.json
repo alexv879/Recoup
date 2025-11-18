@@ -1,0 +1,65 @@
+{
+  "recommendations": [
+    // Essential
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+
+    // TypeScript
+    "mattpocock.ts-error-translator",
+    "yoavbls.pretty-ts-errors",
+
+    // React & Next.js
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "burkeholland.simple-react-snippets",
+
+    // Firebase
+    "toba.vsfire",
+
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+
+    // Utilities
+    "christian-kohler.path-intellisense",
+    "christian-kohler.npm-intellisense",
+    "zignd.html-css-class-completion",
+
+    // Markdown
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-preview-github-styles",
+
+    // Formatting & Linting
+    "stylelint.vscode-stylelint",
+    "editorconfig.editorconfig",
+
+    // Testing
+    "orta.vscode-jest",
+
+    // Code Quality
+    "usernamehw.errorlens",
+    "streetsidesoftware.code-spell-checker",
+
+    // Productivity
+    "wix.vscode-import-cost",
+    "formulahendry.auto-close-tag",
+    "naumovs.color-highlight",
+
+    // Deployment
+    "vercel.vercel-vscode",
+
+    // Snippets
+    "tabnine.tabnine-vscode",
+
+    // Database
+    "mongodb.mongodb-vscode"
+  ],
+  "unwantedRecommendations": [
+    // Conflicts with our setup
+    "hookyqr.beautify",
+    "ms-vscode.vscode-typescript-tslint-plugin"
+  ]
+}
