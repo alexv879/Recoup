@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Reminder - Invoice {{invoice_number}}</title>
+    <title>Upcoming Payment Due - Invoice {{invoice_number}}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -39,12 +39,20 @@
             padding: 30px;
         }
 
-        .invoice-details {
-            background: #f9fafb;
-            border-left: 4px solid #667eea;
-            padding: 20px;
+        .info-banner {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
             margin: 20px 0;
             border-radius: 6px;
+        }
+
+        .invoice-details {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
         }
 
         .invoice-details table {
@@ -71,14 +79,32 @@
             margin: 20px 0;
             font-weight: 600;
             box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .help-box {
-            background: #eff6ff;
-            border-left: 4px solid #3b82f6;
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .quick-actions {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
             padding: 16px;
             margin: 20px 0;
-            border-radius: 6px;
+        }
+
+        .quick-actions h3 {
+            margin: 0 0 12px 0;
+            color: #92400e;
+            font-size: 16px;
+        }
+
+        .quick-actions ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #78350f;
         }
 
         .footer {
@@ -112,27 +138,26 @@
                 text-align: center;
                 padding: 12px 24px;
             }
-
-            .invoice-details {
-                padding: 15px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>💬 Friendly Payment Reminder</h1>
+            <h1>📅 Payment Due Soon</h1>
         </div>
 
         <div class="content">
             <p>Hi {{client_name}},</p>
 
-            <p>I hope this email finds you well! This is a friendly reminder that invoice
-                <strong>#{{invoice_number}}</strong> is now {{days_overdue}} days past its due date.</p>
+            <p>I hope you're doing well! This is a friendly heads-up that invoice <strong>#{{invoice_number}}</strong> is due for payment in <strong>{{days_until_due}} days</strong>.</p>
+
+            <div class="info-banner">
+                💡 <strong>Early payment reminder:</strong> This is just a courtesy notification to help you stay on top of upcoming payments.
+            </div>
 
             <div class="invoice-details">
-                <strong>Invoice Details:</strong>
+                <strong>Invoice Summary:</strong>
                 <table>
                     <tr>
                         <td>Invoice Number:</td>
@@ -143,28 +168,32 @@
                         <td style="color: #667eea; font-size: 18px;">£{{amount}}</td>
                     </tr>
                     <tr>
-                        <td>Original Due Date:</td>
+                        <td>Due Date:</td>
                         <td>{{due_date}}</td>
                     </tr>
                     <tr>
-                        <td>Days Overdue:</td>
-                        <td><strong>{{days_overdue}} days</strong></td>
+                        <td>Days Until Due:</td>
+                        <td><strong>{{days_until_due}} days</strong></td>
                     </tr>
                 </table>
             </div>
 
-            <p>I understand that things can get busy, so I wanted to send you a gentle nudge. If payment has already been
-                sent, please disregard this message and accept my thanks!</p>
-
             <center>
-                <a href="{{payment_link}}" class="cta-button">View Invoice & Pay Now</a>
+                <a href="{{payment_link}}" class="cta-button">View Invoice & Make Payment</a>
             </center>
 
-            <div class="help-box">
-                💡 <strong>Need help?</strong> If you have any questions about this invoice or need to discuss payment arrangements, please don't hesitate to reach out. I'm happy to work with you!
+            <div class="quick-actions">
+                <h3>💳 Quick Payment Options</h3>
+                <ul style="line-height: 1.8;">
+                    <li>Pay online via the link above (secure payment)</li>
+                    <li>Bank transfer to the details on the invoice</li>
+                    <li>Contact me if you need alternative arrangements</li>
+                </ul>
             </div>
 
-            <p>Thank you for your business!</p>
+            <p>If you have any questions about this invoice or need any clarification, please don't hesitate to reach out. I'm here to help!</p>
+
+            <p>If you've already paid or scheduled payment, please disregard this reminder and thank you!</p>
 
             <p>Best regards,<br>
             <strong>{{freelancer_name}}</strong></p>
@@ -172,7 +201,7 @@
 
         <div class="footer">
             <p>This is an automated reminder sent via Recoup.<br>
-            If you've already paid, please ignore this message.</p>
+            If you've already arranged payment, you can safely ignore this message.</p>
             <p style="margin-top: 12px; font-size: 12px;">
                 <a href="{{payment_link}}" style="color: #667eea; text-decoration: none;">View Invoice</a> |
                 <a href="mailto:{{freelancer_email}}" style="color: #667eea; text-decoration: none;">Contact {{freelancer_name}}</a>

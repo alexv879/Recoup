@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { OnboardingChecklist } from '@/components/Dashboard/OnboardingChecklist';
 import { CelebrationModal } from '@/components/Dashboard/CelebrationModal';
+import DashboardTour from '@/components/onboarding/DashboardTour';
 
 interface DashboardClientProps {
     userId: string;
@@ -40,6 +41,9 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({ userId, summar
 
     return (
         <>
+            {/* Feature Tour */}
+            <DashboardTour />
+
             {/* Onboarding Checklist */}
             {showOnboarding && (
                 <OnboardingChecklist

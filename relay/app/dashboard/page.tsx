@@ -46,7 +46,7 @@ export default async function DashboardPage() {
                             <p className="text-gray-600 mt-1">Welcome back! Here's your business overview</p>
                         </div>
                         <div className="flex gap-3">
-                            <Link href="/dashboard/invoices/new">
+                            <Link href="/dashboard/invoices/new" data-tour="create-invoice-button">
                                 <Button>+ Create Invoice</Button>
                             </Link>
                         </div>
@@ -56,7 +56,7 @@ export default async function DashboardPage() {
 
             <div className="container mx-auto px-4 py-8">
                 {/* Financial Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-tour="dashboard-summary">
                     {/* Total Revenue */}
                     <Card className="p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow duration-200">
                         <div className="flex items-center justify-between">
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Recent Invoices */}
-                    <Card className="p-6">
+                    <Card className="p-6" data-tour="invoice-list">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-semibold text-gray-900">Recent Invoices</h2>
                             <Link href="/dashboard/invoices">
