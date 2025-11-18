@@ -9,6 +9,10 @@ export interface User {
   name: string;
   phoneNumber?: string; // E.164 format: +44xxxxxxxxxx (for SMS)
 
+  // Admin & Roles
+  isAdmin?: boolean; // Admin user with full system access
+  adminRole?: 'super_admin' | 'support_admin' | 'finance_admin' | 'readonly_admin'; // Admin role type
+
   // Business
   businessName?: string;
   businessType: 'freelancer' | 'agency' | 'consultant';
@@ -728,4 +732,101 @@ export interface AgencyHandoff {
   createdAt: Timestamp;
   updatedAt?: Timestamp;
   closedAt?: Timestamp;
+}
+
+// ============ ADMIN AUDIT LOGS COLLECTION ============
+
+export interface AdminAuditLog {
+  // Identifiers
+  auditLogId?: string; // document ID (auto-generated)
+
+  // Action Details
+  action: string; // e.g., 'user_updated', 'payment_overridden', 'invoice_deleted'
+  actionType: 'create' | 'read' | 'update' | 'delete' | 'override' | 'export';
+
+  // Admin Who Performed Action
+  adminUserId: string;
+  adminEmail: string;
+  adminRole?: 'super_admin' | 'support_admin' | 'finance_admin' | 'readonly_admin';
+
+  // Target Resource
+  targetUserId?: string;
+  targetResource?: string; // e.g., 'user', 'invoice', 'payment', 'system_config'
+  targetResourceId?: string;
+
+  // Change Details
+  changes?: {
+    field: string;
+    oldValue: any;
+    newValue: any;
+  }[];
+
+  // Additional Context
+  reason?: string;
+  notes?: string;
+
+  // Request Metadata
+  ipAddress?: string;
+  userAgent?: string;
+  requestUrl?: string;
+  requestMethod?: string;
+
+  // Status
+  status: 'success' | 'failed' | 'partial';
+  errorMessage?: string;
+
+  // Timestamps
+  timestamp: Date;
+  createdAt: Date;
+}
+
+// ============ SYSTEM ALERTS COLLECTION ============
+
+export interface SystemAlert {
+  // Identifiers
+  alertId?: string; // document ID (auto-generated)
+
+  // Alert Details
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
+  type: 'system_error' | 'payment_failure' | 'api_failure' | 'rate_limit' | 'security' | 'performance' | 'integration';
+  title: string;
+  message: string;
+
+  // Source
+  source: 'sentry' | 'stripe' | 'twilio' | 'sendgrid' | 'firebase' | 'system' | 'manual';
+  sourceEventId?: string; // E.g., Sentry event ID
+
+  // Affected Resources
+  affectedUsers?: string[]; // User IDs
+  affectedInvoices?: string[]; // Invoice IDs
+  affectedPayments?: string[]; // Payment IDs
+
+  // Error Details
+  errorCode?: string;
+  errorMessage?: string;
+  stackTrace?: string;
+  context?: Record<string, any>;
+
+  // Status
+  status: 'active' | 'acknowledged' | 'investigating' | 'resolved' | 'ignored';
+  acknowledgedBy?: string; // Admin user ID
+  acknowledgedAt?: Timestamp;
+  resolvedBy?: string; // Admin user ID
+  resolvedAt?: Timestamp;
+  resolution?: string;
+
+  // Notification
+  notificationSent: boolean;
+  notificationChannels?: ('email' | 'slack' | 'sms')[];
+  notifiedAdmins?: string[]; // Admin user IDs
+
+  // Recurrence
+  isRecurring?: boolean;
+  occurrenceCount?: number;
+  firstOccurrence?: Timestamp;
+  lastOccurrence?: Timestamp;
+
+  // Timestamps
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
 }
