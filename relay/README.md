@@ -80,6 +80,44 @@ Complete Next.js App Router structure with:
 
 ## 🚀 Getting Started
 
+### Quick Start
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/alexv879/Recoup.git
+   cd Recoup/relay
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables:**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your API keys
+   ```
+
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser:**
+   Navigate to http://localhost:3000
+
+### Detailed Setup
+
+For a complete step-by-step setup guide including:
+- External service configuration (Clerk, Firebase, Stripe, etc.)
+- Environment variable details
+- Database setup options
+- Development workflow
+- Troubleshooting
+
+**See: [LOCAL_SETUP.md](./docs/LOCAL_SETUP.md)**
+
 ### Prerequisites
 
 You'll need accounts and API keys for:
@@ -90,50 +128,7 @@ You'll need accounts and API keys for:
 5. **Stripe** (payments) - https://stripe.com
 6. **Upstash Redis** (rate limiting) - https://upstash.com
 
-### Installation
-
-1. **Install dependencies:**
-   ```bash
-   cd recoup
-   npm install
-   ```
-
-2. **Set up environment variables:**
-   ```bash
-   cp .env.example .env.local
-   ```
-
-3. **Fill in your API keys in `.env.local`:**
-   - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-   - CLERK_SECRET_KEY
-   - FIREBASE_PROJECT_ID
-   - FIREBASE_CLIENT_EMAIL
-   - FIREBASE_PRIVATE_KEY
-   - OPENAI_API_KEY
-   - SENDGRID_API_KEY
-   - STRIPE_SECRET_KEY
-   - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-   - STRIPE_WEBHOOK_SECRET
-   - UPSTASH_REDIS_REST_URL
-   - UPSTASH_REDIS_REST_TOKEN
-   - ENCRYPTION_KEY (generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
-   - CRON_SECRET (generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`)
-
-4. **Create SendGrid email templates:**
-   Go to https://mc.sendgrid.com/dynamic-templates and create templates for:
-   - Invoice email
-   - Day 7 reminder
-   - Day 21 reminder
-   - Payment confirmed
-   - General notification
-
-5. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
-
-6. **Open your browser:**
-   Navigate to http://localhost:3000
+Detailed instructions for obtaining each API key are in [LOCAL_SETUP.md](./docs/LOCAL_SETUP.md).
 
 ## 📦 Tech Stack (November 2025)
 
@@ -318,6 +313,24 @@ None! Build passes TypeScript checks. Just needs API keys configured.
 
 ## 📚 Documentation
 
+### Project Documentation
+
+#### For Developers
+- **[LOCAL_SETUP.md](./docs/LOCAL_SETUP.md)** - Complete local development setup guide
+- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System architecture and design decisions
+- **[DATABASE.md](./docs/DATABASE.md)** - Firestore schema and data model documentation
+- **[CONTRIBUTING.md](./docs/CONTRIBUTING.md)** - Coding standards and contribution guidelines
+- **[DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - Production deployment procedures
+- **[TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
+
+#### API Documentation
+- **[OpenAPI Specification](./docs/api/openapi.yaml)** - Complete REST API documentation
+- **[Postman Collection](./docs/api/Recoup.postman_collection.json)** - Ready-to-use API testing collection
+
+#### For Users
+- **[USER_GUIDE.md](./docs/USER_GUIDE.md)** - Complete user guide for Recoup features
+
+### External Documentation
 - [Clerk v6 Docs](https://clerk.com/docs)
 - [Next.js 16 Docs](https://nextjs.org/docs)
 - [Firebase Admin Docs](https://firebase.google.com/docs/admin/setup)
