@@ -1,0 +1,121 @@
+# Artillery Load Test Configuration for Recoup
+# Simulates realistic traffic patterns for critical endpoints
+
+config:
+  target: "{{ $processEnvironment.TARGET_URL || 'http://localhost:3000' }}"
+  phases:
+    # Warm-up phase: 5 users over 30 seconds
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm-up"
+
+    # Ramp-up phase: Gradually increase to 50 users over 2 minutes
+    - duration: 120
+      arrivalRate: 5
+      rampTo: 50
+      name: "Ramp-up"
+
+    # Sustained load: 50 users for 5 minutes
+    - duration: 300
+      arrivalRate: 50
+      name: "Sustained load"
+
+    # Spike test: Sudden increase to 100 users for 1 minute
+    - duration: 60
+      arrivalRate: 100
+      name: "Spike test"
+
+    # Cool-down: Reduce to 10 users for 1 minute
+    - duration: 60
+      arrivalRate: 10
+      name: "Cool-down"
+
+  payload:
+    path: "./test-data.json"
+
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "Artillery Load Test"
+
+  ensure:
+    maxErrorRate: 5 # Max 5% error rate
+    p95: 1500 # 95th percentile response time < 1500ms
+    p99: 3000 # 99th percentile response time < 3000ms
+
+scenarios:
+  # Health check endpoint
+  - name: "Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  # Dashboard metrics (authenticated)
+  - name: "Dashboard Metrics"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/dashboard/summary"
+          headers:
+            Authorization: "Bearer {{ $processEnvironment.TEST_API_KEY }}"
+          expect:
+            - statusCode: [200, 401]
+
+  # Invoice listing
+  - name: "List Invoices"
+    weight: 25
+    flow:
+      - get:
+          url: "/api/invoices"
+          headers:
+            Authorization: "Bearer {{ $processEnvironment.TEST_API_KEY }}"
+          expect:
+            - statusCode: [200, 401]
+
+  # Payment confirmation flow
+  - name: "Payment Confirmation"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/payment-confirmations"
+          json:
+            invoiceId: "{{ $randomString() }}"
+            amount: 100000
+            method: "bank_transfer"
+          headers:
+            Authorization: "Bearer {{ $processEnvironment.TEST_API_KEY }}"
+          expect:
+            - statusCode: [200, 201, 401, 400]
+
+  # Webhook endpoints (simulate external calls)
+  - name: "Stripe Webhook"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/webhook/stripe"
+          json:
+            type: "checkout.session.completed"
+            data:
+              object:
+                id: "cs_test_{{ $randomString() }}"
+          headers:
+            stripe-signature: "test_signature"
+          expect:
+            - statusCode: [200, 400]
+
+  # Static page load
+  - name: "Landing Page"
+    weight: 5
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200

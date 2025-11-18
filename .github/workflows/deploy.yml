@@ -1,0 +1,252 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment:
+      name: staging
+      url: https://staging.recoup.app
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: relay/package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: ./relay
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: ./relay
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Staging
+        working-directory: ./relay
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
+          echo "Deployed to: $DEPLOYMENT_URL"
+
+      - name: Run smoke tests on staging
+        run: |
+          echo "Running smoke tests on ${{ env.DEPLOYMENT_URL }}"
+          # Health check
+          curl -f ${{ env.DEPLOYMENT_URL }}/api/health || exit 1
+          echo "Health check passed"
+
+      - name: Comment deployment URL on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Deployed to staging: ${{ env.DEPLOYMENT_URL }}`
+            })
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment:
+      name: production
+      url: https://recoup.app
+    needs: [pre-deployment-checks]
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: relay/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./relay
+        run: npm ci
+
+      - name: Run final tests
+        working-directory: ./relay
+        run: npm run test:ci
+        env:
+          NODE_ENV: test
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: ./relay
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: ./relay
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Production
+        working-directory: ./relay
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
+          echo "Deployed to: $DEPLOYMENT_URL"
+
+      - name: Create deployment record
+        run: |
+          echo "Deployment completed at $(date)" > deployment-log.txt
+          echo "Commit: ${{ github.sha }}" >> deployment-log.txt
+          echo "URL: ${{ env.DEPLOYMENT_URL }}" >> deployment-log.txt
+
+      - name: Run smoke tests on production
+        run: |
+          echo "Running smoke tests on ${{ env.DEPLOYMENT_URL }}"
+          # Health check
+          curl -f ${{ env.DEPLOYMENT_URL }}/api/health || exit 1
+          echo "Production health check passed"
+
+      - name: Notify on success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'success',
+              target_url: '${{ env.DEPLOYMENT_URL }}',
+              description: 'Successfully deployed to production',
+              context: 'deployment/production'
+            })
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'failure',
+              description: 'Production deployment failed',
+              context: 'deployment/production'
+            })
+
+  pre-deployment-checks:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: relay/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./relay
+        run: npm ci
+
+      - name: Validate build
+        working-directory: ./relay
+        run: npm run build
+
+      - name: Run tests with coverage
+        working-directory: ./relay
+        run: npm run test:coverage
+        env:
+          NODE_ENV: test
+
+      - name: Check test coverage
+        working-directory: ./relay
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+          echo "Total coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "❌ Coverage is below 80% threshold - blocking production deployment"
+            exit 1
+          fi
+          echo "✅ Coverage meets 80% threshold"
+
+  rollback:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'rollback'
+    environment:
+      name: production
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: List recent deployments
+        working-directory: ./relay
+        run: |
+          vercel ls --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Rollback to previous deployment
+        working-directory: ./relay
+        run: |
+          PREVIOUS_DEPLOYMENT=$(vercel ls --token=${{ secrets.VERCEL_TOKEN }} | grep READY | sed -n 2p | awk '{print $1}')
+          echo "Rolling back to deployment: $PREVIOUS_DEPLOYMENT"
+          vercel alias set $PREVIOUS_DEPLOYMENT recoup.app --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Rollback completed"
+
+      - name: Notify rollback
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'success',
+              description: 'Production deployment rolled back',
+              context: 'deployment/rollback'
+            })

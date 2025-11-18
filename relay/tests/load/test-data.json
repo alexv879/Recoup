@@ -1,0 +1,32 @@
+{
+  "invoices": [
+    {
+      "id": "inv_load_test_001",
+      "amount": 100000,
+      "clientEmail": "client1@loadtest.com",
+      "status": "unpaid"
+    },
+    {
+      "id": "inv_load_test_002",
+      "amount": 250000,
+      "clientEmail": "client2@loadtest.com",
+      "status": "unpaid"
+    },
+    {
+      "id": "inv_load_test_003",
+      "amount": 500000,
+      "clientEmail": "client3@loadtest.com",
+      "status": "unpaid"
+    }
+  ],
+  "users": [
+    {
+      "id": "user_load_test_001",
+      "email": "freelancer1@loadtest.com"
+    },
+    {
+      "id": "user_load_test_002",
+      "email": "freelancer2@loadtest.com"
+    }
+  ]
+}

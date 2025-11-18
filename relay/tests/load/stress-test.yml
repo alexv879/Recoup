@@ -1,0 +1,57 @@
+# Artillery Stress Test Configuration
+# Tests system behavior under extreme load
+
+config:
+  target: "{{ $processEnvironment.TARGET_URL || 'http://localhost:3000' }}"
+  phases:
+    # Gradual ramp to breaking point
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100
+      name: "Ramp to 100 RPS"
+
+    - duration: 60
+      arrivalRate: 100
+      rampTo: 200
+      name: "Ramp to 200 RPS"
+
+    - duration: 60
+      arrivalRate: 200
+      rampTo: 500
+      name: "Ramp to 500 RPS"
+
+    - duration: 120
+      arrivalRate: 500
+      name: "Hold at 500 RPS"
+
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Critical Path - Health Check"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/health"
+
+  - name: "Critical Path - Dashboard"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/dashboard/summary"
+          headers:
+            Authorization: "Bearer {{ $processEnvironment.TEST_API_KEY }}"
+
+  - name: "Critical Path - Payment Processing"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/payment-confirmations"
+          json:
+            invoiceId: "stress_test_{{ $randomString() }}"
+            amount: "{{ $randomNumber(10000, 500000) }}"

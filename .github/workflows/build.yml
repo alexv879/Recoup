@@ -1,0 +1,169 @@
+name: Build Validation
+
+on:
+  push:
+    branches: [main, develop, 'claude/**']
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: relay/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./relay
+        run: npm ci
+
+      - name: Setup environment variables
+        working-directory: ./relay
+        run: |
+          cat > .env.local << EOF
+          # Build-time environment variables
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
+          EOF
+
+      - name: Build Next.js application
+        working-directory: ./relay
+        run: npm run build
+        env:
+          NODE_ENV: production
+          # Server-side secrets (build time)
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+
+      - name: Check build output
+        working-directory: ./relay
+        run: |
+          if [ ! -d ".next" ]; then
+            echo "Build failed: .next directory not found"
+            exit 1
+          fi
+          echo "Build successful"
+          du -sh .next
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build-${{ github.sha }}
+          path: relay/.next
+          retention-days: 7
+
+      - name: Build size analysis
+        working-directory: ./relay
+        run: |
+          npm run build --json > build-stats.json || true
+          if [ -f "build-stats.json" ]; then
+            echo "Build statistics generated"
+          fi
+
+  build-python-services:
+    name: Build Python Services
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: ./recoup/python-services/pdf_service
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Python linter
+        working-directory: ./recoup/python-services/pdf_service
+        run: |
+          pip install pylint
+          pylint main.py --disable=C0111,R0903 || true
+
+      - name: Test PDF service
+        working-directory: ./recoup/python-services/pdf_service
+        run: |
+          python -m uvicorn main:app --host 0.0.0.0 --port 8000 &
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1
+          echo "PDF service health check passed"
+          pkill -f uvicorn
+
+  validate-environment:
+    name: Validate Environment Config
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required secrets
+        run: |
+          REQUIRED_SECRETS=(
+            "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+            "CLERK_SECRET_KEY"
+            "STRIPE_SECRET_KEY"
+            "STRIPE_WEBHOOK_SECRET"
+            "SENDGRID_API_KEY"
+            "TWILIO_ACCOUNT_SID"
+            "TWILIO_AUTH_TOKEN"
+            "FIREBASE_PROJECT_ID"
+            "FIREBASE_PRIVATE_KEY"
+            "FIREBASE_CLIENT_EMAIL"
+            "CRON_SECRET"
+          )
+
+          MISSING_SECRETS=()
+
+          for secret in "${REQUIRED_SECRETS[@]}"; do
+            if [ -z "${!secret}" ]; then
+              MISSING_SECRETS+=("$secret")
+            fi
+          done
+
+          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo "Missing required secrets:"
+            printf '%s\n' "${MISSING_SECRETS[@]}"
+            echo "Please configure these secrets in GitHub repository settings"
+            exit 1
+          fi
+
+          echo "All required secrets are configured"
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
