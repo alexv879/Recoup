@@ -1,13 +1,19 @@
 """
 Invoice Parsing Module
 Extracts structured invoice data from voice transcripts using NLP
+
+Enhanced with:
+- Multiple pattern matching strategies
+- Confidence scoring for each field
+- UK-specific number and date formats
+- Validation and normalization
 """
 
 import re
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
-from dataclasses import dataclass
+from typing import Dict, Any, Optional, List, Tuple
+from dataclasses import dataclass, asdict
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +41,81 @@ NUMBER_WORDS = {
 }
 
 
+def validate_parsed_invoice(parsed: Dict[str, Any]) -> List[str]:
+    """
+    Validate parsed invoice data and return list of validation errors
+
+    Args:
+        parsed: Parsed invoice dictionary
+
+    Returns:
+        List of validation error messages (empty if valid)
+    """
+    errors = []
+
+    # Client name validation
+    if parsed.get("client_name"):
+        name = parsed["client_name"]
+        if len(name) < 2:
+            errors.append("Client name too short")
+        if len(name) > 100:
+            errors.append("Client name too long")
+        if not any(c.isalpha() for c in name):
+            errors.append("Client name must contain letters")
+
+    # Amount validation
+    if parsed.get("amount") is not None:
+        amount = parsed["amount"]
+        if amount <= 0:
+            errors.append("Amount must be positive")
+        if amount > 1_000_000:
+            errors.append("Amount exceeds maximum (£1,000,000)")
+        if amount < 0.01:
+            errors.append("Amount too small (minimum £0.01)")
+
+    # Currency validation
+    if parsed.get("currency"):
+        currency = parsed["currency"]
+        valid_currencies = ["GBP", "USD", "EUR"]
+        if currency not in valid_currencies:
+            errors.append(f"Invalid currency: {currency}")
+
+    # Due date validation
+    if parsed.get("due_date"):
+        try:
+            due_date = datetime.fromisoformat(parsed["due_date"])
+            today = datetime.now()
+
+            # Check if due date is too far in the past
+            if due_date < today - timedelta(days=365):
+                errors.append("Due date is more than 1 year in the past")
+
+            # Check if due date is too far in the future
+            if due_date > today + timedelta(days=365):
+                errors.append("Due date is more than 1 year in the future")
+
+        except (ValueError, TypeError):
+            errors.append("Invalid due date format")
+
+    return errors
+
+
+def normalize_amount(amount: float) -> float:
+    """
+    Normalize amount to 2 decimal places
+
+    Args:
+        amount: Raw amount
+
+    Returns:
+        Normalized amount
+    """
+    return round(amount, 2)
+
+
 def parse_invoice_from_transcript(transcript: str) -> Dict[str, Any]:
     """
-    Parse invoice details from voice transcript
+    Parse invoice details from voice transcript with validation
 
     Extracts:
     - Client name
@@ -50,7 +128,7 @@ def parse_invoice_from_transcript(transcript: str) -> Dict[str, Any]:
         transcript: Voice transcript text
 
     Returns:
-        dict with parsed invoice data and confidence score
+        dict with parsed invoice data, confidence score, and validation errors
     """
     transcript = transcript.strip()
 
@@ -62,7 +140,8 @@ def parse_invoice_from_transcript(transcript: str) -> Dict[str, Any]:
             "description": None,
             "due_date": None,
             "raw_transcript": "",
-            "confidence": 0.0
+            "confidence": 0.0,
+            "validation_errors": []
         }
 
     parsed = {
@@ -79,13 +158,13 @@ def parse_invoice_from_transcript(transcript: str) -> Dict[str, Any]:
     # Extract client name
     client_name, client_confidence = extract_client_name(transcript)
     if client_name:
-        parsed["client_name"] = client_name
+        parsed["client_name"] = client_name.strip()
         confidence_scores.append(client_confidence)
 
     # Extract amount
     amount, amount_confidence = extract_amount(transcript)
     if amount:
-        parsed["amount"] = amount
+        parsed["amount"] = normalize_amount(amount)
         confidence_scores.append(amount_confidence)
 
     # Extract currency
@@ -96,7 +175,7 @@ def parse_invoice_from_transcript(transcript: str) -> Dict[str, Any]:
     # Extract description
     description, desc_confidence = extract_description(transcript)
     if description:
-        parsed["description"] = description
+        parsed["description"] = description.strip()
         confidence_scores.append(desc_confidence)
 
     # Extract due date
@@ -108,7 +187,21 @@ def parse_invoice_from_transcript(transcript: str) -> Dict[str, Any]:
     # Calculate overall confidence
     parsed["confidence"] = sum(confidence_scores) / len(confidence_scores) if confidence_scores else 0.0
 
-    logger.info(f"Parsed invoice: {parsed['client_name']}, £{parsed['amount']}, confidence: {parsed['confidence']:.2f}")
+    # Validate parsed data
+    validation_errors = validate_parsed_invoice(parsed)
+    parsed["validation_errors"] = validation_errors
+
+    # Adjust confidence based on validation errors
+    if validation_errors:
+        # Reduce confidence by 20% for each validation error
+        parsed["confidence"] = max(0.0, parsed["confidence"] - (len(validation_errors) * 0.2))
+
+    logger.info(
+        f"Parsed invoice: {parsed['client_name']}, "
+        f"{parsed['currency']}{parsed['amount']}, "
+        f"confidence: {parsed['confidence']:.2f}, "
+        f"errors: {len(validation_errors)}"
+    )
 
     return parsed
 

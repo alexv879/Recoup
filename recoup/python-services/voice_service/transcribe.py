@@ -1,188 +1,283 @@
 """
 Audio Transcription Module
-Handles Deepgram and OpenAI Whisper transcription
+Handles Deepgram and OpenAI Whisper transcription with retry logic
 """
 
-import os
 import time
 import logging
-from typing import Dict, Any
+import asyncio
+from typing import Dict, Any, Optional
 import httpx
 import openai
 
+from config import get_config
+
 logger = logging.getLogger(__name__)
 
-# Environment variables
-DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# Get configuration
+config = get_config()
 
 # Initialize OpenAI client
-if OPENAI_API_KEY:
-    openai.api_key = OPENAI_API_KEY
+if config.OPENAI_API_KEY:
+    openai.api_key = config.OPENAI_API_KEY
+
+
+async def retry_with_backoff(
+    func,
+    max_retries: int = 3,
+    initial_delay: float = 1.0,
+    backoff_factor: float = 2.0,
+    *args,
+    **kwargs
+):
+    """
+    Retry function with exponential backoff
+
+    Args:
+        func: Async function to retry
+        max_retries: Maximum number of retry attempts
+        initial_delay: Initial delay in seconds
+        backoff_factor: Multiplier for delay after each retry
+
+    Returns:
+        Function result
+
+    Raises:
+        Last exception if all retries fail
+    """
+    last_exception = None
+    delay = initial_delay
+
+    for attempt in range(max_retries):
+        try:
+            return await func(*args, **kwargs)
+        except Exception as e:
+            last_exception = e
+            if attempt < max_retries - 1:
+                logger.warning(
+                    f"Attempt {attempt + 1}/{max_retries} failed: {str(e)}. "
+                    f"Retrying in {delay}s..."
+                )
+                await asyncio.sleep(delay)
+                delay *= backoff_factor
+            else:
+                logger.error(f"All {max_retries} attempts failed")
+
+    raise last_exception
+
+
+async def _transcribe_with_deepgram_internal(
+    audio_bytes: bytes,
+    content_type: str,
+    language: str,
+    timeout: int
+) -> Dict[str, Any]:
+    """Internal Deepgram transcription function (for retry logic)"""
+    start_time = time.time()
+
+    # Deepgram API endpoint
+    url = "https://api.deepgram.com/v1/listen"
+
+    # Query parameters
+    params = {
+        "model": "nova-2",  # Latest Deepgram model
+        "language": language,
+        "punctuate": "true",
+        "diarize": "false",
+        "smart_format": "true"
+    }
+
+    # Headers
+    headers = {
+        "Authorization": f"Token {config.DEEPGRAM_API_KEY}",
+        "Content-Type": content_type or "audio/webm"
+    }
+
+    # Make request with retry-friendly client
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        response = await client.post(
+            url,
+            params=params,
+            headers=headers,
+            content=audio_bytes
+        )
+
+    if response.status_code != 200:
+        error_msg = f"Deepgram API error: {response.status_code}"
+        try:
+            error_detail = response.json()
+            error_msg += f" - {error_detail}"
+        except:
+            error_msg += f" - {response.text[:200]}"
+        raise Exception(error_msg)
+
+    result = response.json()
+    latency = int((time.time() - start_time) * 1000)
+
+    # Extract transcript and metadata
+    channel = result.get("results", {}).get("channels", [{}])[0]
+    alternative = channel.get("alternatives", [{}])[0]
+
+    if not alternative.get("transcript"):
+        raise Exception("No transcript returned from Deepgram")
+
+    transcript = alternative["transcript"]
+    confidence = alternative.get("confidence", 0.0)
+    words = alternative.get("words", [])
+
+    logger.info(f"Deepgram transcription successful: {len(transcript)} chars, {latency}ms")
+
+    # Check latency target
+    if latency > 1500:
+        logger.warning(f"Deepgram latency exceeded 1.5s target: {latency}ms")
+
+    return {
+        "transcript": transcript,
+        "confidence": confidence,
+        "latency": latency,
+        "provider": "deepgram",
+        "metadata": {
+            "words": words,
+            "word_count": len(words),
+            "duration": result.get("metadata", {}).get("duration", 0)
+        }
+    }
 
 
 async def transcribe_with_deepgram(
     audio_bytes: bytes,
     content_type: str,
-    language: str = "en-GB"
+    language: str = "en-GB",
+    timeout: int = 30
 ) -> Dict[str, Any]:
     """
-    Transcribe audio using Deepgram API
+    Transcribe audio using Deepgram API with retry logic
     Ultra-low latency streaming transcription
 
     Args:
         audio_bytes: Audio file bytes
         content_type: MIME type of audio
         language: Language code (default: en-GB)
+        timeout: Request timeout in seconds (default: 30)
 
     Returns:
         dict with transcript, confidence, latency, provider, metadata
     """
-    if not DEEPGRAM_API_KEY:
+    if not config.DEEPGRAM_API_KEY:
         raise Exception("DEEPGRAM_API_KEY not configured")
 
+    try:
+        return await retry_with_backoff(
+            _transcribe_with_deepgram_internal,
+            max_retries=2,  # Only 2 retries for latency-sensitive operations
+            initial_delay=0.5,
+            audio_bytes=audio_bytes,
+            content_type=content_type,
+            language=language,
+            timeout=timeout
+        )
+    except Exception as e:
+        logger.error(f"Deepgram transcription failed after retries: {str(e)}")
+        raise
+
+
+async def _transcribe_with_whisper_internal(
+    audio_bytes: bytes,
+    filename: str,
+    language: str,
+    timeout: int
+) -> Dict[str, Any]:
+    """Internal Whisper transcription function (for retry logic)"""
     start_time = time.time()
 
-    try:
-        # Deepgram API endpoint
-        url = "https://api.deepgram.com/v1/listen"
+    # Prepare file for upload
+    files = {
+        "file": (filename, audio_bytes, "audio/webm")
+    }
 
-        # Query parameters
-        params = {
-            "model": "nova-2",  # Latest Deepgram model
-            "language": language,
-            "punctuate": "true",
-            "diarize": "false",
-            "smart_format": "true"
+    data = {
+        "model": "whisper-1",
+        "language": language[:2] if language else "en",  # Whisper uses 2-letter codes
+        "response_format": "verbose_json"
+    }
+
+    # Make request to OpenAI API
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        response = await client.post(
+            "https://api.openai.com/v1/audio/transcriptions",
+            headers={"Authorization": f"Bearer {config.OPENAI_API_KEY}"},
+            files=files,
+            data=data
+        )
+
+    if response.status_code != 200:
+        error_msg = f"Whisper API error: {response.status_code}"
+        try:
+            error_detail = response.json()
+            error_msg += f" - {error_detail.get('error', {}).get('message', response.text[:200])}"
+        except:
+            error_msg += f" - {response.text[:200]}"
+        raise Exception(error_msg)
+
+    result = response.json()
+    latency = int((time.time() - start_time) * 1000)
+
+    if not result.get("text"):
+        raise Exception("No transcript returned from Whisper")
+
+    transcript = result["text"]
+    words = result.get("words", [])
+
+    logger.info(f"Whisper transcription successful: {len(transcript)} chars, {latency}ms")
+
+    return {
+        "transcript": transcript,
+        "confidence": 0.95,  # Whisper doesn't provide confidence, use high default
+        "latency": latency,
+        "provider": "whisper",
+        "metadata": {
+            "words": words,
+            "word_count": len(words),
+            "duration": result.get("duration", 0),
+            "language": result.get("language", language)
         }
-
-        # Headers
-        headers = {
-            "Authorization": f"Token {DEEPGRAM_API_KEY}",
-            "Content-Type": content_type or "audio/webm"
-        }
-
-        # Make request
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                url,
-                params=params,
-                headers=headers,
-                content=audio_bytes
-            )
-
-        if response.status_code != 200:
-            raise Exception(f"Deepgram API error: {response.status_code} - {response.text}")
-
-        result = response.json()
-        latency = int((time.time() - start_time) * 1000)
-
-        # Extract transcript and metadata
-        channel = result.get("results", {}).get("channels", [{}])[0]
-        alternative = channel.get("alternatives", [{}])[0]
-
-        if not alternative.get("transcript"):
-            raise Exception("No transcript returned from Deepgram")
-
-        transcript = alternative["transcript"]
-        confidence = alternative.get("confidence", 0.0)
-        words = alternative.get("words", [])
-
-        logger.info(f"Deepgram transcription successful: {len(transcript)} chars, {latency}ms")
-
-        # Check latency target
-        if latency > 1500:
-            logger.warning(f"Deepgram latency exceeded 1.5s target: {latency}ms")
-
-        return {
-            "transcript": transcript,
-            "confidence": confidence,
-            "latency": latency,
-            "provider": "deepgram",
-            "metadata": {
-                "words": words,
-                "word_count": len(words),
-                "duration": result.get("metadata", {}).get("duration", 0)
-            }
-        }
-
-    except Exception as e:
-        logger.error(f"Deepgram transcription failed: {str(e)}")
-        raise
+    }
 
 
 async def transcribe_with_whisper(
     audio_bytes: bytes,
     filename: str,
-    language: str = "en"
+    language: str = "en",
+    timeout: int = 60
 ) -> Dict[str, Any]:
     """
-    Transcribe audio using OpenAI Whisper API
+    Transcribe audio using OpenAI Whisper API with retry logic
     Higher accuracy but slower (batch processing)
 
     Args:
         audio_bytes: Audio file bytes
         filename: Original filename
         language: Language code (default: en)
+        timeout: Request timeout in seconds (default: 60)
 
     Returns:
         dict with transcript, confidence, latency, provider, metadata
     """
-    if not OPENAI_API_KEY:
+    if not config.OPENAI_API_KEY:
         raise Exception("OPENAI_API_KEY not configured")
 
-    start_time = time.time()
-
     try:
-        # Prepare file for upload
-        files = {
-            "file": (filename, audio_bytes, "audio/webm")
-        }
-
-        data = {
-            "model": "whisper-1",
-            "language": language,
-            "response_format": "verbose_json"
-        }
-
-        # Make request to OpenAI API
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(
-                "https://api.openai.com/v1/audio/transcriptions",
-                headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
-                files=files,
-                data=data
-            )
-
-        if response.status_code != 200:
-            raise Exception(f"Whisper API error: {response.status_code} - {response.text}")
-
-        result = response.json()
-        latency = int((time.time() - start_time) * 1000)
-
-        if not result.get("text"):
-            raise Exception("No transcript returned from Whisper")
-
-        transcript = result["text"]
-        words = result.get("words", [])
-
-        logger.info(f"Whisper transcription successful: {len(transcript)} chars, {latency}ms")
-
-        return {
-            "transcript": transcript,
-            "confidence": 1.0,  # Whisper doesn't provide confidence scores
-            "latency": latency,
-            "provider": "whisper",
-            "metadata": {
-                "words": words,
-                "word_count": len(words),
-                "duration": result.get("duration", 0),
-                "language": result.get("language", language)
-            }
-        }
-
+        return await retry_with_backoff(
+            _transcribe_with_whisper_internal,
+            max_retries=3,  # More retries for batch operations
+            initial_delay=1.0,
+            audio_bytes=audio_bytes,
+            filename=filename,
+            language=language,
+            timeout=timeout
+        )
     except Exception as e:
-        logger.error(f"Whisper transcription failed: {str(e)}")
+        logger.error(f"Whisper transcription failed after retries: {str(e)}")
         raise
 
 
@@ -199,21 +294,25 @@ def validate_audio(audio_bytes: bytes, content_type: str) -> Dict[str, Any]:
     """
     errors = []
 
-    # Check file size (max 25MB for Whisper)
-    max_size = 25 * 1024 * 1024  # 25MB
+    # Check file size (use configured max)
+    max_size = config.MAX_AUDIO_SIZE_MB * 1024 * 1024
     if len(audio_bytes) > max_size:
         file_size_mb = len(audio_bytes) / 1024 / 1024
-        errors.append(f"Audio file too large: {file_size_mb:.2f}MB (max 25MB)")
+        errors.append(
+            f"Audio file too large: {file_size_mb:.2f}MB (max {config.MAX_AUDIO_SIZE_MB}MB)"
+        )
 
     # Check minimum size (at least 0.1s of audio)
     min_size = 1024  # ~0.1s at 16kHz
     if len(audio_bytes) < min_size:
         errors.append("Audio too short. Please speak for at least 1 second.")
 
-    # Check audio format
-    valid_formats = ["audio/webm", "audio/wav", "audio/mp3", "audio/mpeg", "audio/ogg", "audio/x-wav"]
-    if content_type and not any(fmt in content_type for fmt in valid_formats):
-        errors.append(f"Unsupported audio format: {content_type}")
+    # Check audio format (use configured allowed formats)
+    if content_type and content_type not in config.ALLOWED_AUDIO_FORMATS:
+        errors.append(
+            f"Unsupported audio format: {content_type}. "
+            f"Allowed: {', '.join(config.ALLOWED_AUDIO_FORMATS)}"
+        )
 
     return {
         "valid": len(errors) == 0,
