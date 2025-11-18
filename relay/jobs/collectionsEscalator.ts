@@ -33,6 +33,7 @@ import { sendReminderEmail } from '@/lib/sendgrid';
 import { sendCollectionSMS } from '@/lib/twilio-sms';
 import { trackEvent } from '@/lib/analytics';
 import { logInfo, logError, logWarn } from '@/utils/logger';
+import { BatchPerformanceTracker, measurePerformance } from '@/lib/performance';
 
 const COLLECTIONS = {
     USERS: 'users',
@@ -48,107 +49,264 @@ interface EscalationWorkerResult {
     pausedCount: number;
     skippedCount: number;
     errors: string[];
+    duration: number;
+    batchSize?: number;
 }
 
 /**
+ * Batch processing configuration
+ */
+const BATCH_CONFIG = {
+    SIZE: 50,              // Process 50 invoices at a time
+    MAX_RETRIES: 3,        // Retry failed operations 3 times
+    RETRY_DELAY_MS: 1000,  // 1 second delay between retries
+    PARALLEL_LIMIT: 10,    // Max 10 parallel operations within batch
+};
+
+/**
  * Main escalation worker - scans all overdue invoices
- * Should be called by cron job (e.g., every 6 hours)
+ * OPTIMIZED: Uses batch processing, parallel operations, and retry logic
  */
 export async function runEscalationWorker(): Promise<EscalationWorkerResult> {
-    const startTime = Date.now();
+    const tracker = new BatchPerformanceTracker('escalation_worker');
     const result: EscalationWorkerResult = {
         scannedCount: 0,
         escalatedCount: 0,
         pausedCount: 0,
         skippedCount: 0,
         errors: [],
+        duration: 0,
+        batchSize: BATCH_CONFIG.SIZE,
     };
 
     try {
-        logInfo('Starting collections escalation worker');
+        logInfo('Starting collections escalation worker (OPTIMIZED)', {
+            batchSize: BATCH_CONFIG.SIZE,
+            parallelLimit: BATCH_CONFIG.PARALLEL_LIMIT,
+        });
 
         // 1. Get all overdue invoices
         const now = Timestamp.now();
-        const overdueInvoicesSnapshot = await db
-            .collection(COLLECTIONS.INVOICES)
-            .where('status', 'in', ['overdue', 'in_collections'])
-            .get();
+        const overdueInvoicesSnapshot = await measurePerformance(
+            'fetch_overdue_invoices',
+            async () =>
+                await db
+                    .collection(COLLECTIONS.INVOICES)
+                    .where('status', 'in', ['overdue', 'in_collections'])
+                    .get()
+        );
 
         result.scannedCount = overdueInvoicesSnapshot.size;
         logInfo(`Found ${result.scannedCount} overdue invoices to process`);
 
-        // 2. Process each invoice
-        for (const invoiceDoc of overdueInvoicesSnapshot.docs) {
-            try {
-                const invoice = invoiceDoc.data() as Invoice;
-                const daysOverdue = Math.floor(
-                    (now.toMillis() - invoice.dueDate.toMillis()) / (1000 * 60 * 60 * 24)
-                );
-
-                // Skip if not truly overdue yet
-                if (daysOverdue < 0) {
-                    result.skippedCount++;
-                    continue;
-                }
-
-                // 3. Get or create escalation state
-                const escalationState = await getOrCreateEscalationState(invoice.invoiceId, daysOverdue);
-
-                // 4. Check if paused
-                if (escalationState.isPaused) {
-                    // Check if should auto-resume
-                    if (escalationState.pauseUntil && now.toMillis() > escalationState.pauseUntil.getTime()) {
-                        await resumeEscalation(invoice.invoiceId, 'auto_resume_deadline_passed');
-                        logInfo(`Auto-resumed escalation for invoice ${invoice.reference}`, {
-                            invoiceId: invoice.invoiceId,
-                        });
-                    } else {
-                        result.pausedCount++;
-                        continue;
-                    }
-                }
-
-                // 5. Get user automation config
-                const userConfig = await getUserAutomationConfig(invoice.freelancerId);
-                if (!userConfig.enabled) {
-                    result.skippedCount++;
-                    continue;
-                }
-
-                // 6. Calculate target escalation level
-                const targetLevel = calculateEscalationLevel(daysOverdue);
-
-                // 7. Check if should escalate
-                if (shouldEscalate(escalationState.currentLevel, daysOverdue)) {
-                    await escalateInvoice(
-                        invoice,
-                        targetLevel,
-                        daysOverdue,
-                        userConfig,
-                        escalationState
-                    );
-                    result.escalatedCount++;
-                } else {
-                    result.skippedCount++;
-                }
-            } catch (error: any) {
-                const errorMsg = `Failed to process invoice ${invoiceDoc.id}: ${error.message}`;
-                logError(errorMsg, error);
-                result.errors.push(errorMsg);
-            }
+        if (result.scannedCount === 0) {
+            result.duration = Date.now();
+            tracker.logSummary();
+            return result;
         }
 
-        const duration = Date.now() - startTime;
-        logInfo('Collections escalation worker completed', {
-            ...result,
-            durationMs: duration,
-        });
+        // 2. Convert to array and batch process
+        const allInvoices = overdueInvoicesSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data() as Invoice,
+        }));
+
+        // OPTIMIZATION: Process in batches to avoid memory issues
+        const batches = chunkArray(allInvoices, BATCH_CONFIG.SIZE);
+
+        logInfo(`Processing ${batches.length} batches of ${BATCH_CONFIG.SIZE} invoices`);
+
+        for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+            const batch = batches[batchIndex];
+            logInfo(`Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} invoices)`);
+
+            // OPTIMIZATION: Process batch with controlled parallelism
+            const batchResult = await processBatchWithRetry(
+                batch,
+                now,
+                BATCH_CONFIG.MAX_RETRIES
+            );
+
+            // Aggregate results
+            result.escalatedCount += batchResult.escalated;
+            result.pausedCount += batchResult.paused;
+            result.skippedCount += batchResult.skipped;
+            result.errors.push(...batchResult.errors);
+
+            tracker.increment();
+
+            // Log progress
+            logInfo(`Batch ${batchIndex + 1} complete`, {
+                escalated: batchResult.escalated,
+                paused: batchResult.paused,
+                skipped: batchResult.skipped,
+                errors: batchResult.errors.length,
+            });
+        }
+
+        result.duration = Date.now();
+        tracker.logSummary();
+
+        logInfo('Collections escalation worker completed', result);
 
         return result;
     } catch (error: any) {
+        result.duration = Date.now();
+        tracker.error();
+        tracker.logSummary();
         logError('Collections escalation worker failed', error);
         throw error;
     }
+}
+
+/**
+ * Process a batch of invoices with retry logic
+ */
+async function processBatchWithRetry(
+    batch: Array<{ id: string; data: Invoice }>,
+    now: Timestamp,
+    maxRetries: number
+): Promise<{
+    escalated: number;
+    paused: number;
+    skipped: number;
+    errors: string[];
+}> {
+    const result = {
+        escalated: 0,
+        paused: 0,
+        skipped: 0,
+        errors: [] as string[],
+    };
+
+    // OPTIMIZATION: Process batch items with controlled parallelism
+    const chunks = chunkArray(batch, BATCH_CONFIG.PARALLEL_LIMIT);
+
+    for (const chunk of chunks) {
+        const promises = chunk.map(async (item) => {
+            return processInvoiceWithRetry(item.data, now, maxRetries);
+        });
+
+        const results = await Promise.allSettled(promises);
+
+        // Aggregate results
+        results.forEach((res, index) => {
+            if (res.status === 'fulfilled') {
+                const invoiceResult = res.value;
+                if (invoiceResult.escalated) result.escalated++;
+                if (invoiceResult.paused) result.paused++;
+                if (invoiceResult.skipped) result.skipped++;
+                if (invoiceResult.error) result.errors.push(invoiceResult.error);
+            } else {
+                const invoice = chunk[index].data;
+                result.errors.push(`Failed to process invoice ${invoice.reference}: ${res.reason}`);
+            }
+        });
+    }
+
+    return result;
+}
+
+/**
+ * Process a single invoice with exponential backoff retry
+ */
+async function processInvoiceWithRetry(
+    invoice: Invoice,
+    now: Timestamp,
+    maxRetries: number,
+    attempt: number = 0
+): Promise<{
+    escalated: boolean;
+    paused: boolean;
+    skipped: boolean;
+    error?: string;
+}> {
+    try {
+        const daysOverdue = Math.floor(
+            (now.toMillis() - invoice.dueDate.toMillis()) / (1000 * 60 * 60 * 24)
+        );
+
+        // Skip if not truly overdue yet
+        if (daysOverdue < 0) {
+            return { escalated: false, paused: false, skipped: true };
+        }
+
+        // Get or create escalation state
+        const escalationState = await getOrCreateEscalationState(invoice.invoiceId, daysOverdue);
+
+        // Check if paused
+        if (escalationState.isPaused) {
+            // Check if should auto-resume
+            if (escalationState.pauseUntil && now.toMillis() > escalationState.pauseUntil.getTime()) {
+                await resumeEscalation(invoice.invoiceId, 'auto_resume_deadline_passed');
+                logInfo(`Auto-resumed escalation for invoice ${invoice.reference}`);
+            } else {
+                return { escalated: false, paused: true, skipped: false };
+            }
+        }
+
+        // Get user automation config
+        const userConfig = await getUserAutomationConfig(invoice.freelancerId);
+        if (!userConfig.enabled) {
+            return { escalated: false, paused: false, skipped: true };
+        }
+
+        // Calculate target escalation level
+        const targetLevel = calculateEscalationLevel(daysOverdue);
+
+        // Check if should escalate
+        if (shouldEscalate(escalationState.currentLevel, daysOverdue)) {
+            await escalateInvoice(
+                invoice,
+                targetLevel,
+                daysOverdue,
+                userConfig,
+                escalationState
+            );
+            return { escalated: true, paused: false, skipped: false };
+        } else {
+            return { escalated: false, paused: false, skipped: true };
+        }
+    } catch (error: any) {
+        // Retry with exponential backoff
+        if (attempt < maxRetries) {
+            const delay = BATCH_CONFIG.RETRY_DELAY_MS * Math.pow(2, attempt);
+            logWarn(`Retrying invoice ${invoice.reference} (attempt ${attempt + 1}/${maxRetries})`, {
+                error: error.message,
+                delay,
+            });
+
+            await sleep(delay);
+            return processInvoiceWithRetry(invoice, now, maxRetries, attempt + 1);
+        }
+
+        const errorMsg = `Failed to process invoice ${invoice.reference} after ${maxRetries} retries: ${error.message}`;
+        logError(errorMsg, error);
+        return {
+            escalated: false,
+            paused: false,
+            skipped: false,
+            error: errorMsg,
+        };
+    }
+}
+
+/**
+ * Chunk array into smaller arrays
+ */
+function chunkArray<T>(array: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+        chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+}
+
+/**
+ * Sleep helper for retry delay
+ */
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**

@@ -1,0 +1,101 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "freelancerId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "freelancerId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "paidAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "freelancerId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "freelancerId", "order": "ASCENDING" },
+        { "fieldPath": "paidAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "freelancerId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "freelancerId", "order": "ASCENDING" },
+        { "fieldPath": "collectionsEnabled", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "dueDate", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "collection_attempts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "freelancerId", "order": "ASCENDING" },
+        { "fieldPath": "result", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "user_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "gamificationXP", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "user_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "totalCollected", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "escalation_timeline",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "invoiceId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "escalation_states",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPaused", "order": "ASCENDING" },
+        { "fieldPath": "pauseUntil", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

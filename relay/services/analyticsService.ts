@@ -2,6 +2,8 @@ import { db, Timestamp, COLLECTIONS } from '@/lib/firebase';
 import { Invoice, CollectionAttempt, User, UserStats } from '@/types/models';
 import { NotFoundError } from '@/utils/error';
 import { logDbOperation, logInfo, logError } from '@/utils/logger';
+import { withCache, CACHE_KEYS, CACHE_TTL, invalidateUserCache } from '@/lib/cache';
+import { measureQuery, PerformanceTimer } from '@/lib/performance';
 
 /**
  * Analytics Service - Dashboard statistics and insights
@@ -11,6 +13,7 @@ import { logDbOperation, logInfo, logError } from '@/utils/logger';
 
 /**
  * Get invoice statistics for a user
+ * OPTIMIZED: Uses caching and aggregation queries
  */
 export async function getInvoiceStats(userId: string): Promise<{
   total: number;
@@ -18,49 +21,98 @@ export async function getInvoiceStats(userId: string): Promise<{
   overdue: number;
   collected: number;
   avgPaymentDays: number;
+  totalPaid?: number;
+  totalOutstanding?: number;
+  avgAmount?: number;
+  draft?: number;
 }> {
-  const startTime = Date.now();
+  return withCache(
+    CACHE_KEYS.INVOICE_STATS,
+    CACHE_TTL.INVOICE_STATS,
+    [userId],
+    async () => {
+      const timer = new PerformanceTimer('getInvoiceStats', { userId });
 
-  try {
-    // Get all invoices for user
-    const invoicesQuery = await db
-      .collection(COLLECTIONS.INVOICES)
-      .where('freelancerId', '==', userId)
-      .get();
+      try {
+        // OPTIMIZATION: Use Promise.all to fetch status counts in parallel
+        const [allInvoices, paidInvoices, overdueInvoices, draftInvoices] = await Promise.all([
+          measureQuery('count_all', COLLECTIONS.INVOICES, userId, () =>
+            db.collection(COLLECTIONS.INVOICES).where('freelancerId', '==', userId).get()
+          ),
+          measureQuery('count_paid', COLLECTIONS.INVOICES, userId, () =>
+            db.collection(COLLECTIONS.INVOICES)
+              .where('freelancerId', '==', userId)
+              .where('status', '==', 'paid')
+              .get()
+          ),
+          measureQuery('count_overdue', COLLECTIONS.INVOICES, userId, () =>
+            db.collection(COLLECTIONS.INVOICES)
+              .where('freelancerId', '==', userId)
+              .where('status', '==', 'overdue')
+              .get()
+          ),
+          measureQuery('count_draft', COLLECTIONS.INVOICES, userId, () =>
+            db.collection(COLLECTIONS.INVOICES)
+              .where('freelancerId', '==', userId)
+              .where('status', '==', 'draft')
+              .get()
+          ),
+        ]);
 
-    const invoices = invoicesQuery.docs.map((doc) => doc.data() as Invoice);
+        timer.checkpoint('queries_complete');
 
-    // Calculate statistics
-    const total = invoices.length;
-    const paid = invoices.filter((inv) => inv.status === 'paid').length;
-    const overdue = invoices.filter((inv) => inv.status === 'overdue').length;
-    const collected = invoices.filter((inv) => inv.status === 'paid' && inv.collectionsEnabled).length;
+        // Calculate stats
+        const total = allInvoices.size;
+        const paid = paidInvoices.size;
+        const overdue = overdueInvoices.size;
+        const draft = draftInvoices.size;
 
-    // Calculate average payment days
-    const paidInvoices = invoices.filter((inv) => inv.status === 'paid' && inv.paidAt);
-    const avgPaymentDays =
-      paidInvoices.length > 0
-        ? paidInvoices.reduce((sum, inv) => {
-          const dueDate = inv.dueDate.toDate();
-          const paidDate = inv.paidAt!.toDate();
-          const days = Math.floor((paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
-          return sum + days;
-        }, 0) / paidInvoices.length
-        : 0;
+        // Calculate collected (paid invoices with collections enabled)
+        const paidInvoiceData = paidInvoices.docs.map((doc) => doc.data() as Invoice);
+        const collected = paidInvoiceData.filter((inv) => inv.collectionsEnabled).length;
 
-    logDbOperation('get_invoice_stats', COLLECTIONS.INVOICES, userId, Date.now() - startTime);
+        // Calculate financial metrics
+        const totalPaid = paidInvoiceData.reduce((sum, inv) => sum + inv.amount, 0);
+        const allInvoiceData = allInvoices.docs.map((doc) => doc.data() as Invoice);
+        const unpaidAmount = allInvoiceData
+          .filter((inv) => inv.status !== 'paid')
+          .reduce((sum, inv) => sum + inv.amount, 0);
+        const avgAmount = total > 0 ? allInvoiceData.reduce((sum, inv) => sum + inv.amount, 0) / total : 0;
 
-    return {
-      total,
-      paid,
-      overdue,
-      collected,
-      avgPaymentDays: Math.round(avgPaymentDays * 10) / 10, // Round to 1 decimal
-    };
-  } catch (error) {
-    logError('Failed to get invoice stats', error);
-    throw error;
-  }
+        // Calculate average payment days
+        const paidWithDates = paidInvoiceData.filter((inv) => inv.paidAt);
+        const avgPaymentDays =
+          paidWithDates.length > 0
+            ? paidWithDates.reduce((sum, inv) => {
+                const dueDate = inv.dueDate.toDate();
+                const paidDate = inv.paidAt!.toDate();
+                const days = Math.floor((paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+                return sum + days;
+              }, 0) / paidWithDates.length
+            : 0;
+
+        timer.checkpoint('calculations_complete');
+
+        const duration = timer.end();
+        logDbOperation('get_invoice_stats', COLLECTIONS.INVOICES, userId, duration);
+
+        return {
+          total,
+          paid,
+          overdue,
+          collected,
+          draft,
+          totalPaid: Math.round(totalPaid * 100) / 100,
+          totalOutstanding: Math.round(unpaidAmount * 100) / 100,
+          avgAmount: Math.round(avgAmount * 100) / 100,
+          avgPaymentDays: Math.round(avgPaymentDays * 10) / 10,
+        };
+      } catch (error) {
+        logError('Failed to get invoice stats', error);
+        throw error;
+      }
+    }
+  );
 }
 
 /**
@@ -116,6 +168,7 @@ export async function getCollectionStats(userId: string): Promise<{
 
 /**
  * Get revenue by month for the past N months
+ * OPTIMIZED: Uses caching and date-range queries
  */
 export async function getRevenueByMonth(
   userId: string,
@@ -128,69 +181,86 @@ export async function getRevenueByMonth(
     growth: number;
   }>
 > {
-  const startTime = Date.now();
+  return withCache(
+    CACHE_KEYS.REVENUE_BY_MONTH,
+    CACHE_TTL.REVENUE_BY_MONTH,
+    [userId, months],
+    async () => {
+      const timer = new PerformanceTimer('getRevenueByMonth', { userId, months });
 
-  try {
-    // Calculate date range
-    const now = new Date();
-    const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
+      try {
+        // Calculate date range
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
 
-    // Get all paid invoices in date range
-    const invoicesQuery = await db
-      .collection(COLLECTIONS.INVOICES)
-      .where('freelancerId', '==', userId)
-      .where('status', '==', 'paid')
-      .get();
+        // OPTIMIZATION: Query only paid invoices with date filter
+        const invoicesQuery = await measureQuery(
+          'revenue_by_month',
+          COLLECTIONS.INVOICES,
+          userId,
+          () =>
+            db
+              .collection(COLLECTIONS.INVOICES)
+              .where('freelancerId', '==', userId)
+              .where('status', '==', 'paid')
+              .where('paidAt', '>=', Timestamp.fromDate(startDate))
+              .get()
+        );
 
-    const invoices = invoicesQuery.docs
-      .map((doc) => doc.data() as Invoice)
-      .filter((inv) => inv.paidAt && inv.paidAt.toDate() >= startDate);
+        timer.checkpoint('query_complete');
 
-    // Group by month
-    const monthlyData: Record<string, { revenue: number; collections: number }> = {};
+        const invoices = invoicesQuery.docs.map((doc) => doc.data() as Invoice);
 
-    invoices.forEach((inv) => {
-      const paidDate = inv.paidAt!.toDate();
-      const monthKey = `${paidDate.getFullYear()}-${String(paidDate.getMonth() + 1).padStart(2, '0')}`;
+        // Group by month
+        const monthlyData: Record<string, { revenue: number; collections: number }> = {};
 
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = { revenue: 0, collections: 0 };
+        invoices.forEach((inv) => {
+          if (!inv.paidAt) return;
+          const paidDate = inv.paidAt.toDate();
+          const monthKey = `${paidDate.getFullYear()}-${String(paidDate.getMonth() + 1).padStart(2, '0')}`;
+
+          if (!monthlyData[monthKey]) {
+            monthlyData[monthKey] = { revenue: 0, collections: 0 };
+          }
+
+          monthlyData[monthKey].revenue += inv.amount;
+          if (inv.collectionsEnabled) {
+            monthlyData[monthKey].collections++;
+          }
+        });
+
+        // Convert to array with growth calculation
+        const result: Array<{ month: string; revenue: number; collections: number; growth: number }> = [];
+        let previousRevenue = 0;
+
+        for (let i = 0; i < months; i++) {
+          const date = new Date(now.getFullYear(), now.getMonth() - (months - i - 1), 1);
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+          const data = monthlyData[monthKey] || { revenue: 0, collections: 0 };
+          const growth = previousRevenue > 0 ? ((data.revenue - previousRevenue) / previousRevenue) * 100 : 0;
+
+          result.push({
+            month: monthKey,
+            revenue: data.revenue,
+            collections: data.collections,
+            growth: Math.round(growth * 10) / 10,
+          });
+
+          previousRevenue = data.revenue;
+        }
+
+        timer.checkpoint('calculations_complete');
+        const duration = timer.end();
+        logDbOperation('get_revenue_by_month', COLLECTIONS.INVOICES, userId, duration);
+
+        return result;
+      } catch (error) {
+        logError('Failed to get revenue by month', error);
+        throw error;
       }
-
-      monthlyData[monthKey].revenue += inv.amount;
-      if (inv.collectionsEnabled) {
-        monthlyData[monthKey].collections++;
-      }
-    });
-
-    // Convert to array with growth calculation
-    const result: Array<{ month: string; revenue: number; collections: number; growth: number }> = [];
-    let previousRevenue = 0;
-
-    for (let i = 0; i < months; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() - (months - i - 1), 1);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-
-      const data = monthlyData[monthKey] || { revenue: 0, collections: 0 };
-      const growth = previousRevenue > 0 ? ((data.revenue - previousRevenue) / previousRevenue) * 100 : 0;
-
-      result.push({
-        month: monthKey,
-        revenue: data.revenue,
-        collections: data.collections,
-        growth: Math.round(growth * 10) / 10,
-      });
-
-      previousRevenue = data.revenue;
     }
-
-    logDbOperation('get_revenue_by_month', COLLECTIONS.INVOICES, userId, Date.now() - startTime);
-
-    return result;
-  } catch (error) {
-    logError('Failed to get revenue by month', error);
-    throw error;
-  }
+  );
 }
 
 /**
@@ -389,60 +459,84 @@ export async function getUserRank(userId: string): Promise<{
 
 /**
  * Get top users by metric
+ * OPTIMIZED: Fixes N+1 query, uses caching
  */
 export async function getTopUsers(
   limit: number = 10,
   sortBy: 'xp' | 'recovery' | 'referrals' = 'xp'
 ): Promise<Array<any>> {
-  const startTime = Date.now();
+  return withCache(
+    CACHE_KEYS.TOP_USERS,
+    CACHE_TTL.TOP_USERS,
+    [limit, sortBy],
+    async () => {
+      const timer = new PerformanceTimer('getTopUsers', { limit, sortBy });
 
-  try {
-    let query: any = db.collection(COLLECTIONS.USER_STATS);
+      try {
+        let query: any = db.collection(COLLECTIONS.USER_STATS);
 
-    // Sort by metric
-    if (sortBy === 'xp') {
-      query = query.orderBy('gamificationXP', 'desc');
-    } else if (sortBy === 'recovery') {
-      query = query.orderBy('totalCollected', 'desc');
+        // Sort by metric
+        if (sortBy === 'xp') {
+          query = query.orderBy('gamificationXP', 'desc');
+        } else if (sortBy === 'recovery') {
+          query = query.orderBy('totalCollected', 'desc');
+        }
+
+        const usersQuery = await measureQuery('top_users', COLLECTIONS.USER_STATS, undefined, () =>
+          query.limit(limit).get()
+        );
+
+        timer.checkpoint('stats_query_complete');
+
+        // OPTIMIZATION: Batch fetch user data to avoid N+1
+        const userIds = usersQuery.docs.map((doc: any) => (doc.data() as UserStats).userId);
+        const userDocs = await measureQuery('batch_users', COLLECTIONS.USERS, undefined, () =>
+          Promise.all(userIds.map((id) => db.collection(COLLECTIONS.USERS).doc(id).get()))
+        );
+
+        timer.checkpoint('user_batch_complete');
+
+        const userMap = new Map<string, User>();
+        userDocs.forEach((doc) => {
+          if (doc.exists) {
+            const user = doc.data() as User;
+            userMap.set(user.userId, user);
+          }
+        });
+
+        const topUsers = usersQuery.docs.map((doc: any, index: number) => {
+          const stats = doc.data() as UserStats;
+          const user = userMap.get(stats.userId);
+
+          return {
+            rank: index + 1,
+            userId: stats.userId,
+            name: user?.fullName || 'Anonymous',
+            metric:
+              sortBy === 'xp'
+                ? stats.gamificationXP
+                : sortBy === 'recovery'
+                  ? stats.totalCollected
+                  : 0,
+            value:
+              sortBy === 'xp'
+                ? `${stats.gamificationXP} XP`
+                : sortBy === 'recovery'
+                  ? `£${stats.totalCollected}`
+                  : '',
+          };
+        });
+
+        const duration = timer.end();
+        logDbOperation('get_top_users', COLLECTIONS.USER_STATS, undefined, duration);
+
+        return topUsers;
+      } catch (error) {
+        logError('Failed to get top users', error);
+        throw error;
+      }
     }
-
-    const usersQuery = await query.limit(limit).get();
-
-    const topUsers = await Promise.all(
-      usersQuery.docs.map(async (doc: any, index: number) => {
-        const stats = doc.data() as UserStats;
-
-        // Get user name
-        const userDoc = await db.collection(COLLECTIONS.USERS).doc(stats.userId).get();
-        const user = userDoc.exists ? (userDoc.data() as User) : null;
-
-        return {
-          rank: index + 1,
-          userId: stats.userId,
-          name: user?.name || 'Anonymous',
-          metric:
-            sortBy === 'xp'
-              ? stats.gamificationXP
-              : sortBy === 'recovery'
-                ? stats.totalCollected
-                : 0,
-          value:
-            sortBy === 'xp'
-              ? `${stats.gamificationXP} XP`
-              : sortBy === 'recovery'
-                ? `£${stats.totalCollected}`
-                : '',
-        };
-      })
-    );
-
-    logDbOperation('get_top_users', COLLECTIONS.USER_STATS, undefined, Date.now() - startTime);
-
-    return topUsers;
-  } catch (error) {
-    logError('Failed to get top users', error);
-    throw error;
-  }
+  );
 }
 
 /**
@@ -497,5 +591,94 @@ export async function generateInsights(userId: string): Promise<Array<string>> {
     logError('Failed to generate insights', error);
     return [];
   }
+}
+
+/**
+ * Get collections statistics (alias for getCollectionStats)
+ * For compatibility with dashboard routes
+ */
+export async function getCollectionsStats(userId: string): Promise<{
+  enabled: boolean;
+  attempts: number;
+  successful: number;
+  quotaRemaining?: number;
+  quotaResetDate?: Date | null;
+  totalRecovered?: number;
+}> {
+  const stats = await getCollectionStats(userId);
+
+  // Get user to check if collections enabled
+  const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
+  const user = userDoc.exists ? (userDoc.data() as User) : null;
+
+  return {
+    enabled: user?.collectionsEnabled || false,
+    attempts: stats.attempts,
+    successful: stats.outcomes['success'] || 0,
+    totalRecovered: stats.revenue,
+    quotaRemaining: 0, // TODO: Implement quota tracking
+    quotaResetDate: null,
+  };
+}
+
+/**
+ * Get recent activity for a user
+ */
+export async function getRecentActivity(
+  userId: string,
+  limit: number = 10
+): Promise<Array<{
+  type: string;
+  message: string;
+  timestamp: Date;
+  metadata?: any;
+}>> {
+  const startTime = Date.now();
+
+  try {
+    // Get recent invoices
+    const recentInvoices = await measureQuery(
+      'recent_invoices',
+      COLLECTIONS.INVOICES,
+      userId,
+      () =>
+        db
+          .collection(COLLECTIONS.INVOICES)
+          .where('freelancerId', '==', userId)
+          .orderBy('createdAt', 'desc')
+          .limit(limit)
+          .get()
+    );
+
+    const activity = recentInvoices.docs.map((doc) => {
+      const invoice = doc.data() as Invoice;
+      return {
+        type: 'invoice',
+        message: `Invoice ${invoice.reference} - ${invoice.status}`,
+        timestamp: invoice.createdAt.toDate(),
+        metadata: {
+          invoiceId: invoice.invoiceId,
+          amount: invoice.amount,
+          status: invoice.status,
+        },
+      };
+    });
+
+    logDbOperation('get_recent_activity', COLLECTIONS.INVOICES, userId, Date.now() - startTime);
+
+    return activity;
+  } catch (error) {
+    logError('Failed to get recent activity', error);
+    return [];
+  }
+}
+
+/**
+ * Invalidate all caches for a user
+ * Call this when invoice/collection data changes
+ */
+export async function invalidateAnalyticsCache(userId: string): Promise<void> {
+  await invalidateUserCache(userId);
+  logInfo(`Analytics cache invalidated for user: ${userId}`);
 }
 

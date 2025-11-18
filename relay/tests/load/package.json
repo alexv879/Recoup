@@ -1,0 +1,15 @@
+{
+  "name": "recoup-load-tests",
+  "version": "1.0.0",
+  "description": "Load testing suite for Recoup API",
+  "scripts": {
+    "load-test": "tsx load-test.ts",
+    "load-test:dashboard": "tsx load-test.ts --endpoint=/api/dashboard/summary --concurrent=50 --requests=500",
+    "load-test:analytics": "tsx load-test.ts --endpoint=/api/dashboard/charts --concurrent=30 --requests=300",
+    "load-test:heavy": "tsx load-test.ts --concurrent=100 --requests=1000"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0"
+  }
+}
