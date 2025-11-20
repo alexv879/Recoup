@@ -36,20 +36,29 @@ export async function syncStripeProducts(): Promise<void> {
     }
 }
 
-// Webhook handler stub for subscription events
+/**
+ * Webhook handler for subscription events
+ *
+ * NOTE: This is a legacy stub. All webhook handling is now done in:
+ * /app/api/webhook/stripe/route.ts
+ *
+ * That handler implements:
+ * - customer.subscription.created -> Updates user tier and enables features
+ * - customer.subscription.updated -> Tracks tier changes and upgrades/downgrades
+ * - customer.subscription.deleted -> Downgrades to free tier
+ * - checkout.session.completed -> Activates subscription
+ * - invoice.payment_succeeded -> Records recurring payment
+ *
+ * This function is kept for backwards compatibility but should not be used.
+ * @deprecated Use /app/api/webhook/stripe/route.ts instead
+ */
 export async function handleStripeWebhook(event: Stripe.Event): Promise<void> {
-    switch (event.type) {
-        case 'customer.subscription.created':
-            // TODO: Handle subscription creation
-            break;
-        case 'customer.subscription.deleted':
-            // TODO: Handle subscription cancellation
-            break;
-        case 'customer.subscription.updated':
-            // TODO: Handle subscription update
-            break;
-        default:
-            // Ignore other events
-            break;
-    }
+    console.warn('DEPRECATED: handleStripeWebhook() called. Use /app/api/webhook/stripe/route.ts instead');
+
+    // All subscription lifecycle events are now handled in the main webhook route:
+    // - customer.subscription.created: Creates subscription, maps price to tier, enables features
+    // - customer.subscription.updated: Updates tier on upgrade/downgrade
+    // - customer.subscription.deleted: Downgrades user to free tier
+
+    // This stub does nothing - the real implementation is in /app/api/webhook/stripe/route.ts
 }

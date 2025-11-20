@@ -11,6 +11,26 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
+// Stripe Price ID to Subscription Tier Mapping
+// Update these with actual Stripe price IDs from your Stripe dashboard
+// Run: npm run setup-stripe to generate products and get these IDs
+const STRIPE_PRICE_TO_TIER: Record<string, 'free' | 'starter' | 'professional'> = {
+    // Starter tier (£9/month or £90/year)
+    [process.env.STRIPE_PRICE_STARTER_MONTHLY || 'price_starter_monthly']: 'starter',
+    [process.env.STRIPE_PRICE_STARTER_YEARLY || 'price_starter_yearly']: 'starter',
+
+    // Professional tier (£19/month or £190/year)
+    [process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || 'price_professional_monthly']: 'professional',
+    [process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY || 'price_professional_yearly']: 'professional',
+};
+
+/**
+ * Get subscription tier from Stripe price ID
+ */
+function getTierFromPriceId(priceId: string): 'free' | 'starter' | 'professional' {
+    return STRIPE_PRICE_TO_TIER[priceId] || 'starter';
+}
+
 export const dynamic = 'force-dynamic';
 
 /**
@@ -255,9 +275,11 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 
         const userId = usersSnapshot.docs[0].id;
 
-        // Determine subscription tier from price
-        let tier: 'free' | 'paid' | 'starter' | 'growth' | 'pro' | 'business' = 'paid';
-        // TODO: Map Stripe price IDs to tiers
+        // Determine subscription tier from price ID
+        const priceId = subscription.items.data[0]?.price.id;
+        const tier = priceId ? getTierFromPriceId(priceId) : 'starter';
+
+        logInfo(`[webhook/stripe] Mapped price ${priceId} to tier: ${tier}`);
 
         await db.collection(COLLECTIONS.USERS).doc(userId).update({
             stripeSubscriptionId: subscription.id,
@@ -298,12 +320,17 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
         const userId = usersSnapshot.docs[0].id;
 
+        // Check if tier changed (upgrade/downgrade)
+        const priceId = subscription.items.data[0]?.price.id;
+        const newTier = priceId ? getTierFromPriceId(priceId) : 'starter';
+
         await db.collection(COLLECTIONS.USERS).doc(userId).update({
+            subscriptionTier: newTier,
             subscriptionStatus: subscription.status,
             updatedAt: Timestamp.now(),
         });
 
-        logInfo(`[webhook/stripe] Subscription updated for user: ${userId}`);
+        logInfo(`[webhook/stripe] Subscription updated for user: ${userId}, tier: ${newTier}`);
     } catch (error) {
         logError('[webhook/stripe] Error handling subscription updated:', error);
         throw error;
