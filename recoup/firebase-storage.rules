@@ -1,0 +1,87 @@
+rules_version = '2';
+
+/**
+ * Firebase Storage Security Rules - Recoup
+ * GDPR-Compliant Invoice & Receipt Storage
+ *
+ * Structure:
+ * - /invoices/{userId}/{invoiceId}.pdf
+ * - /invoices/{userId}/{invoiceId}_data.json
+ * - /receipts/{userId}/{receiptId}.jpg
+ * - /receipts/{userId}/{receiptId}_data.json
+ *
+ * Security:
+ * - Users can only access their own files
+ * - File size limits enforced
+ * - Authentication required
+ */
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper function: check if user owns the file
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Helper function: validate file size
+    function isValidSize(maxSizeMB) {
+      return request.resource.size < maxSizeMB * 1024 * 1024;
+    }
+
+    // Helper function: validate file type
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isValidPDFType() {
+      return request.resource.contentType == 'application/pdf';
+    }
+
+    function isValidJSONType() {
+      return request.resource.contentType == 'application/json';
+    }
+
+    // INVOICES - PDF files and JSON metadata
+    match /invoices/{userId}/{invoiceId} {
+      // Allow read if user owns the file
+      allow read: if isOwner(userId);
+
+      // Allow write if user owns the file and meets requirements
+      allow write: if isOwner(userId) && (
+        (invoiceId.matches('.*\\.pdf$') && isValidPDFType() && isValidSize(5)) ||
+        (invoiceId.matches('.*_data\\.json$') && isValidJSONType() && isValidSize(1))
+      );
+
+      // Allow delete if user owns the file
+      allow delete: if isOwner(userId);
+    }
+
+    // RECEIPTS - Image files and JSON metadata
+    match /receipts/{userId}/{receiptId} {
+      // Allow read if user owns the file
+      allow read: if isOwner(userId);
+
+      // Allow write if user owns the file and meets requirements
+      allow write: if isOwner(userId) && (
+        (receiptId.matches('.*\\.(jpg|jpeg|png|webp)$') && isValidImageType() && isValidSize(10)) ||
+        (receiptId.matches('.*_data\\.json$') && isValidJSONType() && isValidSize(1))
+      );
+
+      // Allow delete if user owns the file
+      allow delete: if isOwner(userId);
+    }
+
+    // EXPENSES - Supporting documentation
+    match /expenses/{userId}/{expenseId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidSize(10);
+      allow delete: if isOwner(userId);
+    }
+
+    // Deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
