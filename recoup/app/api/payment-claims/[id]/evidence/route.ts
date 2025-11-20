@@ -70,11 +70,39 @@ export async function POST(
 
         const claim = claimSnap.data()!;
 
-        // Verify ownership (must be the client who created the claim)
-        // Note: Payment claims are created by clients (not freelancers), so we check clientEmail
-        // In a production app, you'd have proper client authentication
-        // For now, we'll allow any authenticated user to upload evidence
-        // TODO: Implement proper client authentication check
+        // Verify ownership - must be either:
+        // 1. The client who created the claim (for uploading evidence)
+        // 2. The freelancer who owns the invoice (for viewing evidence)
+
+        // Get invoice to check ownership
+        const invoiceRef = db.doc(`invoices/${claim.invoiceId}`);
+        const invoiceSnap = await invoiceRef.get();
+
+        if (!invoiceSnap.exists) {
+            return NextResponse.json(
+                { error: 'INVOICE_NOT_FOUND', message: 'Associated invoice not found' },
+                { status: 404 }
+            );
+        }
+
+        const invoice = invoiceSnap.data()!;
+        const isFreelancer = invoice.freelancerId === userId;
+        const isClient = invoice.clientId === userId;
+
+        // Only allow upload if user is the client
+        if (!isClient && !isFreelancer) {
+            return NextResponse.json(
+                { error: 'FORBIDDEN', message: 'You do not have permission to access this payment claim' },
+                { status: 403 }
+            );
+        }
+
+        if (!isClient) {
+            return NextResponse.json(
+                { error: 'FORBIDDEN', message: 'Only the client can upload payment evidence' },
+                { status: 403 }
+            );
+        }
 
         // Parse form data
         const formData = await req.formData();
@@ -218,6 +246,29 @@ export async function GET(
         }
 
         const claim = claimSnap.data()!;
+
+        // Verify ownership - only invoice owner (freelancer) or client can view evidence
+        const invoiceRef = db.doc(`invoices/${claim.invoiceId}`);
+        const invoiceSnap = await invoiceRef.get();
+
+        if (!invoiceSnap.exists) {
+            return NextResponse.json(
+                { error: 'INVOICE_NOT_FOUND', message: 'Associated invoice not found' },
+                { status: 404 }
+            );
+        }
+
+        const invoice = invoiceSnap.data()!;
+        const isFreelancer = invoice.freelancerId === userId;
+        const isClient = invoice.clientId === userId;
+
+        // Only freelancer and client can view evidence
+        if (!isClient && !isFreelancer) {
+            return NextResponse.json(
+                { error: 'FORBIDDEN', message: 'You do not have permission to view this evidence' },
+                { status: 403 }
+            );
+        }
 
         // Check if evidence exists
         if (!claim.evidenceFileUrl) {

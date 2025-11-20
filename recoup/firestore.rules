@@ -235,6 +235,102 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // PAYMENT PLANS Collection (voice call feature)
+    match /payment_plans/{planId} {
+      // Read: Freelancer who owns the plan
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Server-only writes (created during voice calls)
+      allow write: if false;
+    }
+
+    // DISPUTES Collection
+    match /disputes/{disputeId} {
+      // Read: Freelancer who owns the disputed invoice
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Update: Freelancer can update dispute status/notes
+      allow update: if isAuthenticated() && (
+        resource.data.freelancerId == request.auth.uid &&
+        request.resource.data.freelancerId == request.auth.uid
+      );
+
+      // Server-only create/delete (audit trail)
+      allow create, delete: if false;
+    }
+
+    // SCHEDULED TASKS Collection
+    match /scheduled_tasks/{taskId} {
+      // Read: Freelancer who owns the task
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Update: Freelancer can mark tasks as completed
+      allow update: if isAuthenticated() && (
+        resource.data.freelancerId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'completedAt', 'updatedAt'])
+      );
+
+      // Server-only create/delete
+      allow create, delete: if false;
+    }
+
+    // DATA EXPORTS Collection (GDPR compliance)
+    match /data_exports/{exportId} {
+      // Read: User who requested the export
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Update: User can mark export as downloaded
+      allow update: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloadedAt'])
+      );
+
+      // Server-only create/delete
+      allow create, delete: if false;
+    }
+
+    // DELETION REQUESTS Collection (GDPR right to erasure)
+    match /deletion_requests/{deletionId} {
+      // Read: User who requested deletion
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // No user writes (server-only for security)
+      allow write: if false;
+    }
+
+    // COMPLIANCE AUDIT LOG Collection (legal/regulatory)
+    match /compliance_audit_log/{logId} {
+      // No user access (regulatory compliance only)
+      allow read, write: if false;
+    }
+
+    // SUBSCRIPTIONS Collection
+    match /subscriptions/{subscriptionId} {
+      // Read: Subscription owner only
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Server-only writes (managed by Stripe webhooks)
+      allow write: if false;
+    }
+
+    // USER CONSENTS Collection (GDPR consent tracking)
+    match /user_consents/{consentId} {
+      // Read: User who gave consent
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Update: User can update consent preferences
+      allow update: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.userId == request.auth.uid
+      );
+
+      // Create: User can create their own consents
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+
+      // No delete (audit trail required for compliance)
+      allow delete: if false;
+    }
+
     // DEFAULT DENY - All other collections
     match /{document=**} {
       allow read, write: if false;

@@ -87,7 +87,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
 /**
  * Handle call status callbacks from Twilio
- * GET /api/voice/twiml/status
+ * POST /api/voice/twiml/status
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -95,20 +95,168 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const callSid = searchParams.get('CallSid');
     const callStatus = searchParams.get('CallStatus');
     const duration = searchParams.get('CallDuration');
+    const recordingUrl = searchParams.get('RecordingUrl');
+    const answeredBy = searchParams.get('AnsweredBy'); // human, machine_start, fax
 
     logInfo('Call status callback', {
       callSid,
       callStatus,
-      duration
+      duration,
+      answeredBy
     });
 
-    // TODO: Update call record in database
-    // TODO: Track analytics
-    // TODO: Trigger follow-up actions based on status
+    if (!callSid) {
+      return NextResponse.json(
+        { success: false, error: 'Missing CallSid' },
+        { status: 400 }
+      );
+    }
+
+    // Only process final states
+    if (!['completed', 'busy', 'no-answer', 'failed', 'canceled'].includes(callStatus || '')) {
+      logInfo('Ignoring non-final status', { callStatus });
+      return NextResponse.json({ success: true, message: 'Status noted' });
+    }
+
+    const { db, FieldValue } = await import('@/lib/firebase');
+
+    // Find collection attempt by callSID
+    const attemptSnapshot = await db
+      .collection('collection_attempts')
+      .where('callSID', '==', callSid)
+      .limit(1)
+      .get();
+
+    if (attemptSnapshot.empty) {
+      logError('Collection attempt not found', new Error(`CallSid: ${callSid}`));
+      return NextResponse.json(
+        { success: false, error: 'Collection attempt not found' },
+        { status: 404 }
+      );
+    }
+
+    const attemptDoc = attemptSnapshot.docs[0];
+    const attemptData = attemptDoc.data();
+
+    // Calculate actual cost
+    const durationMinutes = duration ? parseInt(duration) / 60 : 0;
+    const { estimateCollectionCallCost } = await import('@/lib/voice/voice-call-orchestrator');
+    const costEstimate = estimateCollectionCallCost(durationMinutes);
+
+    // Determine outcome if not already set
+    let outcome = attemptData.callOutcome;
+    let result = attemptData.result;
+
+    if (!outcome || outcome === 'in_progress') {
+      if (callStatus === 'completed') {
+        if (answeredBy === 'machine_start') {
+          outcome = 'voicemail';
+          result = 'voicemail';
+        } else if (!attemptData.callOutcome) {
+          // Call completed but no outcome set - likely no promise/dispute
+          outcome = 'call_back_requested';
+          result = 'pending';
+        }
+      } else if (callStatus === 'busy' || callStatus === 'no-answer') {
+        outcome = 'no_answer';
+        result = 'failed';
+      } else if (callStatus === 'failed') {
+        outcome = 'failed';
+        result = 'failed';
+      }
+    }
+
+    // Update collection attempt with final status
+    await attemptDoc.ref.update({
+      callStatus: callStatus,
+      callDuration: duration ? parseInt(duration) : 0,
+      callEndedAt: FieldValue.serverTimestamp(),
+      callRecordingUrl: recordingUrl,
+      answeredBy,
+      actualCost: costEstimate.totalCost,
+      costBreakdown: {
+        twilio: costEstimate.twilioCost,
+        openai: costEstimate.openaiCost
+      },
+      ...(outcome && { callOutcome: outcome }),
+      ...(result && result !== attemptData.result && { result }),
+      updatedAt: FieldValue.serverTimestamp()
+    });
+
+    // Track analytics
+    await db.collection('analytics_events').add({
+      eventType: 'voice_call_completed',
+      userId: attemptData.freelancerId,
+      metadata: {
+        callSid,
+        invoiceId: attemptData.invoiceId,
+        duration: duration ? parseInt(duration) : 0,
+        outcome,
+        cost: costEstimate.totalCost,
+        answeredBy
+      },
+      timestamp: FieldValue.serverTimestamp()
+    });
+
+    // Notify freelancer of call completion
+    let notificationMessage = '';
+    let notificationTitle = '';
+
+    switch (outcome) {
+      case 'payment_promised':
+        notificationTitle = 'Payment Promise Received';
+        notificationMessage = 'Customer promised to pay. See call details for promise date.';
+        break;
+      case 'disputed':
+        notificationTitle = 'Invoice Disputed';
+        notificationMessage = 'Customer disputed the invoice during the call. Please review.';
+        break;
+      case 'no_answer':
+        notificationTitle = 'Collection Call - No Answer';
+        notificationMessage = 'Customer did not answer the collection call.';
+        break;
+      case 'voicemail':
+        notificationTitle = 'Collection Call - Voicemail';
+        notificationMessage = 'Voicemail detected. AI left a message.';
+        break;
+      case 'failed':
+        notificationTitle = 'Collection Call Failed';
+        notificationMessage = 'Collection call failed to connect.';
+        break;
+      default:
+        notificationTitle = 'Collection Call Completed';
+        notificationMessage = `Call completed. Duration: ${Math.floor(durationMinutes)} minutes.`;
+    }
+
+    await db.collection('notifications').add({
+      userId: attemptData.freelancerId,
+      type: 'voice_call_completed',
+      title: notificationTitle,
+      message: notificationMessage,
+      read: false,
+      actionUrl: `/invoices/${attemptData.invoiceId}`,
+      metadata: {
+        callSid,
+        invoiceId: attemptData.invoiceId,
+        outcome,
+        duration: duration ? parseInt(duration) : 0,
+        cost: costEstimate.totalCost
+      },
+      createdAt: FieldValue.serverTimestamp()
+    });
+
+    logInfo('Call status processed successfully', {
+      callSid,
+      outcome,
+      duration: durationMinutes,
+      cost: costEstimate.totalCost
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Status callback received'
+      message: 'Status callback processed',
+      outcome,
+      cost: costEstimate.totalCost
     });
   } catch (error) {
     logError('Call status callback failed', error as Error);

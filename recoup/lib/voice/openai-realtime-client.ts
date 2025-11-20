@@ -336,6 +336,7 @@ export class OpenAIRealtimeClient {
 
 /**
  * Create configured client for collection calls
+ * Enhanced with FCA-compliant scripts and multiple agent capabilities
  */
 export function createCollectionCallClient(
   apiKey: string,
@@ -348,33 +349,115 @@ export function createCollectionCallClient(
     daysPastDue: number;
   }
 ): OpenAIRealtimeClient {
-  const instructions = `You are a polite, professional debt collection assistant for ${context.businessName}.
+  const instructions = `You are a professional, FCA-compliant debt collection agent calling on behalf of ${context.businessName}.
 
-Your task is to call ${context.recipientName} about an overdue invoice.
+CRITICAL LEGAL REQUIREMENTS (UK FCA Guidelines):
+- You MUST treat customers fairly and with forbearance
+- You MUST NOT be aggressive, threatening, or harassing
+- You MUST identify yourself and the purpose of the call clearly
+- You MUST respect if the customer says they cannot talk and offer to rebook
+- You MUST be sensitive to vulnerable customers (financial difficulty, health issues, bereavement)
+- You MUST offer payment plan options for those struggling to pay
 
-Invoice details:
-- Reference: ${context.invoiceReference}
-- Amount: £${context.amount.toFixed(2)}
-- Due date: ${context.dueDate}
-- Days overdue: ${context.daysPastDue}
+CUSTOMER DETAILS:
+- Name: ${context.recipientName}
+- Invoice Reference: ${context.invoiceReference}
+- Amount Outstanding: £${context.amount.toFixed(2)}
+- Original Due Date: ${context.dueDate}
+- Days Overdue: ${context.daysPastDue}
 
-Guidelines:
-1. Be polite and professional at all times
-2. Introduce yourself as calling from ${context.businessName}
-3. Explain the invoice is overdue
-4. Ask when payment can be expected
-5. Offer payment options if asked
-6. Note any promises or commitments
-7. Thank them for their time
+CALL SCRIPT STRUCTURE:
 
-If they:
-- Promise to pay: Note the date and thank them
-- Dispute the invoice: Apologize and say someone will follow up
-- Ask for more time: Ask when they can pay and note it
-- Are hostile: Remain calm and professional, offer to have manager call back
-- Don't answer: Leave a brief, professional voicemail
+1. INTRODUCTION (First 15 seconds):
+"Good [morning/afternoon], am I speaking with ${context.recipientName}?
 
-Keep the call brief (2-3 minutes ideally). Be empathetic but firm.`;
+[If yes] Thank you. My name is [AI name], and I'm calling from ${context.businessName} regarding invoice number ${context.invoiceReference}.
+
+Is now a good time to speak for approximately 2-3 minutes?"
+
+[If no, they're busy] "I understand you're busy. Would you prefer I call back at a more convenient time? I can schedule a callback for [suggest times]."
+Use the rebook_call function if they request a callback.
+
+2. PURPOSE STATEMENT (Next 20 seconds):
+"The reason for my call is that we have an outstanding invoice of £${context.amount.toFixed(2)} that was due on ${context.dueDate}, which is now ${context.daysPastDue} days overdue.
+
+Do you recall this invoice?"
+
+[If yes] Move to payment discussion
+[If no] "Let me provide you with the details..." Use the check_invoice_details function to retrieve more information.
+
+3. PAYMENT DISCUSSION (Main body):
+
+If customer acknowledges debt:
+"Thank you for confirming. When can you make payment?"
+
+If they commit to a date:
+- Use record_payment_promise function
+- Confirm: "Excellent, I've noted that you'll pay £${context.amount.toFixed(2)} by [date]. We'll send you a confirmation email. Is there anything preventing you from making this payment?"
+
+If they're experiencing financial difficulty:
+- Show empathy: "I understand this is a difficult time. We want to work with you."
+- Offer payment plan: "Would a payment plan help? We can split this into [suggest installments]."
+- Use the offer_payment_plan function
+
+If they dispute the invoice:
+- Do NOT argue
+- Say: "I apologize for any confusion. Let me make a note of your dispute and have our accounts team contact you within 24 hours to resolve this."
+- Use record_dispute function
+- End call politely
+
+If they refuse to pay:
+- Remain calm and professional
+- "I understand your position. However, this is a legally owed debt. If payment isn't made, this may affect your credit rating and could result in legal action. Can we discuss a way to resolve this?"
+- Use record_refusal function if they maintain refusal
+
+4. VULNERABLE CUSTOMER DETECTION:
+If customer mentions ANY of the following:
+- Mental health issues
+- Serious illness
+- Bereavement
+- Unemployment/redundancy
+- Disability
+- Caring responsibilities
+
+Immediately:
+- Switch to supportive tone
+- Say: "Thank you for sharing that with me. I want to make sure we handle this sensitively. Let me note this and have our specialist support team contact you to discuss options that work for your situation."
+- Use flag_vulnerable_customer function
+- Do NOT pressure for payment
+- Offer extended time
+
+5. CALL CONCLUSION (Last 20 seconds):
+"To summarize: [recap agreement/outcome]. You'll receive confirmation via email. Is there anything else I can help with today?"
+
+"Thank you for your time, ${context.recipientName}. Take care."
+
+TONE & MANNER:
+- Professional, calm, and courteous throughout
+- British English expressions preferred
+- Speak clearly at moderate pace
+- Use customer's name 2-3 times during call
+- Never interrupt the customer
+- Acknowledge their concerns genuinely
+
+FORBIDDEN ACTIONS:
+- NEVER threaten, intimidate, or harass
+- NEVER call outside 8am-9pm UK time
+- NEVER disclose debt to third parties
+- NEVER ignore requests to stop calling
+- NEVER pressure vulnerable customers
+
+AVAILABLE TOOLS:
+You have access to several functions to help during the call:
+- record_payment_promise: When customer commits to pay by a specific date
+- record_dispute: When customer disputes the debt
+- offer_payment_plan: To suggest installment options
+- rebook_call: When customer requests callback
+- check_invoice_details: To get more information about what's owed
+- flag_vulnerable_customer: When customer indicates vulnerability
+- record_refusal: When customer explicitly refuses to pay
+
+Use these functions proactively to provide excellent service while maintaining compliance.`;
 
   const sessionConfig: RealtimeSessionConfig = {
     model: MODEL,
@@ -394,7 +477,7 @@ Keep the call brief (2-3 minutes ideally). Be empathetic but firm.`;
       {
         type: 'function',
         name: 'record_payment_promise',
-        description: 'Record a promise to pay from the customer',
+        description: 'Record a promise to pay from the customer when they commit to a specific payment date',
         parameters: {
           type: 'object',
           properties: {
@@ -404,7 +487,7 @@ Keep the call brief (2-3 minutes ideally). Be empathetic but firm.`;
             },
             notes: {
               type: 'string',
-              description: 'Any additional notes about the promise'
+              description: 'Any additional notes about the promise or circumstances'
             }
           },
           required: ['promise_date']
@@ -419,7 +502,106 @@ Keep the call brief (2-3 minutes ideally). Be empathetic but firm.`;
           properties: {
             reason: {
               type: 'string',
-              description: 'Reason for dispute'
+              description: 'Reason for the dispute (e.g., "work not completed", "already paid", "invoice incorrect")'
+            }
+          },
+          required: ['reason']
+        }
+      },
+      {
+        type: 'function',
+        name: 'offer_payment_plan',
+        description: 'Offer a payment plan to the customer if they are struggling to pay in full',
+        parameters: {
+          type: 'object',
+          properties: {
+            installments: {
+              type: 'integer',
+              description: 'Number of installments (e.g., 2, 3, 4)'
+            },
+            frequency: {
+              type: 'string',
+              description: 'Payment frequency (weekly, fortnightly, monthly)'
+            },
+            first_payment_date: {
+              type: 'string',
+              description: 'Date of first installment payment (YYYY-MM-DD)'
+            }
+          },
+          required: ['installments', 'frequency', 'first_payment_date']
+        }
+      },
+      {
+        type: 'function',
+        name: 'rebook_call',
+        description: 'Schedule a callback at a time that suits the customer better',
+        parameters: {
+          type: 'object',
+          properties: {
+            callback_date: {
+              type: 'string',
+              description: 'Date for callback (YYYY-MM-DD)'
+            },
+            callback_time: {
+              type: 'string',
+              description: 'Preferred time for callback (HH:MM in 24-hour format)'
+            },
+            reason: {
+              type: 'string',
+              description: 'Reason for rebooking (e.g., "customer busy", "not convenient time")'
+            }
+          },
+          required: ['callback_date', 'callback_time']
+        }
+      },
+      {
+        type: 'function',
+        name: 'check_invoice_details',
+        description: 'Retrieve detailed information about the invoice when customer needs more details',
+        parameters: {
+          type: 'object',
+          properties: {
+            detail_type: {
+              type: 'string',
+              description: 'Type of details needed (e.g., "line_items", "service_dates", "payment_history")'
+            }
+          },
+          required: ['detail_type']
+        }
+      },
+      {
+        type: 'function',
+        name: 'flag_vulnerable_customer',
+        description: 'Flag the customer as vulnerable for sensitive handling. Use when customer mentions health issues, bereavement, unemployment, mental health problems, or financial hardship.',
+        parameters: {
+          type: 'object',
+          properties: {
+            vulnerability_type: {
+              type: 'string',
+              description: 'Type of vulnerability (e.g., "mental_health", "serious_illness", "bereavement", "unemployment", "disability", "financial_hardship")'
+            },
+            notes: {
+              type: 'string',
+              description: 'Details about the vulnerability (keep confidential)'
+            }
+          },
+          required: ['vulnerability_type', 'notes']
+        }
+      },
+      {
+        type: 'function',
+        name: 'record_refusal',
+        description: 'Record that the customer has explicitly refused to pay the debt',
+        parameters: {
+          type: 'object',
+          properties: {
+            reason: {
+              type: 'string',
+              description: 'Reason for refusal (e.g., "disputes work quality", "cannot afford", "does not acknowledge debt")'
+            },
+            next_action: {
+              type: 'string',
+              description: 'Recommended next action (e.g., "legal_action", "manager_callback", "send_evidence")'
             }
           },
           required: ['reason']

@@ -9,15 +9,23 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { BadRequestError, handleApiError } from '@/utils/error';
+import { BadRequestError, handleApiError, UnauthorizedError, ForbiddenError } from '@/utils/error';
 import { logInfo, logError } from '@/utils/logger';
+import { db } from '@/lib/firebase';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    // 1. Authenticate user
+    const { userId } = await auth();
+    if (!userId) {
+      throw new UnauthorizedError('Authentication required');
+    }
+
     const formData = await req.formData();
     const file = formData.get('file') as File;
     const invoiceId = formData.get('invoiceId') as string;
@@ -28,6 +36,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (!invoiceId) {
       throw new BadRequestError('Invoice ID required');
+    }
+
+    // 2. Verify access - user must be either:
+    //    a) The client associated with the invoice (for uploading payment evidence)
+    //    b) The freelancer who owns the invoice (for viewing purposes)
+    const invoiceDoc = await db.collection('invoices').doc(invoiceId).get();
+
+    if (!invoiceDoc.exists) {
+      throw new BadRequestError('Invoice not found');
+    }
+
+    const invoice = invoiceDoc.data();
+    const isFreelancer = invoice?.freelancerId === userId;
+    const isClient = invoice?.clientId === userId;
+
+    // Only allow upload if user is the client
+    if (!isClient && !isFreelancer) {
+      throw new ForbiddenError('You do not have permission to upload evidence for this invoice');
+    }
+
+    if (!isClient) {
+      throw new ForbiddenError('Only the client can upload payment evidence');
     }
 
     // Validate file size (max 10MB)
