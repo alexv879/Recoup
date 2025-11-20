@@ -1,0 +1,243 @@
+rules_version = '2';
+
+/**
+ * Firestore Security Rules - Recoup
+ * CRITICAL: These rules protect the database from unauthorized access
+ *
+ * Deploy with: firebase deploy --only firestore:rules
+ * Test with: firebase emulators:start
+ *
+ * Security Principles:
+ * 1. Users can only access their own data
+ * 2. Invoices/clients only accessible by owner
+ * 3. Server-only writes for stats/transactions
+ * 4. No unauthorized reads
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isDocumentOwner(ownerId) {
+      return request.auth != null && request.auth.uid == ownerId;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    // USERS Collection
+    match /users/{userId} {
+      // Users can read and update their own data
+      allow read: if isOwner(userId);
+
+      allow create: if isOwner(userId) && request.resource.data.keys().hasAll([
+        'userId', 'email', 'name', 'subscriptionTier', 'collectionsEnabled', 'createdAt'
+      ]);
+
+      allow update: if isOwner(userId) && (
+        // Users can update their own profile
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['userId', 'email', 'stripeCustomerId']) ||
+        // Server can update subscription data
+        request.auth == null
+      );
+
+      // Users cannot delete their own account (must use API)
+      allow delete: if false;
+    }
+
+    // USER STATS Collection
+    match /user_stats/{userId} {
+      // Users can read their own stats
+      allow read: if isOwner(userId);
+
+      // Only server can write stats
+      allow write: if false;
+    }
+
+    // INVOICES Collection
+    match /invoices/{invoiceId} {
+      // Read: Invoice owner only
+      allow read: if isAuthenticated() && (
+        resource.data.freelancerId == request.auth.uid
+      );
+
+      // Create: Must be authenticated and set freelancerId to self
+      allow create: if isAuthenticated() && (
+        request.resource.data.freelancerId == request.auth.uid &&
+        request.resource.data.keys().hasAll([
+          'invoiceId', 'freelancerId', 'clientId', 'amount', 'status', 'dueDate', 'createdAt'
+        ])
+      );
+
+      // Update: Invoice owner only, cannot change freelancerId
+      allow update: if isAuthenticated() && (
+        resource.data.freelancerId == request.auth.uid &&
+        request.resource.data.freelancerId == request.auth.uid
+      );
+
+      // Delete: Invoice owner only, only if status is draft
+      allow delete: if isAuthenticated() && (
+        resource.data.freelancerId == request.auth.uid &&
+        resource.data.status == 'draft'
+      );
+    }
+
+    // CLIENTS Collection
+    match /clients/{clientId} {
+      // Read: Client owner only
+      allow read: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+
+      // Create: Must be authenticated and set ownerId to self
+      allow create: if isAuthenticated() && (
+        request.resource.data.ownerId == request.auth.uid &&
+        request.resource.data.keys().hasAll(['id', 'ownerId', 'name', 'email', 'createdAt'])
+      );
+
+      // Update: Client owner only, cannot change ownerId
+      allow update: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid &&
+        request.resource.data.ownerId == request.auth.uid
+      );
+
+      // Delete: Client owner only (soft delete via archived field preferred)
+      allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // TRANSACTIONS Collection (READ-ONLY for users)
+    match /transactions/{transactionId} {
+      // Read: Transaction owner only (freelancer who received payment)
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Only server can write transactions
+      allow write: if false;
+    }
+
+    // NOTIFICATIONS Collection
+    match /notifications/{notificationId} {
+      // Read: Notification recipient only
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Update: User can mark as read
+      allow update: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt'])
+      );
+
+      // Server-only create/delete
+      allow create, delete: if false;
+    }
+
+    // COLLECTION ATTEMPTS Collection (server-only)
+    match /collection_attempts/{attemptId} {
+      // Read: Related freelancer only
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Server-only writes
+      allow write: if false;
+    }
+
+    // SMS LOG Collection (server-only, compliance tracking)
+    match /sms_log/{logId} {
+      // No user access
+      allow read, write: if false;
+    }
+
+    // SMS OPT-OUTS Collection (server-only, legal compliance)
+    match /sms_opt_outs/{optOutId} {
+      // No user access
+      allow read, write: if false;
+    }
+
+    // STRIPE EVENTS Collection (idempotency tracking, server-only)
+    match /stripe_events/{eventId} {
+      // No user access
+      allow read, write: if false;
+    }
+
+    // PAYMENT CLAIMS Collection
+    match /payment_claims/{claimId} {
+      // Read: Freelancer who owns the invoice
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Create: Freelancer creating claim for their invoice
+      allow create: if isAuthenticated() && (
+        request.resource.data.freelancerId == request.auth.uid &&
+        request.resource.data.keys().hasAll(['freelancerId', 'invoiceId', 'amount', 'status', 'createdAt'])
+      );
+
+      // Update: Freelancer can update their own claims (add evidence, etc.)
+      allow update: if isAuthenticated() && (
+        resource.data.freelancerId == request.auth.uid &&
+        request.resource.data.freelancerId == request.auth.uid
+      );
+
+      // No delete (audit trail required)
+      allow delete: if false;
+    }
+
+    // PAYMENT EVIDENCE Collection (server-managed, secure access)
+    match /payment_evidence/{evidenceId} {
+      // Read: Freelancer who owns the related claim only
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Server-only writes
+      allow write: if false;
+    }
+
+    // REFERRALS Collection
+    match /referrals/{referralId} {
+      // Read: Referrer or referee
+      allow read: if isAuthenticated() && (
+        resource.data.referrerId == request.auth.uid ||
+        resource.data.referredUserId == request.auth.uid
+      );
+
+      // Server-only writes
+      allow write: if false;
+    }
+
+    // VOICE CALL LOGS Collection (Pro tier feature)
+    match /voice_call_logs/{callId} {
+      // Read: Freelancer who initiated the call
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Server-only writes
+      allow write: if false;
+    }
+
+    // AI USAGE TRACKING Collection (server-only)
+    match /ai_usage/{usageId} {
+      // No user access (server analytics only)
+      allow read, write: if false;
+    }
+
+    // ESCALATION LOGS Collection
+    match /escalation_logs/{logId} {
+      // Read: Related freelancer only
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+
+      // Server-only writes
+      allow write: if false;
+    }
+
+    // ANALYTICS EVENTS Collection (server-only)
+    match /analytics_events/{eventId} {
+      // No user access
+      allow read, write: if false;
+    }
+
+    // DEFAULT DENY - All other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

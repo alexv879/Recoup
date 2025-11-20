@@ -14,6 +14,119 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 export const dynamic = 'force-dynamic';
 
 /**
+ * Map Stripe Price ID to subscription tier
+ * CRITICAL: This was previously a TODO causing payment processing to break
+ */
+function mapStripePriceToTier(
+  subscription: Stripe.Subscription
+): 'free' | 'starter' | 'pro' {
+  // Get price ID from subscription
+  const priceId = subscription.items.data[0]?.price?.id;
+
+  if (!priceId) {
+    logError('No price ID found in subscription', subscription.id);
+    return 'free'; // Fail safe to free tier
+  }
+
+  // Map price IDs to tiers from environment variables
+  const STRIPE_PRICE_STARTER_MONTHLY = process.env.STRIPE_PRICE_STARTER_MONTHLY;
+  const STRIPE_PRICE_STARTER_ANNUAL = process.env.STRIPE_PRICE_STARTER_ANNUAL;
+  const STRIPE_PRICE_PRO_MONTHLY = process.env.STRIPE_PRICE_PRO_MONTHLY;
+  const STRIPE_PRICE_PRO_ANNUAL = process.env.STRIPE_PRICE_PRO_ANNUAL;
+
+  // Check for Pro tier
+  if (priceId === STRIPE_PRICE_PRO_MONTHLY || priceId === STRIPE_PRICE_PRO_ANNUAL) {
+    return 'pro';
+  }
+
+  // Check for Starter tier
+  if (priceId === STRIPE_PRICE_STARTER_MONTHLY || priceId === STRIPE_PRICE_STARTER_ANNUAL) {
+    return 'starter';
+  }
+
+  // Log unknown price ID for debugging
+  logError('Unknown Stripe price ID', priceId);
+
+  // Default to starter for paid subscriptions (fail safe)
+  return 'starter';
+}
+
+/**
+ * Check if webhook event has already been processed (idempotency)
+ * Prevents double-processing if Stripe retries the webhook
+ */
+async function isEventProcessed(eventId: string): Promise<boolean> {
+  try {
+    const eventRef = db.collection('stripe_events').doc(eventId);
+    const eventDoc = await eventRef.get();
+
+    return eventDoc.exists;
+  } catch (error) {
+    logError('Failed to check event processing status', error);
+    // Fail safe: assume not processed to avoid missing events
+    return false;
+  }
+}
+
+/**
+ * Mark webhook event as processed
+ */
+async function markEventAsProcessed(eventId: string, eventType: string): Promise<void> {
+  try {
+    await db.collection('stripe_events').doc(eventId).set({
+      eventId,
+      eventType,
+      processedAt: Timestamp.now(),
+      processed: true
+    });
+  } catch (error) {
+    logError('Failed to mark event as processed', error);
+    // Don't throw - this is not critical
+  }
+}
+
+/**
+ * Send payment failure notification to freelancer
+ * CRITICAL: This was previously a TODO causing no visibility into failures
+ */
+async function notifyPaymentFailure(
+  userId: string,
+  invoiceId: string,
+  amount: number,
+  reason: string
+): Promise<void> {
+  try {
+    // Create notification in database
+    await db.collection('notifications').add({
+      userId,
+      type: 'payment_failed',
+      title: 'Payment Failed',
+      message: `Payment of £${(amount / 100).toFixed(2)} failed for invoice ${invoiceId}. Reason: ${reason}`,
+      read: false,
+      actionUrl: `/invoices/${invoiceId}`,
+      createdAt: Timestamp.now(),
+      metadata: {
+        invoiceId,
+        amount,
+        reason
+      }
+    });
+
+    // TODO: Also send email notification via SendGrid
+    // await sendEmail({
+    //   to: user.email,
+    //   template: 'payment_failed',
+    //   data: { invoiceId, amount, reason }
+    // });
+
+    logInfo('Payment failure notification sent', { userId, invoiceId, amount });
+  } catch (error) {
+    logError('Failed to send payment failure notification', error);
+    // Don't throw - notification failure shouldn't stop webhook processing
+  }
+}
+
+/**
  * Stripe Webhook Handler
  * POST /api/webhook/stripe
  * 
@@ -53,9 +166,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             );
         }
 
-        logInfo(`[webhook/stripe] Event type: ${event.type}`);
+        logInfo(`[webhook/stripe] Event type: ${event.type}, ID: ${event.id}`);
 
-        // 3. Handle different event types
+        // 3. Check idempotency - prevent double-processing
+        const alreadyProcessed = await isEventProcessed(event.id);
+
+        if (alreadyProcessed) {
+          logInfo(`[webhook/stripe] Event ${event.id} already processed, skipping`);
+          return NextResponse.json({ received: true, skipped: 'already_processed' });
+        }
+
+        // 4. Handle different event types
         switch (event.type) {
             case 'checkout.session.completed': {
                 const session = event.data.object as Stripe.Checkout.Session;
@@ -104,6 +225,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
 
         const duration = Date.now() - startTime;
+
+        // Mark event as processed to prevent double-processing
+        await markEventAsProcessed(event.id, event.type);
+
         logInfo(`[webhook/stripe] Webhook processed in ${duration}ms`);
 
         return NextResponse.json({ received: true });
@@ -255,9 +380,8 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 
         const userId = usersSnapshot.docs[0].id;
 
-        // Determine subscription tier from price
-        let tier: 'free' | 'paid' | 'starter' | 'growth' | 'pro' | 'business' = 'paid';
-        // TODO: Map Stripe price IDs to tiers
+        // Determine subscription tier from Stripe price ID
+        const tier = mapStripePriceToTier(subscription);
 
         await db.collection(COLLECTIONS.USERS).doc(userId).update({
             stripeSubscriptionId: subscription.id,
@@ -388,10 +512,26 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
             return;
         }
 
-        // TODO: Send notification to freelancer about failed payment
-        // TODO: Update invoice with failed payment attempt
+        // Get failure reason
+        const failureMessage = paymentIntent.last_payment_error?.message || 'Unknown reason';
 
-        logInfo(`[webhook/stripe] Payment failed for invoice: ${invoiceId}`);
+        // Send notification to freelancer
+        await notifyPaymentFailure(
+          freelancerId,
+          invoiceId,
+          paymentIntent.amount,
+          failureMessage
+        );
+
+        // Update invoice with failed payment attempt
+        await db.collection('invoices').doc(invoiceId).update({
+          lastPaymentAttempt: Timestamp.now(),
+          lastPaymentFailureReason: failureMessage,
+          paymentFailureCount: (paymentIntent.metadata.failureCount ? parseInt(paymentIntent.metadata.failureCount) + 1 : 1),
+          updatedAt: Timestamp.now()
+        });
+
+        logInfo(`[webhook/stripe] Payment failed for invoice: ${invoiceId}, reason: ${failureMessage}`);
     } catch (error) {
         logError('[webhook/stripe] Error handling payment failed:', error);
         throw error;
