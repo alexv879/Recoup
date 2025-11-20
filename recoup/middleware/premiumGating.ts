@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logInfo, logError } from '@/utils/logger';
 
 export interface PremiumFeature {
     name: string;
@@ -32,7 +33,7 @@ export async function requirePremiumAccess(
         // Placeholder implementation
         // In production, check subscription status from database/payment provider
 
-        console.log(`Checking premium access for user ${userId}, feature: ${feature}`);
+        logInfo('[premiumGating] Checking feature access', { userId, feature });
 
         // Simulate premium check
         const isPremium = Math.random() > 0.5; // Random for demo
@@ -53,7 +54,7 @@ export async function requirePremiumAccess(
             };
         }
     } catch (error) {
-        console.error('Premium access check failed:', error);
+        logError('[premiumGating] Access check failed', { error, userId, feature });
         return {
             hasAccess: false,
             isPremium: false,
@@ -73,9 +74,9 @@ export async function logPremiumFeatureUsage(params: {
     cost?: number;
 }): Promise<void> {
     try {
-        console.log('Logging premium feature usage:', params);
+        logInfo('[premiumGating] Feature usage tracked', params);
         // In production, log to analytics database
     } catch (error) {
-        console.error('Failed to log premium feature usage:', error);
+        logError('[premiumGating] Failed to track usage', { error, params });
     }
 }

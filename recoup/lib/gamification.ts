@@ -19,7 +19,7 @@ function calculateDaysOverdue(dueDate: { toDate: () => Date }): number {
 export async function updateUserAchievements(userId: string) {
     const stats = await getUserStats(userId);
     if (!stats) {
-        console.log(`No stats found for user ${userId} to update achievements.`);
+        // console.log(`No stats found for user ${userId} to update achievements.`);
         return [];
     }
     const newBadges: string[] = [];
@@ -33,7 +33,7 @@ export async function updateUserAchievements(userId: string) {
     if (stats.rank && stats.rank <= 100) newBadges.push('top_100');
 
     // await db.collection('user_stats').doc(userId).update({ badges: newBadges });
-    console.log(`User ${userId} earned badges: ${newBadges.join(', ')}`);
+    // console.log(`User ${userId} earned badges: ${newBadges.join(', ')}`);
     return newBadges;
 }
 
@@ -54,14 +54,14 @@ export async function calculateStreak(userId: string): Promise<number> {
     await db.collection('user_stats').doc(userId).update({ streak });
     return streak;
     */
-    console.log(`[DB] Calculating streak for ${userId}`);
+    // console.log(`[DB] Calculating streak for ${userId}`);
     return 0; // Placeholder for live implementation
 }
 
 export async function calculateUserLevel(userId: string): Promise<number> {
     const stats = await getUserStats(userId);
     if (!stats) {
-        console.log(`No stats found for user ${userId} to calculate level.`);
+        // console.log(`No stats found for user ${userId} to calculate level.`);
         return 1;
     }
     let points = 0;
@@ -70,6 +70,6 @@ export async function calculateUserLevel(userId: string): Promise<number> {
     points += (stats.badges || []).length * 10; // 10 points per badge
 
     const level = Math.floor(points / 100) + 1; // 100 points per level
-    console.log(`User ${userId} is level ${level} with ${points} points.`);
+    // console.log(`User ${userId} is level ${level} with ${points} points.`);
     return level;
 }
