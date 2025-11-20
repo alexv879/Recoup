@@ -1,0 +1,62 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2023,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    // Prevent console statements in production code
+    "no-console": ["warn", {
+      "allow": ["warn", "error"]
+    }],
+
+    // Enforce TypeScript best practices
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": ["error", {
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_"
+    }],
+
+    // Prevent common mistakes
+    "no-debugger": "error",
+    "no-alert": "warn",
+
+    // Code quality
+    "prefer-const": "error",
+    "no-var": "error",
+
+    // Security
+    "no-eval": "error",
+    "no-implied-eval": "error"
+  },
+  "overrides": [
+    {
+      // Relax rules for test files
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      "rules": {
+        "no-console": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    },
+    {
+      // Relax rules for scripts
+      "files": ["scripts/**/*.ts", "scripts/**/*.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      // Allow console in logger utility
+      "files": ["utils/logger.ts", "lib/logger.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

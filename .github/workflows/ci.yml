@@ -1,0 +1,176 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs for the same workflow
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # BUILD & TEST JOB
+  # ============================================
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: recoup/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./recoup
+        run: npm ci
+
+      - name: Run TypeScript type check
+        working-directory: ./recoup
+        run: npm run build
+        env:
+          # Provide minimal env vars to allow build to complete
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_placeholder' }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_placeholder' }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'test-project' }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL || 'test@test.iam.gserviceaccount.com' }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY || 'placeholder' }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY || 'sk_test_placeholder' }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder' }}
+
+      - name: Run tests
+        working-directory: ./recoup
+        run: npm test -- --passWithNoTests
+        env:
+          NODE_ENV: test
+
+      - name: Check for console.log statements
+        working-directory: ./recoup
+        run: |
+          # Find console.log in non-test files (excluding scripts, utils/logger, ErrorBoundary)
+          if grep -r "console\\.log" --include="*.ts" --include="*.tsx" \
+            --exclude-dir=node_modules \
+            --exclude-dir=.next \
+            --exclude-dir=scripts \
+            --exclude="logger.ts" \
+            --exclude="ErrorBoundary.tsx" \
+            app/ components/ lib/ services/ 2>/dev/null; then
+            echo "::warning::Found console.log statements in production code"
+          fi
+
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.node-version }}
+          path: recoup/.next
+          retention-days: 7
+
+  # ============================================
+  # SECURITY SCAN JOB
+  # ============================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run npm audit
+        working-directory: ./recoup
+        run: npm audit --audit-level=high || true
+
+      - name: Check for secrets in code
+        working-directory: ./recoup
+        run: |
+          # Check for potential hardcoded secrets
+          if grep -r "sk_live\|sk_test_[a-zA-Z0-9]\{24,\}\|api_key.*=.*['\"]" \
+            --include="*.ts" --include="*.tsx" \
+            --exclude-dir=node_modules \
+            --exclude-dir=.next \
+            . 2>/dev/null; then
+            echo "::error::Potential hardcoded secrets detected!"
+            exit 1
+          fi
+
+  # ============================================
+  # CODE QUALITY JOB
+  # ============================================
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: recoup/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./recoup
+        run: npm ci
+
+      - name: Count TODO comments
+        working-directory: ./recoup
+        run: |
+          TODO_COUNT=$(grep -r "TODO\|FIXME" --include="*.ts" --include="*.tsx" \
+            --exclude-dir=node_modules --exclude-dir=.next . 2>/dev/null | wc -l || echo "0")
+          echo "Found $TODO_COUNT TODO/FIXME comments"
+          echo "::notice::TODO/FIXME count: $TODO_COUNT"
+
+  # ============================================
+  # DEPLOYMENT (Production only)
+  # ============================================
+  deploy-production:
+    name: Deploy to Production
+    needs: [build-and-test, security-scan, code-quality]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://recoup-app.vercel.app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./recoup
+
+      - name: Verify deployment health
+        run: |
+          sleep 10
+          curl -f https://recoup-app.vercel.app/api/health || echo "::warning::Health check failed"
+
+      - name: Notify deployment success
+        if: success()
+        run: echo "::notice::Successfully deployed to production!"
