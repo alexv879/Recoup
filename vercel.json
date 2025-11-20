@@ -1,0 +1,122 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "framework": "nextjs",
+  "regions": ["lhr1"],
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "app/api/webhooks/**/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "app/api/voice/**/*.ts": {
+      "maxDuration": 300,
+      "memory": 3008
+    },
+    "app/api/ai/**/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/dashboard",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "/api/health"
+    },
+    {
+      "source": "/readiness",
+      "destination": "/api/readiness"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_APP_URL": "@next_public_app_url",
+      "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "@next_public_clerk_publishable_key",
+      "NEXT_PUBLIC_FIREBASE_API_KEY": "@next_public_firebase_api_key",
+      "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "@next_public_firebase_auth_domain",
+      "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "@next_public_firebase_project_id",
+      "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "@next_public_firebase_storage_bucket",
+      "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "@next_public_firebase_messaging_sender_id",
+      "NEXT_PUBLIC_FIREBASE_APP_ID": "@next_public_firebase_app_id",
+      "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "@next_public_stripe_publishable_key",
+      "NEXT_PUBLIC_SENTRY_DSN": "@next_public_sentry_dsn",
+      "NEXT_PUBLIC_MIXPANEL_TOKEN": "@next_public_mixpanel_token"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/daily-reminders",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/escalate-collections",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/income-predictions",
+      "schedule": "0 6 * * 1"
+    }
+  ],
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./"
+}
