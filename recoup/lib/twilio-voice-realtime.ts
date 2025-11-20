@@ -218,13 +218,10 @@ export async function initiateAICollectionCall(params: AICallParams): Promise<AI
 
     // Start the call with a connect to stream
     const connect = twiml.connect();
+    const baseUrl = `wss://${process.env.NEXT_PUBLIC_APP_URL?.replace('https://', '') || 'your-app.vercel.app'}/api/webhooks/twilio/voice-stream`;
+    const streamUrl = `${baseUrl}?invoiceId=${encodeURIComponent(params.invoiceId)}&freelancerId=${encodeURIComponent(params.freelancerId)}&instructions=${encodeURIComponent(agentInstructions)}`;
     connect.stream({
-      url: `wss://${process.env.NEXT_PUBLIC_APP_URL?.replace('https://', '') || 'your-app.vercel.app'}/api/webhooks/twilio/voice-stream`,
-      parameters: {
-        invoiceId: params.invoiceId,
-        freelancerId: params.freelancerId,
-        instructions: agentInstructions,
-      },
+      url: streamUrl,
     });
 
     // 5. Initiate Twilio call

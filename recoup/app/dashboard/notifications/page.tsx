@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/UI/Card';
-import { Badge } from '@/components/UI/Badge';
-import { Button } from '@/components/UI/Button';
+import { Card } from '@/components/Custom/Card';
+import { Badge } from '@/components/Custom/Badge';
+import { Button } from '@/components/Custom/Button';
 
 interface Notification {
     notificationId: string;

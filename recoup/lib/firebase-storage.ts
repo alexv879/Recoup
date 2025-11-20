@@ -1,10 +1,10 @@
 /**
  * Firebase Storage utilities
  * Handles file uploads and storage operations
+ * Uses Firebase Admin SDK for server-side storage operations
  */
 
 import { storage } from './firebase';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 export interface UploadResult {
     url: string;
@@ -13,10 +13,13 @@ export interface UploadResult {
 }
 
 /**
- * Upload a file to Firebase Storage
+ * Upload a file to Firebase Storage (Admin SDK)
+ * @param fileData - Buffer or Uint8Array containing file data
+ * @param path - Storage path for the file
+ * @param metadata - Optional metadata including contentType
  */
 export async function uploadFile(
-    file: File,
+    fileData: Buffer | Uint8Array | string,
     path: string,
     metadata?: { contentType?: string }
 ): Promise<UploadResult> {
@@ -24,14 +27,29 @@ export async function uploadFile(
         throw new Error('Firebase Storage is not available');
     }
 
-    const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, file, metadata);
-    const downloadURL = await getDownloadURL(uploadResult.ref);
+    const bucket = storage.bucket();
+    const fileRef = bucket.file(path);
+
+    // Convert string to Buffer if needed
+    const buffer = typeof fileData === 'string' ? Buffer.from(fileData) : fileData;
+
+    await fileRef.save(buffer, {
+        metadata: metadata,
+        contentType: metadata?.contentType,
+    });
+
+    // Get signed URL for download (valid for 7 days)
+    const [url] = await fileRef.getSignedUrl({
+        action: 'read',
+        expires: Date.now() + 7 * 24 * 3600 * 1000, // 7 days
+    });
+
+    const [metadataResult] = await fileRef.getMetadata();
 
     return {
-        url: downloadURL,
-        path: uploadResult.ref.fullPath,
-        size: uploadResult.metadata.size,
+        url,
+        path: fileRef.name,
+        size: metadataResult.size ? Number(metadataResult.size) : 0,
     };
 }
 
@@ -44,9 +62,9 @@ export async function uploadCommunicationHistory(
     history: any
 ): Promise<UploadResult> {
     const fileName = `agency-handoff/${userId}/${invoiceId}/${Date.now()}.json`;
-    const file = new File([JSON.stringify(history)], fileName, {
-        type: 'application/json',
-    });
+    const jsonData = JSON.stringify(history);
 
-    return uploadFile(file, fileName);
+    return uploadFile(jsonData, fileName, {
+        contentType: 'application/json',
+    });
 }

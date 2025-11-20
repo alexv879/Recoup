@@ -244,8 +244,7 @@ export async function reviewContractWithAI(params: {
 }): Promise<AIReviewResult> {
   const { contract, jurisdiction, focusAreas = [] } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = getGemini();
 
   const prompt = `You are a legal expert specializing in freelance contracts in ${jurisdiction}.
 
@@ -328,8 +327,7 @@ export async function generateContractWithAI(params: {
     jurisdiction,
   } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = getGemini();
 
   const prompt = `You are a legal expert creating freelance service agreements for ${jurisdiction}.
 
@@ -399,8 +397,7 @@ export async function extractContractTerms(params: {
 }> {
   const { contractContent } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = getGemini();
 
   const prompt = `Extract key terms from this contract:
 
@@ -446,8 +443,7 @@ export async function compareToStandardTerms(params: {
 }> {
   const { contract, standardTemplate } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = getGemini();
 
   const prompt = `Compare this contract to standard terms and identify deviations:
 
@@ -581,7 +577,7 @@ export function checkContractTemplateLimit(params: {
         eSignature: true,
         unlimitedContracts: true,
       },
-      maxContractsPerMonth: 'unlimited',
+      maxContractsPerMonth: 'unlimited' as const,
     },
   };
 

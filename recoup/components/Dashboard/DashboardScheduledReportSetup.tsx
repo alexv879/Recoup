@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/UI/Card';
-import { Button } from '@/components/UI/Button';
+import { Card } from '@/components/Custom/Card';
+import { Button } from '@/components/Custom/Button';
 
 const SCHEDULE_OPTIONS = [
     { label: 'Daily Summary (7am)', value: 'daily' },

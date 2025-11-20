@@ -32,8 +32,8 @@ export async function canUseCollectionsDemo(userId: string): Promise<{
 
   const user = userDoc.data() as User;
 
-  // Paid users have unlimited collections
-  if (user.subscriptionTier === 'paid') {
+  // Pro users have unlimited collections
+  if (user.subscriptionTier === 'pro') {
     return {
       canUse: true,
       remaining: -1, // -1 means unlimited
@@ -51,7 +51,9 @@ export async function canUseCollectionsDemo(userId: string): Promise<{
 
   // Get collections count for current month
   const collectionsCount = user.collectionsDemoUsedThisMonth || 0;
-  const lastResetDate = user.lastDemoResetDate?.toDate();
+  const lastResetDate = user.lastDemoResetDate
+    ? (user.lastDemoResetDate instanceof Date ? user.lastDemoResetDate : (user.lastDemoResetDate as any).toDate())
+    : undefined;
 
   // Check if we need to reset the count (new month)
   let actualCollectionsCount = collectionsCount;
@@ -79,7 +81,10 @@ export async function canUseCollectionsDemo(userId: string): Promise<{
   const remaining = Math.max(0, COLLECTIONS_DEMO_LIMIT_FREE - actualCollectionsCount);
   const canUse = actualCollectionsCount < COLLECTIONS_DEMO_LIMIT_FREE;
 
-  logDbOperation('check_collections_quota', COLLECTIONS.USERS, userId, Date.now() - startTime);
+  logDbOperation('check_collections_quota', COLLECTIONS.USERS, {
+    userId,
+    duration: Date.now() - startTime,
+  });
 
   return {
     canUse,
@@ -131,7 +136,10 @@ export async function enableCollections(invoiceId: string, userId: string): Prom
     collectionsDemoUsedThisMonth: FieldValue.increment(1),
   });
 
-  logDbOperation('enable_collections', COLLECTIONS.INVOICES, invoiceId, Date.now() - startTime);
+  logDbOperation('enable_collections', COLLECTIONS.INVOICES, {
+    invoiceId,
+    duration: Date.now() - startTime,
+  });
 
   return { ...invoice, collectionsEnabled: true };
 }
@@ -172,8 +180,9 @@ export async function processCollections(): Promise<{
         }
 
         // Calculate days overdue
-        const dueDate = invoice.dueDate.toDate();
-        const daysOverdue = Math.floor((now.toDate().getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+        const dueDate = invoice.dueDate instanceof Date ? invoice.dueDate : (invoice.dueDate as any).toDate();
+        const nowDate = (now as any).toDate();
+        const daysOverdue = Math.floor((nowDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
 
         logInfo('Invoice overdue check', { invoiceRef: invoice.reference, daysOverdue });
 
@@ -217,7 +226,7 @@ export async function processCollections(): Promise<{
         }
 
         // Check if we should send day 14 SMS reminder (PREMIUM)
-        if (daysOverdue >= COLLECTION_DAY_14_REMINDER) {
+        if (daysOverdue >= COLLECTION_DAY_15_REMINDER) {
           // Get existing attempt to check if SMS already sent
           const attemptQuery = await db
             .collection(COLLECTIONS.COLLECTION_ATTEMPTS)
@@ -232,13 +241,16 @@ export async function processCollections(): Promise<{
             // Get user details for SMS consent and phone
             const userDoc = await db.collection(COLLECTIONS.USERS).doc(invoice.freelancerId).get();
             if (!userDoc.exists) {
-              logError('User not found for SMS', new Error('User not found'), { userId: invoice.freelancerId });
+              logError('User not found for SMS', {
+                error: new Error('User not found'),
+                userId: invoice.freelancerId,
+              });
             } else {
               const user = userDoc.data() as User;
 
               // Check SMS consent and subscription tier
               const hasConsent = user.collectionsConsent?.smsConsent && !user.collectionsConsent?.smsOptedOut;
-              const isPaidUser = user.subscriptionTier === 'paid';
+              const isPaidUser = user.subscriptionTier === 'pro';
 
               if (hasConsent && isPaidUser && user.phoneNumber) {
                 try {
@@ -355,7 +367,7 @@ export async function processCollections(): Promise<{
 
               // Check consent, subscription tier, and business address
               const hasConsent = user.collectionsConsent?.physicalMailConsent && !user.collectionsConsent?.physicalMailOptedOut;
-              const isPaidUser = user.subscriptionTier === 'paid';
+              const isPaidUser = user.subscriptionTier === 'pro';
               const hasAddress = !!user.businessAddress;
 
               if (!hasAddress) {
@@ -433,7 +445,9 @@ export async function processCollections(): Promise<{
       }
     }
 
-    logDbOperation('process_collections', COLLECTIONS.INVOICES, undefined, Date.now() - startTime);
+    logDbOperation('process_collections', COLLECTIONS.INVOICES, {
+      duration: Date.now() - startTime,
+    });
 
     logInfo('Collections processing complete', { day7Count, day21Count });
 
@@ -471,7 +485,9 @@ export async function getCollectionsHistory(
     .orderBy('sentAt', 'desc')
     .get();
 
-  logDbOperation('get_collections_history', COLLECTIONS.COLLECTION_ATTEMPTS, undefined, Date.now() - startTime);
+  logDbOperation('get_collections_history', COLLECTIONS.COLLECTION_ATTEMPTS, {
+    duration: Date.now() - startTime,
+  });
 
   return snapshot.docs.map((doc) => doc.data() as CollectionAttempt);
 }
@@ -501,7 +517,10 @@ export async function disableCollections(invoiceId: string, userId: string): Pro
     updatedAt: Timestamp.now(),
   });
 
-  logDbOperation('disable_collections', COLLECTIONS.INVOICES, invoiceId, Date.now() - startTime);
+  logDbOperation('disable_collections', COLLECTIONS.INVOICES, {
+    invoiceId,
+    duration: Date.now() - startTime,
+  });
 
   return { ...invoice, collectionsEnabled: false };
 }

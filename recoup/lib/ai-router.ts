@@ -144,11 +144,11 @@ export async function generateCompletion(request: AIRequest): Promise<AIResponse
   const startTime = Date.now();
   const selectedModel = selectModel(request.taskType);
 
-  logger.info('AI Router', {
+  logger.info({
     taskType: request.taskType,
     selectedModel,
     promptLength: request.prompt.length,
-  });
+  }, 'AI Router');
 
   try {
     let response: AIResponse;
@@ -169,21 +169,21 @@ export async function generateCompletion(request: AIRequest): Promise<AIResponse
 
     response.latency = Date.now() - startTime;
 
-    logger.info('AI Response', {
+    logger.info({
       model: response.model,
       latency: response.latency,
       tokens: response.usage.totalTokens,
       cost: response.cost,
-    });
+    }, 'AI Response');
 
     return response;
 
   } catch (error) {
-    logger.error('AI generation failed', {
+    logger.error({
       model: selectedModel,
       taskType: request.taskType,
       error: error instanceof Error ? error.message : String(error),
-    });
+    }, 'AI generation failed');
 
     // Fallback strategy: try alternative model
     if (selectedModel !== AIModel.GEMINI) {
@@ -421,7 +421,7 @@ Provide analysis in JSON format:
   try {
     return JSON.parse(response.content);
   } catch (error) {
-    logger.error('Failed to parse compliance analysis', { error });
+    logger.error({ error }, 'Failed to parse compliance analysis');
     return {
       compliant: false,
       issues: ['Failed to analyze compliance'],
@@ -441,7 +441,7 @@ export async function trackAIUsage(params: {
   cost: number;
 }): Promise<void> {
   // This would be stored in Firestore for monitoring
-  logger.info('AI Usage', params);
+  logger.info(params, 'AI Usage');
 
   // TODO: Implement Firestore tracking
   // await firestore.collection('ai_usage').add({

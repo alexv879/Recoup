@@ -168,8 +168,11 @@ export async function checkEscalationEligibility(invoiceId: string): Promise<{
     }
 
     // 5. Check days past due
+    const dueDateMs = invoice.dueDate instanceof Date
+      ? invoice.dueDate.getTime()
+      : (invoice.dueDate as any).toMillis();
     const daysPastDue = Math.floor(
-      (Date.now() - invoice.dueDate.toMillis()) / (1000 * 60 * 60 * 24)
+      (Date.now() - dueDateMs) / (1000 * 60 * 60 * 24)
     );
 
     if (daysPastDue < 60) {
@@ -246,8 +249,11 @@ export async function createAgencyHandoff(params: {
     }
 
     // 5. Calculate days past due
+    const dueDateMs2 = invoice.dueDate instanceof Date
+      ? invoice.dueDate.getTime()
+      : (invoice.dueDate as any).toMillis();
     const daysPastDue = Math.floor(
-      (Date.now() - invoice.dueDate.toMillis()) / (1000 * 60 * 60 * 24)
+      (Date.now() - dueDateMs2) / (1000 * 60 * 60 * 24)
     );
 
     // 6. Build communication history for agency
@@ -343,7 +349,7 @@ export async function createAgencyHandoff(params: {
 - Client: ${invoice.clientName}
 - Amount: £${invoice.amount.toFixed(2)}
 - Days Past Due: ${daysPastDue}
-- Original Invoice Date: ${invoice.invoiceDate.toDate().toLocaleDateString()}
+- Original Invoice Date: ${(invoice.invoiceDate instanceof Date ? invoice.invoiceDate : (invoice.invoiceDate as any).toDate()).toLocaleDateString()}
 
 **Case Summary:**
 ${communicationHistory.length} collection attempts have been made:
@@ -448,18 +454,14 @@ We'll notify you of any developments.`,
         },
       };
 
-      const historyBuffer = Buffer.from(JSON.stringify(communicationHistoryJson, null, 2), 'utf-8');
+      const uploadResult = await uploadCommunicationHistory(
+        params.freelancerId,
+        params.invoiceId,
+        communicationHistoryJson
+      );
 
-      const uploadResult = await uploadCommunicationHistory({
-        contentBuffer: historyBuffer,
-        fileName: `communication-history-${Date.now()}.json`,
-        contentType: 'application/json',
-        handoffId: handoffRef.id,
-        freelancerId: params.freelancerId,
-      });
-
-      if (uploadResult.success && uploadResult.storagePath) {
-        uploadedDocuments.push(uploadResult.storagePath);
+      if (uploadResult && uploadResult.path) {
+        uploadedDocuments.push(uploadResult.path);
 
         // Update handoff with document references
         await handoffRef.update({
@@ -473,7 +475,7 @@ We'll notify you of any developments.`,
 
         logInfo('Communication history uploaded to storage', {
           handoffId: handoffRef.id,
-          storagePath: uploadResult.storagePath,
+          storagePath: uploadResult.path,
         });
       }
 
@@ -644,28 +646,22 @@ Thank you for using Recoup's collection services!`,
       try {
         const transactionResult = await createAgencyRecoveryTransaction({
           invoiceId: handoff.invoiceId,
-          freelancerId: handoff.freelancerId,
-          agencyHandoffId: handoffId,
+          amount: update.recoveryAmount,
           agencyId: handoff.agencyId,
-          grossAmount: update.recoveryAmount,
-          agencyCommissionRate: handoff.commissionPercentage / 100,
-          notes: `Recovery by ${handoff.agencyName}. ${update.recoveryOutcome || 'full_recovery'}`,
         });
 
-        if (transactionResult.success) {
+        if (transactionResult && transactionResult.id) {
           // Link transaction to handoff
           await handoffRef.update({
-            transactionId: transactionResult.transactionId,
+            transactionId: transactionResult.id,
             transactionCreatedAt: Timestamp.now(),
           });
 
           logInfo('Agency recovery transaction created', {
             handoffId,
-            transactionId: transactionResult.transactionId,
+            transactionId: transactionResult.id,
             grossAmount: update.recoveryAmount,
           });
-        } else {
-          logError('Failed to create recovery transaction', new Error(transactionResult.error));
         }
 
       } catch (transactionError) {

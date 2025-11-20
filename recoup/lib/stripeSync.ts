@@ -5,7 +5,7 @@ import Stripe from 'stripe';
 import { SUBSCRIPTION_PLANS } from './subscriptionPlans';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2022-11-15',
+    apiVersion: '2025-10-29.clover',
 });
 
 export async function syncStripeProducts(): Promise<void> {

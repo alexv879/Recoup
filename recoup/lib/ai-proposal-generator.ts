@@ -670,7 +670,7 @@ function generateProposalInsights(params: {
     suggestedImprovements.push('Include a clear timeline with milestones');
   }
 
-  if (params.pricing.total > 10000 && params.paymentTerms !== '50% upfront, 50% on completion') {
+  if (params.pricing.total > 10000 && params.pricing.paymentTerms !== '50% upfront, 50% on completion') {
     suggestedImprovements.push('Consider requiring upfront payment for large projects');
   }
 

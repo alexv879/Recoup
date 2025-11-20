@@ -1,7 +1,7 @@
 // Event schemas for validation
 import type { AnalyticsEventType } from '../types';
 
-export const schemas: Record<AnalyticsEventType, Record<string, any>> = {
+export const schemas: Partial<Record<AnalyticsEventType, Record<string, any>>> = {
     signup_initiated: { type: 'signup_initiated', userId: '', timestamp: 0 },
     signup_completed: { type: 'signup_completed', userId: '', timestamp: 0 },
     email_verified: { type: 'email_verified', userId: '', timestamp: 0 },

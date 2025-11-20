@@ -435,8 +435,7 @@ export async function getTaxAdvice(params: {
 }> {
   const { taxSummary, specificQuestion } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  const model = getGemini();
 
   const prompt = `You are a UK tax advisor specializing in self-assessment for self-employed individuals.
 

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/UI/Card';
-import { Badge } from '@/components/UI/Badge';
-import { Progress } from '@/components/UI/Progress';
+import { Card } from '@/components/Custom/Card';
+import { Badge } from '@/components/Custom/Badge';
+import { Progress } from '@/components/Custom/Progress';
 
 interface GamificationStats {
     xp: number;

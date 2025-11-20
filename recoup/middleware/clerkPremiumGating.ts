@@ -24,7 +24,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { db, FieldValue } from '@/lib/firebase';
 import { User } from '@/types/models';
-import { errors } from '@/utils/error';
+import { UnauthorizedError, ForbiddenError, NotFoundError } from '@/utils/error';
 import { COLLECTIONS_LIMITS, TIER_LEVELS, normalizeTier, SubscriptionTier } from '@/utils/constants';
 import { logError, logInfo, logWarn } from '@/utils/logger';
 
@@ -72,7 +72,7 @@ export async function checkClerkFeatureAccess(
 
     if (!has) {
       logWarn('Clerk auth not available in checkClerkFeatureAccess', { userId });
-      throw errors.unauthorized('User not authenticated');
+      throw new UnauthorizedError('User not authenticated');
     }
 
     const hasFeature = has({ feature });
@@ -93,7 +93,7 @@ export async function checkClerkFeatureAccess(
     // 3. Check usage quota for collection features
     if (feature.startsWith('collections_limit_')) {
       const limit = COLLECTIONS_LIMITS[tier as keyof typeof COLLECTIONS_LIMITS];
-      const used = user.collectionsUsedThisMonth || 0;
+      const used = user.collectionsDemoUsedThisMonth || 0;
       const remaining = limit === Infinity ? Infinity : Math.max(0, limit - used);
 
       // Check if quota exceeded
@@ -136,7 +136,8 @@ export async function checkClerkFeatureAccess(
       hasAccess: true,
     };
   } catch (error) {
-    logError('Error checking Clerk feature access', error as Error, {
+    logError('Error checking Clerk feature access', {
+      error: error as Error,
       userId,
       feature,
     });
@@ -165,11 +166,8 @@ export async function requireClerkFeature(
   );
 
   if (!hasAccess) {
-    throw errors.paymentRequired(reason || 'Upgrade required to access this feature', {
-      feature,
-      suggestedTier,
-      quotaInfo,
-    });
+    const message = reason || 'Upgrade required to access this feature';
+    throw new ForbiddenError(message);
   }
 
   logInfo('Premium feature access granted', {
@@ -194,7 +192,7 @@ export async function incrementUsageCounter(
     const userRef = db.collection('users').doc(userId);
 
     await userRef.update({
-      collectionsUsedThisMonth: FieldValue.increment(1),
+      collectionsDemoUsedThisMonth: FieldValue.increment(1),
       updatedAt: FieldValue.serverTimestamp(),
     });
 
@@ -203,7 +201,8 @@ export async function incrementUsageCounter(
       usageType,
     });
   } catch (error) {
-    logError('Error incrementing usage counter', error as Error, {
+    logError('Error incrementing usage counter', {
+      error: error as Error,
       userId,
       usageType,
     });
@@ -221,7 +220,7 @@ export async function resetMonthlyUsage(userId?: string): Promise<void> {
     if (userId) {
       // Reset single user
       await db.collection('users').doc(userId).update({
-        collectionsUsedThisMonth: 0,
+        collectionsDemoUsedThisMonth: 0,
         monthlyUsageResetDate: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });
@@ -233,7 +232,7 @@ export async function resetMonthlyUsage(userId?: string): Promise<void> {
 
       usersSnapshot.docs.forEach((doc) => {
         batch.update(doc.ref, {
-          collectionsUsedThisMonth: 0,
+          collectionsDemoUsedThisMonth: 0,
           monthlyUsageResetDate: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         });
@@ -245,7 +244,10 @@ export async function resetMonthlyUsage(userId?: string): Promise<void> {
       });
     }
   } catch (error) {
-    logError('Error resetting monthly usage', error as Error, { userId });
+    logError('Error resetting monthly usage', {
+      error: error as Error,
+      userId,
+    });
     throw error;
   }
 }
@@ -267,13 +269,13 @@ export async function getUserQuotaInfo(userId: string): Promise<{
   const userDoc = await db.collection('users').doc(userId).get();
 
   if (!userDoc.exists) {
-    throw errors.notFound('User not found');
+    throw new NotFoundError('User not found');
   }
 
   const user = userDoc.data() as User;
   const tier = normalizeTier(user.subscriptionTier);
   const limit = COLLECTIONS_LIMITS[tier as keyof typeof COLLECTIONS_LIMITS];
-  const used = user.collectionsUsedThisMonth || 0;
+  const used = user.collectionsDemoUsedThisMonth || 0;
   const remaining = limit === Infinity ? Infinity : Math.max(0, limit - used);
   const percentageUsed = limit === Infinity ? 0 : (used / limit) * 100;
   const isNearLimit = percentageUsed >= 80;
@@ -296,7 +298,7 @@ function getSuggestedTierForUpgrade(currentTier: SubscriptionTier): Subscription
   const currentIndex = tierOrder.indexOf(currentTier);
 
   if (currentIndex === -1 || currentIndex >= tierOrder.length - 1) {
-    return 'business'; // Already at top or unknown tier
+    return 'pro'; // Already at top or unknown tier
   }
 
   return tierOrder[currentIndex + 1];
@@ -312,7 +314,7 @@ function getSuggestedTierForFeature(feature: ClerkFeature): SubscriptionTier {
     feature === 'collections_unlimited' ||
     feature === 'dedicated_account_manager'
   ) {
-    return 'business';
+    return 'pro';
   }
 
   if (
@@ -365,7 +367,7 @@ export async function canUpgradeToTier(
   }
 
   // Founding members are locked into their pricing but can still upgrade
-  if (user.isFoundingMember) {
+  if ((user as any).isFoundingMember) {
     return {
       canUpgrade: true,
       reason: 'As a founding member, you will keep your 50% discount on the new tier.',

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card } from '@/components/UI/Card';
+import { Card } from '@/components/Custom/Card';
 
 export function DashboardStatusBarChart() {
     const [data, setData] = useState<any>(null);

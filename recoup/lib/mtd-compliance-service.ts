@@ -325,20 +325,20 @@ export function generateQuarterlySubmission(params: {
   const startYear = parseInt(yearParts[0]);
 
   const quarterDates = [
-    { start: new Date(startYear, 3, 6), end: new Date(startYear, 6, 5) }, // Q1: Apr-Jun
-    { start: new Date(startYear, 6, 6), end: new Date(startYear, 9, 5) }, // Q2: Jul-Sep
-    { start: new Date(startYear, 9, 6), end: new Date(startYear, 11, 31) }, // Q3: Oct-Dec
-    { start: new Date(startYear + 1, 0, 1), end: new Date(startYear + 1, 3, 5) }, // Q4: Jan-Mar
+    { startDate: new Date(startYear, 3, 6), endDate: new Date(startYear, 6, 5) }, // Q1: Apr-Jun
+    { startDate: new Date(startYear, 6, 6), endDate: new Date(startYear, 9, 5) }, // Q2: Jul-Sep
+    { startDate: new Date(startYear, 9, 6), endDate: new Date(startYear, 11, 31) }, // Q3: Oct-Dec
+    { startDate: new Date(startYear + 1, 0, 1), endDate: new Date(startYear + 1, 3, 5) }, // Q4: Jan-Mar
   ];
 
   const quarterPeriod = quarterDates[quarter - 1];
 
   // Filter data for this quarter
   const quarterIncome = income.filter(
-    i => i.date >= quarterPeriod.start && i.date <= quarterPeriod.end
+    i => i.date >= quarterPeriod.startDate && i.date <= quarterPeriod.endDate
   );
   const quarterExpenses = expenses.filter(
-    e => e.date >= quarterPeriod.start && e.date <= quarterPeriod.end && e.taxDeductible
+    e => e.date >= quarterPeriod.startDate && e.date <= quarterPeriod.endDate && e.taxDeductible
   );
 
   // Calculate income by source
@@ -370,7 +370,7 @@ export function generateQuarterlySubmission(params: {
   const netProfit = totalIncome - totalAllowableExpenses;
 
   // Set due date (1 month after quarter end + 1 day)
-  const dueDate = new Date(quarterPeriod.end);
+  const dueDate = new Date(quarterPeriod.endDate);
   dueDate.setMonth(dueDate.getMonth() + 1);
   dueDate.setDate(dueDate.getDate() + 1);
 

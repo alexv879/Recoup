@@ -263,7 +263,7 @@ export async function validatePhoneNumber(phoneNumber: string): Promise<{
       valid: true,
       formatted: lookup.phoneNumber,
       lineType: lookup.lineTypeIntelligence?.type,
-      carrier: lookup.lineTypeIntelligence?.carrier_name,
+      carrier: lookup.lineTypeIntelligence?.carrierName,
     };
 
   } catch (error) {

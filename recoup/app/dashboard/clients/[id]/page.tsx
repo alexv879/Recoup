@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card } from '@/components/UI/Card';
-import { Button } from '@/components/UI/Button';
+import { Card } from '@/components/Custom/Card';
+import { Button } from '@/components/Custom/Button';
 import { trackEvent } from '@/lib/analytics';
 
 interface Client {

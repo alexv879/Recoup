@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { AccessibleDialog } from '@/lib/accessibility';
-import { Button } from '@/components/UI/Button';
+import { Button } from '@/components/Custom/Button';
 import { ConfettiAnimation } from './ConfettiAnimation';
 
 interface CelebrationModalProps {

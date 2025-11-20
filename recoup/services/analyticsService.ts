@@ -41,14 +41,17 @@ export async function getInvoiceStats(userId: string): Promise<{
     const avgPaymentDays =
       paidInvoices.length > 0
         ? paidInvoices.reduce((sum, inv) => {
-          const dueDate = inv.dueDate.toDate();
-          const paidDate = inv.paidAt!.toDate();
+          const dueDate = inv.dueDate instanceof Date ? inv.dueDate : (inv.dueDate as any).toDate();
+          const paidDate = inv.paidAt! instanceof Date ? inv.paidAt! : (inv.paidAt! as any).toDate();
           const days = Math.floor((paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
           return sum + days;
         }, 0) / paidInvoices.length
         : 0;
 
-    logDbOperation('get_invoice_stats', COLLECTIONS.INVOICES, userId, Date.now() - startTime);
+    logDbOperation('get_invoice_stats', COLLECTIONS.INVOICES, {
+      userId,
+      duration: Date.now() - startTime,
+    });
 
     return {
       total,
@@ -100,7 +103,10 @@ export async function getCollectionStats(userId: string): Promise<{
 
     const successRate = attempts.length > 0 ? (successCount / attempts.length) * 100 : 0;
 
-    logDbOperation('get_collection_stats', COLLECTIONS.COLLECTION_ATTEMPTS, userId, Date.now() - startTime);
+    logDbOperation('get_collection_stats', COLLECTIONS.COLLECTION_ATTEMPTS, {
+      userId,
+      duration: Date.now() - startTime,
+    });
 
     return {
       attempts: attempts.length,
@@ -144,13 +150,17 @@ export async function getRevenueByMonth(
 
     const invoices = invoicesQuery.docs
       .map((doc) => doc.data() as Invoice)
-      .filter((inv) => inv.paidAt && inv.paidAt.toDate() >= startDate);
+      .filter((inv) => {
+        if (!inv.paidAt) return false;
+        const paidDate = inv.paidAt instanceof Date ? inv.paidAt : (inv.paidAt as any).toDate();
+        return paidDate >= startDate;
+      });
 
     // Group by month
     const monthlyData: Record<string, { revenue: number; collections: number }> = {};
 
     invoices.forEach((inv) => {
-      const paidDate = inv.paidAt!.toDate();
+      const paidDate = inv.paidAt! instanceof Date ? inv.paidAt! : (inv.paidAt! as any).toDate();
       const monthKey = `${paidDate.getFullYear()}-${String(paidDate.getMonth() + 1).padStart(2, '0')}`;
 
       if (!monthlyData[monthKey]) {
@@ -184,7 +194,10 @@ export async function getRevenueByMonth(
       previousRevenue = data.revenue;
     }
 
-    logDbOperation('get_revenue_by_month', COLLECTIONS.INVOICES, userId, Date.now() - startTime);
+    logDbOperation('get_revenue_by_month', COLLECTIONS.INVOICES, {
+      userId,
+      duration: Date.now() - startTime,
+    });
 
     return result;
   } catch (error) {
@@ -246,8 +259,8 @@ export async function getClientBreakdown(userId: string): Promise<
         paidInvoices.length > 0
           ? paidInvoices.reduce((sum, inv) => {
             if (!inv.paidAt) return sum;
-            const dueDate = inv.dueDate.toDate();
-            const paidDate = inv.paidAt.toDate();
+            const dueDate = inv.dueDate instanceof Date ? inv.dueDate : (inv.dueDate as any).toDate();
+            const paidDate = inv.paidAt instanceof Date ? inv.paidAt : (inv.paidAt as any).toDate();
             const days = Math.floor((paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
             return sum + days;
           }, 0) / paidInvoices.length
@@ -273,7 +286,10 @@ export async function getClientBreakdown(userId: string): Promise<
     // Sort by total invoiced (highest first)
     breakdown.sort((a, b) => b.totalInvoiced - a.totalInvoiced);
 
-    logDbOperation('get_client_breakdown', COLLECTIONS.INVOICES, userId, Date.now() - startTime);
+    logDbOperation('get_client_breakdown', COLLECTIONS.INVOICES, {
+      userId,
+      duration: Date.now() - startTime,
+    });
 
     return breakdown;
   } catch (error) {
@@ -306,7 +322,10 @@ export async function getAtRiskInvoices(userId: string): Promise<Array<Invoice>>
 
     const invoices = invoicesQuery.docs.map((doc) => doc.data() as Invoice);
 
-    logDbOperation('get_at_risk_invoices', COLLECTIONS.INVOICES, userId, Date.now() - startTime);
+    logDbOperation('get_at_risk_invoices', COLLECTIONS.INVOICES, {
+      userId,
+      duration: Date.now() - startTime,
+    });
 
     return invoices;
   } catch (error) {
@@ -365,7 +384,7 @@ export async function getUserRank(userId: string): Promise<{
 
     for (const doc of allUsersQuery.docs) {
       const stats = doc.data() as UserStats;
-      if (stats.gamificationXP > userXP) {
+      if ((stats.gamificationXP || 0) > userXP) {
         rank++;
       } else {
         break;
@@ -374,7 +393,10 @@ export async function getUserRank(userId: string): Promise<{
 
     const percentile = totalUsers > 0 ? ((totalUsers - rank + 1) / totalUsers) * 100 : 0;
 
-    logDbOperation('get_user_rank', COLLECTIONS.USER_STATS, userId, Date.now() - startTime);
+    logDbOperation('get_user_rank', COLLECTIONS.USER_STATS, {
+      userId,
+      duration: Date.now() - startTime,
+    });
 
     return {
       rank,
@@ -438,7 +460,9 @@ export async function getTopUsers(
       })
     );
 
-    logDbOperation('get_top_users', COLLECTIONS.USER_STATS, undefined, Date.now() - startTime);
+    logDbOperation('get_top_users', COLLECTIONS.USER_STATS, {
+      duration: Date.now() - startTime,
+    });
 
     return topUsers;
   } catch (error) {
@@ -574,7 +598,10 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
       .sort((a, b) => b.date.toDate().getTime() - a.date.toDate().getTime())
       .slice(0, limit);
 
-    logDbOperation('get_recent_activity', COLLECTIONS.INVOICES, userId, Date.now() - startTime);
+    logDbOperation('get_recent_activity', COLLECTIONS.INVOICES, {
+      userId,
+      duration: Date.now() - startTime,
+    });
 
     return allActivity;
   } catch (error) {
@@ -629,7 +656,10 @@ export async function getReminderEffectivenessRates(userId: string): Promise<{
     const totalSuccess = attempts.filter(a => a.result === 'success').length;
     const overall = totalAttempts > 0 ? (totalSuccess / totalAttempts) * 100 : 0;
 
-    logDbOperation('get_reminder_effectiveness', COLLECTIONS.COLLECTION_ATTEMPTS, userId, Date.now() - startTime);
+    logDbOperation('get_reminder_effectiveness', COLLECTIONS.COLLECTION_ATTEMPTS, {
+      userId,
+      duration: Date.now() - startTime,
+    });
 
     return {
       day5: Math.round(day5 * 10) / 10,

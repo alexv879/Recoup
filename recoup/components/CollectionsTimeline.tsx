@@ -35,7 +35,7 @@ import {
   type InterestCalculation,
 } from '@/lib/collections-calculator';
 import { trackEvent } from '@/lib/analytics';
-import AccessibleTable from '@/components/UI/AccessibleTable';
+import AccessibleTable from '@/components/Custom/AccessibleTable';
 
 // ============================================================
 // TYPES

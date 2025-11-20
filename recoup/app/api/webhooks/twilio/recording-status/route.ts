@@ -23,20 +23,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const recordingDuration = formData.get('RecordingDuration') as string;
     const callSid = formData.get('CallSid') as string;
 
-    logger.info('Recording status update received', {
+    logger.info({
       recordingSid,
       recordingStatus,
       recordingDuration,
       callSid,
       recordingUrl,
-    });
+    }, 'Recording status update received');
 
     if (recordingStatus === 'completed') {
-      logger.info('Recording completed, processing...', {
+      logger.info({
         recordingSid,
         callSid,
         duration: recordingDuration,
-      });
+      }, 'Recording completed, processing...');
 
       // TODO: Download recording for compliance storage
       // await downloadAndStoreRecording({
@@ -77,9 +77,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    logger.error('Error processing recording status webhook', {
+    logger.error({
       error: error instanceof Error ? error.message : String(error),
-    });
+    }, 'Error processing recording status webhook');
 
     return NextResponse.json(
       { success: false, error: 'Internal server error' },

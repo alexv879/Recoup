@@ -33,12 +33,12 @@ export default function ComplianceDashboard() {
   const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
 
   // Mock data - replace with real API calls
-  const complianceScore = 94;
-  const todayCalls = 12;
-  const todayEmails = 45;
-  const todaySMS = 8;
-  const vulnerableCustomers = 3;
-  const violations = 1;
+  const complianceScore: number = 94;
+  const todayCalls: number = 12;
+  const todayEmails: number = 45;
+  const todaySMS: number = 8;
+  const vulnerableCustomers: number = 3;
+  const violations: number = 1;
 
   return (
     <div className="p-8 space-y-6">
@@ -311,7 +311,7 @@ export default function ComplianceDashboard() {
                   <TableRow>
                     <TableCell className="font-medium">Emma Davis</TableCell>
                     <TableCell>
-                      <Badge variant="warning">Financial Difficulty</Badge>
+                      <Badge variant="secondary">Financial Difficulty</Badge>
                     </TableCell>
                     <TableCell>1 week ago</TableCell>
                     <TableCell>

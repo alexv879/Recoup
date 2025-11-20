@@ -61,6 +61,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const invoice = invoiceDoc.data();
 
+    if (!invoice) {
+      throw new Error('Invoice data not found');
+    }
+
     // 5. Authorization check
     if (invoice.freelancerId !== userId) {
       throw new UnauthorizedError();

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card } from '@/components/UI/Card';
-import { Button } from '@/components/UI/Button';
+import { Card } from '@/components/Custom/Card';
+import { Button } from '@/components/Custom/Button';
 import { trackEvent } from '@/lib/analytics';
 
 export function DashboardExportButtons() {

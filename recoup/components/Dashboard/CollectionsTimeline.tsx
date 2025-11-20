@@ -17,7 +17,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import AccessibleTable from '@/components/UI/AccessibleTable';
+import AccessibleTable from '@/components/Custom/AccessibleTable';
 import { format } from 'date-fns';
 import { EscalationTimelineEvent } from '@/types/escalation';
 import { ESCALATION_CONFIGS } from '@/types/escalation';

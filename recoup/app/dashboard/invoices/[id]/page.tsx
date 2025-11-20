@@ -1,9 +1,9 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Card } from '@/components/UI/Card';
-import { Badge } from '@/components/UI/Badge';
-import { Button } from '@/components/UI/Button';
+import { Card } from '@/components/Custom/Card';
+import { Badge } from '@/components/Custom/Badge';
+import { Button } from '@/components/Custom/Button';
 import { db, COLLECTIONS } from '@/lib/firebase';
 
 /**

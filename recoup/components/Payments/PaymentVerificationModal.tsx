@@ -26,8 +26,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, CheckCircle, FileText, XCircle, AlertCircle } from 'lucide-react';
 import VerificationCountdown from './VerificationCountdown';
-import AccessibleDialog from '../UI/AccessibleDialog';
-import AccessibleFormField from '../UI/AccessibleFormField';
+import AccessibleDialog from '../Custom/AccessibleDialog';
+import AccessibleFormField from '../Custom/AccessibleFormField';
 
 interface PaymentClaim {
     claimId: string;

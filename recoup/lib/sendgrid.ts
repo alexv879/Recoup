@@ -1,6 +1,6 @@
 import sgMail from '@sendgrid/mail';
 import { firestore } from '@/lib/firebase';
-import { previewEmailTemplate } from '@/lib/emailTemplateRenderer';
+import { previewEmailTemplate, type EmailTemplateVariables } from '@/lib/emailTemplateRenderer';
 import { logger } from '@/utils/logger';
 
 // Initialize SendGrid (lazy initialization to avoid build-time errors)
@@ -357,7 +357,7 @@ export async function sendReminderEmail(params: {
     const daysOverdue = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     // Prepare template variables
-    const variables = {
+    const variables: EmailTemplateVariables = {
       client_name: invoice.clientName || 'Client',
       invoice_number: invoice.invoiceNumber,
       amount: (invoice.amount / 100).toFixed(2), // Convert pence to pounds
@@ -366,7 +366,7 @@ export async function sendReminderEmail(params: {
         month: 'long',
         year: 'numeric',
       }),
-      days_overdue: daysOverdue.toString(),
+      days_overdue: daysOverdue,
       freelancer_name: user.name || user.firstName || 'Freelancer',
       freelancer_email: user.email,
       freelancer_phone: user.phone || '',

@@ -132,12 +132,12 @@ export async function ratelimitMiddleware(
     throw new RateLimitError('Rate limit exceeded. Please try again later.');
   }
 
-  logger.debug('Rate limit check passed', {
+  logger.info({
     identifier,
     type,
     remaining: result.remaining,
     limit: result.limit,
-  });
+  }, 'Rate limit check passed');
 
   return {
     limit: result.limit,

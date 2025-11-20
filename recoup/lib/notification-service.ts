@@ -186,7 +186,7 @@ function determineChannels(
   }
 
   // SMS for important/urgent notifications
-  const smsT riggers = [
+  const smsTriggers = [
     NotificationTrigger.PAYMENT_OVERDUE_DAY_7,
     NotificationTrigger.PAYMENT_OVERDUE_DAY_14,
     NotificationTrigger.FINAL_NOTICE_SENT,
@@ -195,7 +195,7 @@ function determineChannels(
   ];
 
   if (
-    smsT riggers.includes(trigger) &&
+    smsTriggers.includes(trigger) &&
     preferences.smsEnabled &&
     !preferences.optedOutSMS &&
     preferences.clientPhone &&

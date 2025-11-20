@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/UI/Card';
-import { Button } from '@/components/UI/Button';
+import { Card } from '@/components/Custom/Card';
+import { Button } from '@/components/Custom/Button';
 import { VoiceRecorder } from '@/components/voice/VoiceRecorder';
 import { AccessibleFormField } from '@/lib/accessibility';
 import { trackEvent } from '@/lib/analytics';

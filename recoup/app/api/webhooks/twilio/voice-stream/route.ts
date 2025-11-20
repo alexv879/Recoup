@@ -19,10 +19,10 @@ export async function GET(req: NextRequest) {
   const instructions = searchParams.get('instructions') || '';
   const callSid = searchParams.get('callSid') || '';
 
-  logger.info('Voice stream connection requested', {
+  logger.info({
     invoiceId,
     callSid,
-  });
+  }, 'Voice stream connection requested');
 
   // In Next.js, WebSocket upgrade needs to be handled differently
   // This is a placeholder - actual implementation would need WebSocket server

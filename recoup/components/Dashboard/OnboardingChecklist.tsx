@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/UI/Button';
+import { Button } from '@/components/Custom/Button';
 
 interface OnboardingTask {
     id: string;

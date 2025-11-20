@@ -18,7 +18,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import AccessibleTable from '@/components/UI/AccessibleTable';
+import AccessibleTable from '@/components/Custom/AccessibleTable';
 import {
   Mail,
   AlertCircle,

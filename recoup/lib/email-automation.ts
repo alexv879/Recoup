@@ -42,7 +42,7 @@ export async function sendWelcomeEmail(userEmail: string, userName: string) {
         name: 'Alex from Relay', // Personal touch
       },
       subject: `Welcome to Relay, ${userName}! 👋`,
-      text: `Hi ${userName},
+      fallbackText: `Hi ${userName},
 
 Welcome to Relay! I'm Alex, and I'm here to help you get paid faster.
 
@@ -120,7 +120,7 @@ export async function sendTutorialEmail(userEmail: string, userName: string) {
           <p>Best,<br>Alex</p>
         </div>
       `,
-      text: `Hi ${userName},
+      fallbackText: `Hi ${userName},
 
 I noticed you haven't created an invoice yet. No worries - it's super quick!
 
@@ -214,7 +214,7 @@ export async function sendSocialProofEmail(userEmail: string, userName: string) 
           <p>Best,<br>Alex</p>
         </div>
       `,
-      text: `Hi ${userName},
+      fallbackText: `Hi ${userName},
 
 You're not alone in the late payment struggle. Here's what's happening with other UK freelancers on Relay:
 
@@ -322,7 +322,7 @@ export async function sendFeatureDeepDiveEmail(userEmail: string, userName: stri
           <p>Best,<br>Alex</p>
         </div>
       `,
-      text: `Hi ${userName},
+      fallbackText: `Hi ${userName},
 
 Here's a secret: the best freelancers don't chase payments manually.
 
@@ -437,7 +437,7 @@ export async function sendUpgradePitchEmail(
           <p>Best,<br>Alex</p>
         </div>
       `,
-      text: `Hi ${userName},
+      fallbackText: `Hi ${userName},
 
 I did the math for you. Based on your invoicing activity:
 
@@ -491,7 +491,7 @@ export async function sendInactiveUserEmail(userEmail: string, userName: string)
         name: 'Alex from Relay',
       },
       subject: `${userName}, we miss you!`,
-      text: `Hi ${userName},
+      fallbackText: `Hi ${userName},
 
 I noticed you haven't logged in for a while. Everything okay?
 
@@ -556,7 +556,7 @@ export async function sendInvoiceNotSentEmail(
           <p>Best,<br>Alex</p>
         </div>
       `,
-      text: `Hi ${userName},
+      fallbackText: `Hi ${userName},
 
 I noticed you created an invoice earlier but haven't sent it yet.
 
@@ -630,7 +630,7 @@ export async function sendQuotaLimitEmail(
           <p>Best,<br>Alex</p>
         </div>
       `,
-      text: `Hi ${userName},
+      fallbackText: `Hi ${userName},
 
 You've used ${collectionsUsed}/${collectionsLimit} collections this month on the ${currentTier} tier.
 

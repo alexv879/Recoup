@@ -1,24 +1,39 @@
 // Simple logger for development - replace with proper logging service in production
 export const logger = {
-    info: (data: any, message?: string) => {
-        if (message) {
-            console.log(`[INFO] ${message}`, data);
+    info: (messageOrData: string | any, dataOrMessage?: any) => {
+        if (typeof messageOrData === 'string') {
+            // Called as (message, data)
+            console.log(`[INFO] ${messageOrData}`, dataOrMessage || '');
+        } else if (typeof dataOrMessage === 'string') {
+            // Called as (data, message)
+            console.log(`[INFO] ${dataOrMessage}`, messageOrData);
         } else {
-            console.log('[INFO]', data);
+            // Called with just data
+            console.log('[INFO]', messageOrData);
         }
     },
-    error: (data: any, message?: string) => {
-        if (message) {
-            console.error(`[ERROR] ${message}`, data);
+    error: (messageOrData: string | any, dataOrMessage?: any) => {
+        if (typeof messageOrData === 'string') {
+            // Called as (message, data)
+            console.error(`[ERROR] ${messageOrData}`, dataOrMessage || '');
+        } else if (typeof dataOrMessage === 'string') {
+            // Called as (data, message)
+            console.error(`[ERROR] ${dataOrMessage}`, messageOrData);
         } else {
-            console.error('[ERROR]', data);
+            // Called with just data
+            console.error('[ERROR]', messageOrData);
         }
     },
-    warn: (data: any, message?: string) => {
-        if (message) {
-            console.warn(`[WARN] ${message}`, data);
+    warn: (messageOrData: string | any, dataOrMessage?: any) => {
+        if (typeof messageOrData === 'string') {
+            // Called as (message, data)
+            console.warn(`[WARN] ${messageOrData}`, dataOrMessage || '');
+        } else if (typeof dataOrMessage === 'string') {
+            // Called as (data, message)
+            console.warn(`[WARN] ${dataOrMessage}`, messageOrData);
         } else {
-            console.warn('[WARN]', data);
+            // Called with just data
+            console.warn('[WARN]', messageOrData);
         }
     },
 };

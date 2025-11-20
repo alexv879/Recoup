@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card } from '@/components/UI/Card';
-import { Button } from '@/components/UI/Button';
-import { Badge } from '@/components/UI/Badge';
+import { Card } from '@/components/Custom/Card';
+import { Button } from '@/components/Custom/Button';
+import { Badge } from '@/components/Custom/Badge';
 import { getClients, archiveClient } from '@/services/clientService';
 import { trackEvent } from '@/lib/analytics';
 import ClientManagement from '@/components/ClientManagement';
-import ClientManagementButton from '@/components/UI/ClientManagementButton';
+import ClientManagementButton from '@/components/Custom/ClientManagementButton';
 
 interface Client {
     id: string;

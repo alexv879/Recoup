@@ -50,7 +50,7 @@ import {
   formatCurrency,
   formatInterestCalculationHTML,
 } from '@/lib/collections-calculator';
-import { logInfo, logError } from '@/utils/logger';
+import { logger } from '@/utils/logger';
 
 // ============================================================
 // TYPES
@@ -71,6 +71,31 @@ interface CollectionsEmailParams {
   previousReminderDate?: Date; // Date of Day 5 reminder (for Day 15 reference)
   firstReminderDate?: Date; // Date of Day 5 reminder (for Day 30 reference)
   secondReminderDate?: Date; // Date of Day 15 reminder (for Day 30 reference)
+}
+
+// Alias for backwards compatibility
+type EmailReminderParams = CollectionsEmailParams;
+
+// Email send result type
+interface EmailSendResult {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Format date as "DD MMM YYYY" (e.g., "15 Oct 2024")
+ */
+function formatDate(date: Date): string {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
 }
 
 // ============================================================
@@ -97,7 +122,6 @@ export async function sendEarlyPreDueNotice(
     description,
     freelancerName,
     freelancerBusinessName,
-    businessName,
     invoiceViewUrl,
     paymentUrl,
   } = params;
@@ -192,7 +216,7 @@ export async function sendEarlyPreDueNotice(
 
         <p style="color: #374151; font-size: 16px; line-height: 1.6;">
           Thanks!<br>
-          <strong>${businessName}</strong>
+          <strong>${freelancerBusinessName || freelancerName || "Your Business"}</strong>
         </p>
 
         <!-- CTA Placement 3: Bottom (Before Footer) -->
@@ -211,7 +235,7 @@ export async function sendEarlyPreDueNotice(
       <!-- Footer -->
       <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px; border-top: 1px solid #e5e7eb;">
         <p style="margin: 0 0 8px 0;">
-          <strong>${businessName}</strong><br>
+          <strong>${freelancerBusinessName || freelancerName || "Your Business"}</strong><br>
           ${freelancerBusinessName ? `${freelancerBusinessName}<br>` : ''}
           ${process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || '123 Business Street, London, UK'}
         </p>
@@ -249,46 +273,37 @@ ${paymentUrl ? `Pay invoice: ${paymentUrl}` : invoiceViewUrl ? `View invoice: ${
 If you have any questions or need any adjustments, just let me know.
 
 Thanks!
-${businessName}
+${freelancerBusinessName || freelancerName || "Your Business"}
 
 ---
 Privacy Policy: https://relay.app/privacy
 Unsubscribe: https://relay.app/unsubscribe?email=${encodeURIComponent(clientEmail)}
   `.trim();
 
-  const msg: MailDataRequired = {
-    to: clientEmail,
-    from: {
-      email: process.env.SENDGRID_FROM_EMAIL || 'noreply@relay.app',
-      name: businessName || freelancerName,
-    },
-    subject,
-    text: textContent,
-    html: htmlContent,
-    trackingSettings: {
-      clickTracking: { enable: true },
-      openTracking: { enable: true },
-    },
-    customArgs: {
-      invoiceId,
-      reminderType: 'early_pre_due',
-      reminderDay: 'day_3',
-    },
-  };
-
   try {
-    await sgMail.send(msg);
+    await sendEmail({
+      to: clientEmail,
+      from: {
+        email: process.env.SENDGRID_FROM_EMAIL || 'noreply@relay.app',
+        name: freelancerBusinessName || freelancerName || 'Your Business',
+      },
+      subject,
+      html: htmlContent,
+      fallbackText: textContent,
+    });
     logger.info(
       `Early pre-due notice sent for invoice ${invoiceId} to ${clientEmail}`
     );
     return {
       success: true,
       messageId: `early-predue-${invoiceId}-${Date.now()}`,
-      timestamp: new Date(),
     };
   } catch (error) {
     logger.error(`Failed to send early pre-due notice for invoice ${invoiceId}:`, error);
-    throw error;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }
 
@@ -421,7 +436,7 @@ export async function sendFriendlyReminder(
 
       <p style="color: #374151; font-size: 16px; line-height: 1.6;">
         Best regards,<br>
-        <strong>${businessName}</strong>
+        <strong>${freelancerBusinessName || freelancerName || "Your Business"}</strong>
       </p>
 
       <!-- CTA Placement 3: Bottom (Before Footer) -->
@@ -442,7 +457,7 @@ export async function sendFriendlyReminder(
     <!-- Footer -->
     <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
       <p style="margin: 0 0 8px 0;">
-        This is an automated payment reminder from <strong>${businessName}</strong><br>
+        This is an automated payment reminder from <strong>${freelancerBusinessName || freelancerName || "Your Business"}</strong><br>
         ${freelancerBusinessName ? `${freelancerBusinessName}<br>` : ''}
         ${process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || '123 Business Street, London, UK'}
       </p>
@@ -487,7 +502,7 @@ please don't hesitate to reach out. I'm happy to work with you to find a solutio
 Thank you for your business and prompt attention to this matter.
 
 Best regards,
-${businessName}
+${freelancerBusinessName || freelancerName || "Your Business"}
   `.trim();
 
   try {
@@ -495,18 +510,26 @@ ${businessName}
       to: clientEmail,
       subject,
       html,
-      text,
+      fallbackText: text,
     });
 
-    logInfo('Friendly reminder sent', {
+    logger.info('Friendly reminder sent', {
       invoiceId,
       clientEmail,
       amount,
       daysOverdue: 5,
     });
+
+    return {
+      success: true,
+      messageId: `friendly-reminder-${invoiceId}-${Date.now()}`,
+    };
   } catch (error) {
-    logError('Failed to send friendly reminder', error as Error);
-    throw error;
+    logger.error('Failed to send friendly reminder', error as Error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }
 
@@ -669,7 +692,7 @@ export async function sendFirmReminder(params: CollectionsEmailParams): Promise<
 
       <p style="color: #374151; font-size: 16px; line-height: 1.6;">
         Regards,<br>
-        <strong>${businessName}</strong>
+        <strong>${freelancerBusinessName || freelancerName || "Your Business"}</strong>
       </p>
 
       <!-- CTA Placement 3: Bottom (Before Footer) -->
@@ -690,7 +713,7 @@ export async function sendFirmReminder(params: CollectionsEmailParams): Promise<
     <!-- Footer -->
     <div style="text-align: center; padding: 16px; color: #9ca3af; font-size: 12px;">
       <p style="margin: 0 0 8px 0;">
-        This is a formal payment notice from <strong>${businessName}</strong><br>
+        This is a formal payment notice from <strong>${freelancerBusinessName || freelancerName || "Your Business"}</strong><br>
         ${freelancerBusinessName ? `${freelancerBusinessName}<br>` : ''}
         ${process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || '123 Business Street, London, UK'}
       </p>
@@ -747,7 +770,7 @@ If you are unable to pay the full amount, contact me within 48 hours to discuss
 payment arrangements. Failure to respond may result in further action.
 
 Regards,
-${businessName}
+${freelancerBusinessName || freelancerName || "Your Business"}
 
 Interest charged under the Late Payment of Commercial Debts (Interest) Act 1998
   `.trim();
@@ -757,10 +780,10 @@ Interest charged under the Late Payment of Commercial Debts (Interest) Act 1998
       to: clientEmail,
       subject,
       html,
-      text,
+      fallbackText: text,
     });
 
-    logInfo('Firm reminder sent', {
+    logger.info('Firm reminder sent', {
       invoiceId,
       clientEmail,
       amount,
@@ -769,7 +792,7 @@ Interest charged under the Late Payment of Commercial Debts (Interest) Act 1998
       totalOwed: interestCalc.totalOwed,
     });
   } catch (error) {
-    logError('Failed to send firm reminder', error as Error);
+    logger.error('Failed to send firm reminder', error as Error);
     throw error;
   }
 }
@@ -956,7 +979,7 @@ export async function sendFinalNotice(params: CollectionsEmailParams): Promise<v
       </p>
 
       <p style="color: #374151; font-size: 16px; line-height: 1.6;">
-        <strong>${businessName}</strong>
+        <strong>${freelancerBusinessName || freelancerName || "Your Business"}</strong>
       </p>
 
       <!-- CTA Placement 3: Bottom (Before Footer) -->
@@ -980,7 +1003,7 @@ export async function sendFinalNotice(params: CollectionsEmailParams): Promise<v
         <strong>FORMAL LEGAL NOTICE</strong>
       </p>
       <p style="margin: 4px 0 8px 0;">
-        <strong>${businessName}</strong><br>
+        <strong>${freelancerBusinessName || freelancerName || "Your Business"}</strong><br>
         ${freelancerBusinessName ? `${freelancerBusinessName}<br>` : ''}
         ${process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || '123 Business Street, London, UK'}
       </p>
@@ -1043,7 +1066,7 @@ you must provide proof within 48 hours.
 If you require a payment plan, contact me immediately. Silence will be interpreted
 as unwillingness to pay, and legal proceedings will commence.
 
-${businessName}
+${freelancerBusinessName || freelancerName || "Your Business"}
 
 ---
 FORMAL LEGAL NOTICE
@@ -1056,10 +1079,10 @@ Failure to respond may result in County Court proceedings
       to: clientEmail,
       subject,
       html,
-      text,
+      fallbackText: text,
     });
 
-    logInfo('Final notice sent', {
+    logger.info('Final notice sent', {
       invoiceId,
       clientEmail,
       amount,
@@ -1069,7 +1092,7 @@ Failure to respond may result in County Court proceedings
       deadline: deadlineFormatted,
     });
   } catch (error) {
-    logError('Failed to send final notice', error as Error);
+    logger.error('Failed to send final notice', error as Error);
     throw error;
   }
 }

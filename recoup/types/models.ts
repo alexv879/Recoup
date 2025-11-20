@@ -11,10 +11,16 @@ export interface User {
   lastName?: string;
   businessName?: string;
   businessType?: 'freelancer' | 'agency' | 'consultant';
+  phoneNumber?: string;
   subscriptionTier: 'free' | 'starter' | 'growth' | 'pro';
   subscriptionStatus?: 'active' | 'inactive' | 'cancelled';
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
+  lastDemoResetDate?: Date | Timestamp;
+  collectionsConsent?: {
+    smsConsent?: boolean;
+    smsOptedOut?: boolean;
+  };
   referralCode?: string;
   profilePicture?: string;
   timezone: string;
@@ -46,6 +52,7 @@ export interface UserStats {
   level: number;
   rank?: number;
   achievements: any[];
+  gamificationXP?: number;
   churnRiskScore?: number;
   engagementLevel?: 'low' | 'medium' | 'high';
   calculatedAt: Date | Timestamp;
@@ -144,4 +151,60 @@ export interface Transaction {
   completedAt?: Date | Timestamp;
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
+}
+
+export interface CollectionAttempt {
+  attemptId: string;
+  invoiceId: string;
+  freelancerId: string;
+  attemptType: 'email_reminder' | 'sms_reminder' | 'physical_letter' | 'ai_call' | 'manual_contact' | 'payment_received';
+  attemptDate: Date | Timestamp;
+  attemptNumber: number;
+  result: 'success' | 'pending' | 'failed' | 'no_response';
+  resultDetails?: string;
+  paymentRecovered?: number;
+  reminderLevel?: number | string;
+  createdAt: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
+}
+
+export interface AgencyHandoff {
+  handoffId: string;
+  invoiceId: string;
+  freelancerId: string;
+  agencyId: string;
+  handoffDate: Date | Timestamp;
+  handoffStatus: 'pending' | 'in_progress' | 'collected' | 'closed' | 'failed';
+
+  // Agency info
+  agencyName: string;
+  agencyContactEmail: string;
+  agencyContactPhone: string;
+
+  // Invoice details
+  originalAmount: number;
+  outstandingAmount: number;
+  daysPastDue: number;
+
+  // Documents & Evidence
+  documents: string[];
+  communicationHistory: any[];
+
+  // Financial terms
+  commissionPercentage: number;
+  commissionAmount?: number;
+
+  // Recovery details
+  recoveryAmount?: number;
+  recoveryOutcome?: string;
+
+  // Notes
+  notes?: string;
+
+  // Status updates
+  agencyUpdates: any[];
+
+  // Timestamps
+  createdAt: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
 }

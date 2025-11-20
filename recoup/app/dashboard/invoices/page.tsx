@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card } from '@/components/UI/Card';
-import { Badge } from '@/components/UI/Badge';
-import { Button } from '@/components/UI/Button';
-import { Tabs } from '@/components/UI/Tabs';
+import { Card } from '@/components/Custom/Card';
+import { Badge } from '@/components/Custom/Badge';
+import { Button } from '@/components/Custom/Button';
+import { Tabs } from '@/components/Custom/Tabs';
 
 interface Invoice {
     invoiceId: string;
