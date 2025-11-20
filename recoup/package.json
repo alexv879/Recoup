@@ -8,9 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --passWithNoTests",
     "test:axe": "jest --runInBand --testPathPattern=__tests__/axe|jest-axe",
+    "setup-stripe": "tsx scripts/setup-stripe-products.ts",
     "check:contrast": "python3 scripts/check_contrast.py || python scripts/check_contrast.py",
     "generate:testpdf": "python3 scripts/generate_test_pdf.py || python scripts/generate_test_pdf.py",
     "start:python-pdf": "python3 -m uvicorn python-services.pdf_service.main:app --host 0.0.0.0 --port 8000 || python -m uvicorn python-services.pdf_service.main:app --host 0.0.0.0 --port 8000"
