@@ -12,14 +12,32 @@ export interface User {
   businessName?: string;
   businessType?: 'freelancer' | 'agency' | 'consultant';
   phoneNumber?: string;
+  businessAddress?: {
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    postcode: string;
+    country: string;
+  };
   subscriptionTier: 'free' | 'starter' | 'growth' | 'pro';
   subscriptionStatus?: 'active' | 'inactive' | 'cancelled';
+  isFoundingMember?: boolean;
+  foundingMemberNumber?: number;
+  foundingMemberJoinedAt?: Date | Timestamp;
+  lockedInPrice?: number;
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
   lastDemoResetDate?: Date | Timestamp;
   collectionsConsent?: {
     smsConsent?: boolean;
     smsOptedOut?: boolean;
+    callConsent?: boolean;
+    callRecordingConsent?: boolean;
+    physicalMailConsent?: boolean;
+    physicalMailOptedOut?: boolean;
+    dataStorageConsent?: boolean;
+    consentVersion?: string;
+    consentDate?: Date | Timestamp;
   };
   referralCode?: string;
   profilePicture?: string;
@@ -41,21 +59,33 @@ export interface User {
   lastActiveAt?: Date | Timestamp;
 }
 
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  dateAwarded: Timestamp;
+}
+
 export interface UserStats {
   userId: string;
   totalInvoiced: number;
   totalCollected: number;
-  averagePaymentDays: number;
-  onTimePercentage: number;
-  streak: number;
-  badges: string[];
-  level: number;
+  averagePaymentDays?: number;
+  onTimePercentage?: number;
+  streak?: number;
+  badges?: string[];
+  level?: number;
   rank?: number;
-  achievements: any[];
+  achievements: Achievement[];
   gamificationXP?: number;
   churnRiskScore?: number;
   engagementLevel?: 'low' | 'medium' | 'high';
-  calculatedAt: Date | Timestamp;
+  calculatedAt?: Date | Timestamp;
+  totalReferrals?: number;
+  collectionAttempts?: number;
+  collectionSuccess?: number;
+  createdAt?: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
 }
 
 export interface Invoice {
@@ -142,7 +172,8 @@ export interface Transaction {
   freelancerId: string;
   amount: number;
   paymentMethod: string;
-  relayCommission: number;
+  relayCommission?: number;
+  recoupCommission: number;
   freelancerNet: number;
   commissionRate: number;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
@@ -150,7 +181,7 @@ export interface Transaction {
   transactionDate: Date | Timestamp;
   completedAt?: Date | Timestamp;
   createdAt: Date | Timestamp;
-  updatedAt: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
 }
 
 export interface CollectionAttempt {
@@ -207,4 +238,27 @@ export interface AgencyHandoff {
   // Timestamps
   createdAt: Date | Timestamp;
   updatedAt?: Date | Timestamp;
+}
+
+export interface PaymentConfirmation {
+  confirmationId: string;
+  invoiceId: string;
+  freelancerId: string;
+  clientEmail: string;
+  confirmationToken: string;
+  tokenExpiresAt: Timestamp;
+  status: 'pending_client' | 'client_confirmed' | 'freelancer_verified' | 'both_confirmed' | 'completed' | 'disputed';
+  freelancerVerifiedReceived: boolean;
+  expectedAmount: number;
+  amountPaid?: number;
+  actualAmountPaid?: number;
+  datePaid?: string;
+  clientPaymentMethod?: string;
+  clientNotes?: string;
+  clientConfirmedAt?: Timestamp;
+  freelancerConfirmedAt?: Timestamp;
+  freelancerVerifiedAt?: Timestamp;
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
+  expiresAt: Timestamp;
 }

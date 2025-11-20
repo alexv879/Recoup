@@ -153,7 +153,8 @@ export async function registerAsFoundingMember(
 
     return result;
   } catch (error) {
-    logError('Error registering founding member', error as Error, {
+    logError('Error registering founding member', {
+      error: error as Error,
       userId,
       tier,
     });
@@ -196,12 +197,13 @@ export async function getFoundingMemberDetails(userId: string): Promise<{
       isFoundingMember: true,
       memberNumber: user.foundingMemberNumber,
       joinedAt: user.foundingMemberJoinedAt
-        ? user.foundingMemberJoinedAt.toDate()
+        ? (user.foundingMemberJoinedAt instanceof Date ? user.foundingMemberJoinedAt : (user.foundingMemberJoinedAt as any).toDate())
         : undefined,
       lockedInPrice: user.lockedInPrice,
     };
   } catch (error) {
-    logError('Error getting founding member details', error as Error, {
+    logError('Error getting founding member details', {
+      error: error as Error,
       userId,
     });
     return null;
@@ -235,7 +237,7 @@ export async function getAllFoundingMembers(): Promise<
         memberNumber: user.foundingMemberNumber || 0,
         name: user.name,
         joinedAt: user.foundingMemberJoinedAt
-          ? user.foundingMemberJoinedAt.toDate()
+          ? (user.foundingMemberJoinedAt instanceof Date ? user.foundingMemberJoinedAt : (user.foundingMemberJoinedAt as any).toDate())
           : new Date(),
         tier: user.subscriptionTier as SubscriptionTier,
       };
@@ -335,7 +337,8 @@ export async function validateFoundingEligibility(userId: string): Promise<{
       isEligible: true,
     };
   } catch (error) {
-    logError('Error validating founding eligibility', error as Error, {
+    logError('Error validating founding eligibility', {
+      error: error as Error,
       userId,
     });
     return {

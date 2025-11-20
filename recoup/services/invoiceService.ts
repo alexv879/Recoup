@@ -38,7 +38,7 @@ export async function listInvoices(params: ListInvoicesParams): Promise<ListInvo
     const invoices = snapshot.docs.map(doc => ({
       ...doc.data(),
       id: doc.id,
-    })) as Invoice[];
+    })) as unknown as Invoice[];
 
     return {
       invoices,

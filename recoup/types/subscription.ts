@@ -230,7 +230,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, SubscriptionLimits> = {
       fullAISuite: false,
       aggressiveCollections: false,
       fcaCompliance: false,
-      vulnerabilityDetected: false,
+      vulnerabilityDetection: false,
       whiteLabelPortal: false,
       apiAccess: false,
       dedicatedSupport: false,

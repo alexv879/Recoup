@@ -58,7 +58,7 @@ export async function trackUserAction(
       { merge: true }
     );
 
-    logDbOperation('track_user_action', COLLECTIONS.USER_STATS, userId, Date.now() - startTime);
+    logDbOperation('track_user_action', COLLECTIONS.USER_STATS, { userId, duration: Date.now() - startTime });
     logInfo(`Awarded ${points} XP to user ${userId} for action: ${action}. Total XP: ${newXP}`);
 
   } catch (error) {
@@ -81,7 +81,7 @@ async function checkAchievements(
 ): Promise<Achievement[]> {
   const earnedAchievements: Achievement[] = [];
 
-  for (const achievement of ACHIEVEMENTS) {
+  for (const achievement of Object.values(ACHIEVEMENTS)) {
     if (existingAchievements.some((a) => a.id === achievement.id)) {
       continue; // Already earned
     }
@@ -168,7 +168,7 @@ export async function calculateUserStats(userId: string): Promise<UserStats> {
       updatedAt: Timestamp.now(),
     }, { merge: true });
 
-    logDbOperation('calculate_user_stats', COLLECTIONS.USER_STATS, userId, Date.now() - startTime);
+    logDbOperation('calculate_user_stats', COLLECTIONS.USER_STATS, { userId, duration: Date.now() - startTime });
 
     return userStats;
   } catch (error) {

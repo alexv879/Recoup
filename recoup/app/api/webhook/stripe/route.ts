@@ -149,7 +149,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 freelancerId,
                 amount,
                 paymentMethod: 'card',
-                relayCommission: commission,
+                recoupCommission: commission,
                 freelancerNet,
                 commissionRate: 0.03,
                 status: 'completed',

@@ -59,7 +59,7 @@ export const errors = {
 
 export async function handleError(error: unknown) {
     if (error instanceof ZodError) {
-        const fieldErrors = error.errors.reduce((acc, e) => {
+        const fieldErrors = error.issues.reduce((acc, e) => {
             const field = e.path.join('.');
             acc[field] = e.message;
             return acc;

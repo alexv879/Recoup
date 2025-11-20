@@ -41,6 +41,10 @@ export const ACHIEVEMENTS = {
         icon: '📄',
         xpRequired: 50,
         category: 'onboarding',
+        criteria: {
+            type: 'xp',
+            value: 50,
+        },
     },
     PAYMENT_COLLECTOR: {
         id: 'payment_collector',
@@ -49,6 +53,10 @@ export const ACHIEVEMENTS = {
         icon: '💰',
         xpRequired: 100,
         category: 'collections',
+        criteria: {
+            type: 'xp',
+            value: 100,
+        },
     },
     VOICE_MASTER: {
         id: 'voice_master',
@@ -57,6 +65,10 @@ export const ACHIEVEMENTS = {
         icon: '🎤',
         xpRequired: 150,
         category: 'voice',
+        criteria: {
+            type: 'xp',
+            value: 150,
+        },
     },
     REFERRAL_CHAMPION: {
         id: 'referral_champion',
@@ -65,6 +77,10 @@ export const ACHIEVEMENTS = {
         icon: '👥',
         xpRequired: 200,
         category: 'referrals',
+        criteria: {
+            type: 'xp',
+            value: 200,
+        },
     },
     CONSISTENT_CREATOR: {
         id: 'consistent_creator',
@@ -73,5 +89,9 @@ export const ACHIEVEMENTS = {
         icon: '📊',
         xpRequired: 500,
         category: 'productivity',
+        criteria: {
+            type: 'xp',
+            value: 500,
+        },
     },
 } as const;

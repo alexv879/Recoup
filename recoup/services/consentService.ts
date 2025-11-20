@@ -73,7 +73,7 @@ export async function getUserConsent(userId: string): Promise<{
       callRecordingConsent: consent?.callRecordingConsent || false,
       physicalMailConsent: consent?.physicalMailConsent || false,
       dataStorageConsent: consent?.dataStorageConsent || false,
-      consentDate: consent?.consentDate?.toDate(),
+      consentDate: consent?.consentDate ? (consent.consentDate instanceof Date ? consent.consentDate : (consent.consentDate as any).toDate()) : undefined,
       consentVersion: consent?.consentVersion,
       needsUpdate,
     };

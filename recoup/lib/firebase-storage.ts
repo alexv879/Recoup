@@ -68,3 +68,54 @@ export async function uploadCommunicationHistory(
         contentType: 'application/json',
     });
 }
+
+/**
+ * List all documents for a handoff (GDPR compliance)
+ */
+export async function listHandoffDocuments(
+    handoffId: string,
+    userId: string
+): Promise<{ success: boolean; documents?: any[]; error?: string }> {
+    try {
+        if (!storage) {
+            return { success: false, error: 'Firebase Storage is not available' };
+        }
+
+        const bucket = storage.bucket();
+        const prefix = `agency-handoff/${userId}/`;
+
+        const [files] = await bucket.getFiles({ prefix });
+
+        const documents = files.map(file => ({
+            storagePath: file.name,
+            name: file.name.split('/').pop(),
+            size: file.metadata.size,
+        }));
+
+        return { success: true, documents };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+}
+
+/**
+ * Delete a document from storage (GDPR compliance)
+ */
+export async function deleteDocument(
+    storagePath: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        if (!storage) {
+            return { success: false, error: 'Firebase Storage is not available' };
+        }
+
+        const bucket = storage.bucket();
+        const file = bucket.file(storagePath);
+
+        await file.delete();
+
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+}

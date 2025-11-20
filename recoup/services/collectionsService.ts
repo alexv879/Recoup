@@ -259,7 +259,7 @@ export async function processCollections(): Promise<{
                     recipientPhone: user.phoneNumber,
                     invoiceReference: invoice.reference,
                     amount: invoice.amount,
-                    dueDate: invoice.dueDate.toDate().toLocaleDateString('en-GB'),
+                    dueDate: (invoice.dueDate instanceof Date ? invoice.dueDate : (invoice.dueDate as any).toDate()).toLocaleDateString('en-GB'),
                     template: 'urgent_reminder',
                     paymentLink: invoice.stripePaymentLinkUrl,
                     businessName: user.businessName || 'Recoup',
@@ -288,12 +288,16 @@ export async function processCollections(): Promise<{
                       messageSid: smsResult.messageSid,
                     });
                   } else {
-                    logError('SMS Day 14 failed', new Error(smsResult.error || 'Unknown error'), {
+                    logError('SMS Day 14 failed', {
+                      error: new Error(smsResult.error || 'Unknown error'),
                       invoiceRef: invoice.reference,
                     });
                   }
                 } catch (error) {
-                  logError('SMS Day 14 exception', error, { invoiceRef: invoice.reference });
+                  logError('SMS Day 14 exception', {
+                    error,
+                    invoiceRef: invoice.reference,
+                  });
                 }
               } else {
                 logInfo('SMS Day 14 skipped - no consent or not paid tier', {
@@ -361,7 +365,10 @@ export async function processCollections(): Promise<{
             // Get user details
             const userDoc = await db.collection(COLLECTIONS.USERS).doc(invoice.freelancerId).get();
             if (!userDoc.exists) {
-              logError('User not found for letter', new Error('User not found'), { userId: invoice.freelancerId });
+              logError('User not found for letter', {
+                error: new Error('User not found'),
+                userId: invoice.freelancerId,
+              });
             } else {
               const user = userDoc.data() as User;
 
@@ -388,9 +395,9 @@ export async function processCollections(): Promise<{
                     },
                     invoiceReference: invoice.reference,
                     amount: invoice.amount,
-                    dueDate: invoice.dueDate.toDate().toLocaleDateString('en-GB'),
+                    dueDate: (invoice.dueDate instanceof Date ? invoice.dueDate : (invoice.dueDate as any).toDate()).toLocaleDateString('en-GB'),
                     daysPastDue: daysOverdue,
-                    invoiceDate: invoice.invoiceDate.toDate().toLocaleDateString('en-GB'),
+                    invoiceDate: (invoice.invoiceDate instanceof Date ? invoice.invoiceDate : (invoice.invoiceDate as any).toDate()).toLocaleDateString('en-GB'),
                     template: 'final_warning',
                     businessName: user.businessName || 'Recoup',
                     businessAddress: `${user.businessAddress.addressLine1}\n${user.businessAddress.addressLine2 || ''}\n${user.businessAddress.city}\n${user.businessAddress.postcode}`,
@@ -420,12 +427,16 @@ export async function processCollections(): Promise<{
                       letterId: letterResult.letterId,
                     });
                   } else {
-                    logError('Letter Day 30 failed', new Error(letterResult.error || 'Unknown error'), {
+                    logError('Letter Day 30 failed', {
+                      error: new Error(letterResult.error || 'Unknown error'),
                       invoiceRef: invoice.reference,
                     });
                   }
                 } catch (error) {
-                  logError('Letter Day 30 exception', error, { invoiceRef: invoice.reference });
+                  logError('Letter Day 30 exception', {
+                    error,
+                    invoiceRef: invoice.reference,
+                  });
                 }
               } else {
                 logInfo('Letter Day 30 skipped - no consent or not paid tier', {

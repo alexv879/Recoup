@@ -1,6 +1,5 @@
 import { db, Timestamp, COLLECTIONS } from '@/lib/firebase';
 import { PaymentConfirmation, Transaction, Invoice } from '@/types/models';
-import { generateSecureToken } from '@/utils/helpers';
 import { NotFoundError } from '@/utils/error';
 import { logDbOperation } from '@/utils/logger';
 import { nanoid } from 'nanoid';
@@ -41,7 +40,7 @@ export async function createPaymentConfirmation(
     .doc(confirmation.confirmationId)
     .set(confirmation);
 
-  logDbOperation('create', COLLECTIONS.PAYMENT_CONFIRMATIONS, confirmation.confirmationId, Date.now() - startTime);
+  logDbOperation('create', COLLECTIONS.PAYMENT_CONFIRMATIONS, { confirmationId: confirmation.confirmationId, duration: Date.now() - startTime });
 
   return confirmation;
 }
@@ -89,7 +88,7 @@ export async function clientConfirmPayment(
 
   await confirmationDoc.ref.update(updates);
 
-  logDbOperation('update', COLLECTIONS.PAYMENT_CONFIRMATIONS, confirmation.confirmationId, Date.now() - startTime);
+  logDbOperation('update', COLLECTIONS.PAYMENT_CONFIRMATIONS, { confirmationId: confirmation.confirmationId, duration: Date.now() - startTime });
 
   return { ...confirmation, ...updates };
 }
@@ -130,7 +129,7 @@ export async function freelancerVerifyPayment(
     status: 'both_confirmed',
     freelancerConfirmedAt: Timestamp.now(),
     freelancerVerifiedReceived: true,
-    actualAmountPaid: confirmation.clientConfirmedAmount,
+    actualAmountPaid: confirmation.amountPaid,
   });
 
   // Update invoice status to paid
@@ -142,7 +141,7 @@ export async function freelancerVerifyPayment(
   });
 
   // Create transaction record
-  const amount = confirmation.clientConfirmedAmount || confirmation.expectedAmount;
+  const amount = confirmation.amountPaid || confirmation.expectedAmount;
   const transaction: Transaction = {
     transactionId: nanoid(),
     invoiceId: confirmation.invoiceId,
@@ -163,7 +162,7 @@ export async function freelancerVerifyPayment(
     .doc(transaction.transactionId)
     .set(transaction);
 
-  logDbOperation('verify_payment', COLLECTIONS.PAYMENT_CONFIRMATIONS, confirmationId, Date.now() - startTime);
+  logDbOperation('verify_payment', COLLECTIONS.PAYMENT_CONFIRMATIONS, { confirmationId, duration: Date.now() - startTime });
 
   return {
     confirmation: { ...confirmation, status: 'both_confirmed' },
