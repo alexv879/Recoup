@@ -26,9 +26,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyTwilioSignature } from '@/lib/twilio-verify';
 import { logInfo, logError } from '@/utils/logger';
-import { storeFailedWebhook, generateCorrelationId } from '@/lib/webhook-recovery';
 import { validateWebhookOrigin, validateContentType } from '@/lib/csrf-protection';
 import { checkWebhookRateLimit, getRateLimitHeaders } from '@/lib/webhook-ratelimit';
+import { nanoid } from 'nanoid';
+
+// Helper to generate correlation IDs for request tracking
+const generateCorrelationId = () => `twilio-voice-${nanoid()}`;
 
 export const dynamic = 'force-dynamic';
 
@@ -156,8 +159,46 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
 
         // 3. Verify Twilio signature
-        // TODO: Implement proper Twilio signature verification
-        const isValid = true; // Skip for now to get build working
+        const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+        if (!twilioAuthToken) {
+            logError('TWILIO_AUTH_TOKEN not configured', undefined);
+            return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+        }
+
+        const twilioSignature = req.headers.get('X-Twilio-Signature');
+        if (!twilioSignature) {
+            logError('Missing Twilio signature header', undefined);
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Get the full URL including protocol and host for signature verification
+        const protocol = req.headers.get('x-forwarded-proto') || 'https';
+        const host = req.headers.get('host');
+        const pathname = new URL(req.url).pathname;
+        const fullUrl = `${protocol}://${host}${pathname}${new URL(req.url).search}`;
+
+        // Get request body for signature verification (Twilio sends form-urlencoded params)
+        const formData = await req.formData();
+        const bodyParams: Record<string, string> = {};
+        formData.forEach((value, key) => {
+            bodyParams[key] = value.toString();
+        });
+
+        const isValid = verifyTwilioSignature({
+            signature: twilioSignature,
+            url: fullUrl,
+            authToken: twilioAuthToken,
+            params: bodyParams,
+        });
+
+        if (!isValid) {
+            logError('Invalid Twilio signature - webhook rejected', {
+                url: fullUrl,
+                correlationId,
+                paramsReceived: Object.keys(bodyParams),
+            });
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         // 4. Parse context from query parameter (passed when call was initiated)
         const { searchParams } = new URL(req.url);

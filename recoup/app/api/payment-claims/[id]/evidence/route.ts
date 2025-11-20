@@ -70,11 +70,17 @@ export async function POST(
 
         const claim = claimSnap.data()!;
 
-        // Verify ownership (must be the client who created the claim)
-        // Note: Payment claims are created by clients (not freelancers), so we check clientEmail
-        // In a production app, you'd have proper client authentication
-        // For now, we'll allow any authenticated user to upload evidence
-        // TODO: Implement proper client authentication check
+        // Verify ownership - only the freelancer who owns the invoice can upload evidence
+        // OR the client who created the claim can upload evidence
+        if (claim.freelancerId !== userId && claim.clientId !== userId) {
+            return NextResponse.json(
+                {
+                    error: 'FORBIDDEN',
+                    message: 'You do not have permission to upload evidence to this claim'
+                },
+                { status: 403 }
+            );
+        }
 
         // Parse form data
         const formData = await req.formData();
