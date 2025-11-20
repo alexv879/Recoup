@@ -6,9 +6,11 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Disable Turbopack for this build to use webpack config
+    // Acknowledge webpack config - using webpack instead of turbopack
+    turbopack: {},
+
+    // Experimental features
     experimental: {
-        turbo: false,
         // Enable server actions for forms
         serverActions: {
             bodySizeLimit: '25mb', // For voice file uploads
