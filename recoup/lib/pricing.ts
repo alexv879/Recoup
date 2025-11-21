@@ -271,7 +271,7 @@ export function formatPrice(price: number, showPence: boolean = false): string {
 
 /**
  * Calculate discount percentage for annual plans
- * 
+ *
  * @param tier - Tier name
  * @returns Discount percentage (e.g., 20 for 20%)
  */
@@ -283,4 +283,209 @@ export function getAnnualDiscountPercentage(tier: PricingTier): number {
     const savings = fullYearCost - annual;
 
     return Math.round((savings / fullYearCost) * 100);
+}
+
+// ============================================================================
+// NEW: EXPENSE TRACKING & REVENUE RECOVERY PRICING (V4)
+// ============================================================================
+
+/**
+ * NEW PRICING STRUCTURE (Post-Expense Feature Launch)
+ *
+ * Focus: Revenue Recovery (Client Recharges + Tax Savings)
+ * Positioning: "Find money you're leaving on the table"
+ *
+ * Tiers:
+ * - Free: £0 - Basic expense tracking + invoicing
+ * - Pro: £10/month - Unlimited expenses, OCR, advanced features
+ * - MTD-Pro: £20/month - All Pro + HMRC quarterly filing
+ */
+
+export type ExpensePricingTier = 'free' | 'pro' | 'mtd-pro';
+
+export interface ExpenseTierPricing {
+    id: ExpensePricingTier;
+    name: string;
+    monthly: number;
+    annual: number;
+    annualSavings: number;
+
+    // Expense limits
+    expensesPerMonth: number | null; // null = unlimited
+    receiptStorageMB: number;
+    ocrProcessing: number | null; // null = unlimited
+
+    // Invoice limits (keep existing functionality)
+    invoicesPerMonth: number | null;
+    collectionsPerMonth: number | null;
+    collectionsChannels: string[];
+
+    // Features
+    features: string[];
+
+    // Stripe Price IDs (TODO: Create in Stripe Dashboard)
+    stripeMonthlyPriceId?: string;
+    stripeYearlyPriceId?: string;
+}
+
+export const EXPENSE_PRICING_TIERS: Record<ExpensePricingTier, ExpenseTierPricing> = {
+    free: {
+        id: 'free',
+        name: 'Free',
+        monthly: 0,
+        annual: 0,
+        annualSavings: 0,
+
+        // Expenses
+        expensesPerMonth: 50,
+        receiptStorageMB: 100,
+        ocrProcessing: 10,
+
+        // Invoices (limited)
+        invoicesPerMonth: 10,
+        collectionsPerMonth: 1,
+        collectionsChannels: ['email'],
+
+        features: [
+            '50 expenses per month',
+            '10 invoices per month',
+            'Receipt upload & OCR (10/month)',
+            'Billable expense tracking',
+            'Revenue recovery dashboard',
+            'Basic collections (1/month)',
+            'Export data (CSV)',
+        ],
+    },
+
+    pro: {
+        id: 'pro',
+        name: 'Pro',
+        monthly: 10,
+        annual: 96, // 20% discount = £8/month
+        annualSavings: 24,
+
+        // Expenses
+        expensesPerMonth: null, // Unlimited
+        receiptStorageMB: 1000, // 1GB
+        ocrProcessing: null, // Unlimited
+
+        // Invoices
+        invoicesPerMonth: null, // Unlimited
+        collectionsPerMonth: 25,
+        collectionsChannels: ['email', 'sms'],
+
+        features: [
+            'Unlimited expenses & invoices',
+            'Unlimited receipt OCR',
+            '1GB receipt storage',
+            'Advanced collections (25/month)',
+            'Email + SMS reminders',
+            'Bulk expense import',
+            'AI revenue forecasting',
+            'Branded invoices',
+            'Client expense reports',
+        ],
+
+        stripeMonthlyPriceId: 'price_xxx', // TODO: Replace with real Stripe price IDs
+        stripeYearlyPriceId: 'price_yyy',
+    },
+
+    'mtd-pro': {
+        id: 'mtd-pro',
+        name: 'MTD-Pro',
+        monthly: 20,
+        annual: 192, // 20% discount = £16/month
+        annualSavings: 48,
+
+        // All Pro features
+        expensesPerMonth: null,
+        receiptStorageMB: 1000,
+        ocrProcessing: null,
+        invoicesPerMonth: null,
+        collectionsPerMonth: null, // Unlimited
+        collectionsChannels: ['email', 'sms', 'phone'],
+
+        features: [
+            'All Pro features',
+            'HMRC quarterly submissions',
+            'VAT filing integration',
+            'Annual tax declarations',
+            'Audit-proof digital records',
+            'Compliance reports',
+            'Priority support',
+            'Early access to new features',
+        ],
+
+        stripeMonthlyPriceId: 'price_zzz', // TODO: Replace with real Stripe price IDs
+        stripeYearlyPriceId: 'price_aaa',
+    },
+};
+
+/**
+ * Get expense pricing for a tier
+ */
+export function getExpenseTierPrice(tier: ExpensePricingTier, isAnnual: boolean = false): number {
+    const pricing = EXPENSE_PRICING_TIERS[tier];
+    return isAnnual ? pricing.annual : pricing.monthly;
+}
+
+/**
+ * Get expense limit for a tier
+ */
+export function getExpensesLimit(tier: ExpensePricingTier): number | null {
+    return EXPENSE_PRICING_TIERS[tier].expensesPerMonth;
+}
+
+/**
+ * Check if user has exceeded expense limit
+ */
+export function hasExceededExpenseLimit(
+    tier: ExpensePricingTier,
+    expensesUsed: number
+): boolean {
+    const limit = getExpensesLimit(tier);
+
+    // Unlimited tiers never exceed
+    if (limit === null) return false;
+
+    return expensesUsed >= limit;
+}
+
+/**
+ * Get recommended expense tier upgrade
+ */
+export function getRecommendedExpenseTierUpgrade(
+    currentTier: ExpensePricingTier,
+    expensesUsed: number
+): ExpensePricingTier | null {
+    // Already on top tier
+    if (currentTier === 'mtd-pro') return null;
+
+    const limit = getExpensesLimit(currentTier);
+
+    // No limit = no upgrade needed
+    if (limit === null) return null;
+
+    // Recommend upgrade if using >80% of limit
+    const usagePercentage = (expensesUsed / limit) * 100;
+
+    if (usagePercentage >= 80) {
+        if (currentTier === 'free') return 'pro';
+        if (currentTier === 'pro') return 'mtd-pro';
+    }
+
+    return null;
+}
+
+/**
+ * Format expense tier for display
+ */
+export function formatExpenseTier(tier: ExpensePricingTier): string {
+    const tierMap: Record<ExpensePricingTier, string> = {
+        free: 'Free',
+        pro: 'Pro',
+        'mtd-pro': 'MTD-Pro',
+    };
+
+    return tierMap[tier];
 }

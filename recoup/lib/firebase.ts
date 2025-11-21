@@ -87,6 +87,16 @@ export const COLLECTIONS = {
   EMAILS_SENT: 'emails_sent',
   ONBOARDING_PROGRESS: 'onboarding_progress',
   AGENCY_HANDOFFS: 'agency_handoffs',
+
+  // NEW: Expense tracking
+  EXPENSES: 'expenses',
+  EXPENSE_RECEIPTS: 'expense_receipts',
+
+  // NEW: MTD (Making Tax Digital) - Feature flagged
+  MTD_AUTHORIZATIONS: 'mtd_authorizations',
+  MTD_SUBMISSIONS: 'mtd_submissions',
+  MTD_OBLIGATIONS: 'mtd_obligations',
+  HMRC_API_LOGS: 'hmrc_api_logs', // For audit trail
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date
