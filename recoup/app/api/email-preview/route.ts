@@ -1,11 +1,14 @@
 /**
  * Email Template Preview API
  * Returns rendered email templates for preview purposes
- * 
+ *
  * POST /api/email-preview
+ *
+ * ⚠️ SECURITY: Requires authentication to prevent unauthorized access to email templates
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import {
     previewEmailTemplate,
     validateTemplateVariables,
@@ -15,6 +18,15 @@ import {
 
 export async function POST(request: NextRequest) {
     try {
+        // ✅ SECURITY FIX: Require authentication
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json(
+                { error: 'Unauthorized. Please log in to preview email templates.' },
+                { status: 401 }
+            );
+        }
+
         const body = await request.json();
         const { level, variables, invoiceAmountPence } = body;
 

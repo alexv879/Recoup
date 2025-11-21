@@ -41,8 +41,9 @@ import {
   TranscriptionResult,
 } from '@/lib/voice-processing';
 import { trackEvent } from '@/lib/analytics';
-import { BadRequestError, handleApiError } from '@/utils/error';
+import { BadRequestError, UnauthorizedError, handleApiError } from '@/utils/error';
 import { logInfo, logError } from '@/utils/logger';
+import { rateLimiters } from '@/lib/ratelimit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30; // 30 second timeout
@@ -55,8 +56,30 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
 
   try {
-    // 1. Authenticate user (optional - allow anonymous for demo)
+    // ✅ SECURITY FIX: Require authentication to prevent abuse of expensive AI transcription
     const { userId } = await auth();
+    if (!userId) {
+      throw new UnauthorizedError('You must be logged in to use voice transcription.');
+    }
+
+    // ✅ SECURITY FIX: Rate limiting for expensive AI transcription
+    const rateLimit = await rateLimiters.ai.check(userId);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Rate limit exceeded for voice transcription. Please try again later.',
+          resetTime: new Date(rateLimit.resetTime).toISOString(),
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+            'X-RateLimit-Reset': rateLimit.resetTime.toString(),
+          },
+        }
+      );
+    }
 
     // 2. Parse multipart form data
     const formData = await req.formData();

@@ -2,16 +2,22 @@
  * AI Cost Tracking Utility
  * Tracks and monitors AI API costs per user
  *
+ * ✅ SECURITY FIX: Replaced in-memory storage with Firestore persistence
+ * to ensure accurate cost tracking across serverless function restarts.
+ *
  * Features:
  * - Track costs per user per month
  * - Alert when costs exceed thresholds
  * - Generate cost reports
  * - Predict future costs
+ * - Persist to Firestore for accurate billing
  */
 
 import { AITask, getModelForTask } from '@/lib/ai/model-router';
 import { UserTier } from '@/types/user';
 import { logInfo, logError } from '@/utils/logger';
+import { db } from '@/lib/firebase';
+import { Timestamp } from 'firebase-admin/firestore';
 
 /**
  * AI usage record
@@ -38,12 +44,8 @@ export interface MonthlyCostSummary {
   byProvider: Record<string, { count: number; cost: number }>;
 }
 
-// In-memory storage (in production, use database)
-const usageRecords: AIUsageRecord[] = [];
-const monthlySummaries = new Map<string, MonthlyCostSummary>();
-
 /**
- * Track AI usage
+ * Track AI usage - persists to Firestore
  */
 export async function trackAIUsage(
   userId: string,
@@ -53,6 +55,7 @@ export async function trackAIUsage(
 ): Promise<void> {
   try {
     const config = getModelForTask(task, userTier);
+    const timestamp = new Date();
 
     const record: AIUsageRecord = {
       userId,
@@ -60,15 +63,19 @@ export async function trackAIUsage(
       provider: config.provider,
       model: config.model,
       cost: config.costPerCall,
-      timestamp: new Date(),
+      timestamp,
       metadata
     };
 
-    // Store record
-    usageRecords.push(record);
+    // ✅ Store record in Firestore
+    await db.collection('ai_usage').add({
+      ...record,
+      timestamp: Timestamp.fromDate(timestamp),
+      createdAt: Timestamp.now(),
+    });
 
-    // Update monthly summary
-    updateMonthlySummary(record);
+    // ✅ Update monthly summary in Firestore
+    await updateMonthlySummary(record);
 
     // Check thresholds
     await checkCostThresholds(userId);
@@ -85,80 +92,105 @@ export async function trackAIUsage(
 }
 
 /**
- * Update monthly summary
+ * Update monthly summary in Firestore using atomic transactions
  */
-function updateMonthlySummary(record: AIUsageRecord): void {
+async function updateMonthlySummary(record: AIUsageRecord): Promise<void> {
   const month = record.timestamp.toISOString().substring(0, 7); // YYYY-MM
-  const key = `${record.userId}-${month}`;
+  const summaryId = `${record.userId}-${month}`;
+  const summaryRef = db.collection('ai_monthly_summaries').doc(summaryId);
 
-  let summary = monthlySummaries.get(key);
+  await db.runTransaction(async (transaction) => {
+    const summaryDoc = await transaction.get(summaryRef);
+
+    let summary: MonthlyCostSummary;
+
+    if (!summaryDoc.exists) {
+      // Create new summary
+      summary = {
+        userId: record.userId,
+        month,
+        totalCost: record.cost,
+        callCount: 1,
+        byTask: {
+          [record.task]: { count: 1, cost: record.cost }
+        } as any,
+        byProvider: {
+          [record.provider]: { count: 1, cost: record.cost }
+        }
+      };
+    } else {
+      // Update existing summary
+      summary = summaryDoc.data() as MonthlyCostSummary;
+
+      summary.totalCost += record.cost;
+      summary.callCount += 1;
+
+      // Update by task
+      if (!summary.byTask[record.task]) {
+        summary.byTask[record.task] = { count: 0, cost: 0 };
+      }
+      summary.byTask[record.task].count += 1;
+      summary.byTask[record.task].cost += record.cost;
+
+      // Update by provider
+      if (!summary.byProvider[record.provider]) {
+        summary.byProvider[record.provider] = { count: 0, cost: 0 };
+      }
+      summary.byProvider[record.provider].count += 1;
+      summary.byProvider[record.provider].cost += record.cost;
+    }
+
+    transaction.set(summaryRef, {
+      ...summary,
+      updatedAt: Timestamp.now(),
+    });
+  });
+}
+
+/**
+ * Get monthly cost for user from Firestore
+ */
+export async function getMonthlyCost(userId: string, month?: string): Promise<MonthlyCostSummary | null> {
+  const targetMonth = month || new Date().toISOString().substring(0, 7);
+  const summaryId = `${userId}-${targetMonth}`;
+
+  const summaryDoc = await db.collection('ai_monthly_summaries').doc(summaryId).get();
+
+  if (!summaryDoc.exists) {
+    return null;
+  }
+
+  return summaryDoc.data() as MonthlyCostSummary;
+}
+
+/**
+ * Get all-time cost for user from Firestore
+ */
+export async function getTotalCost(userId: string): Promise<number> {
+  const snapshot = await db.collection('ai_usage')
+    .where('userId', '==', userId)
+    .get();
+
+  return snapshot.docs.reduce((sum, doc) => {
+    const record = doc.data();
+    return sum + (record.cost || 0);
+  }, 0);
+}
+
+/**
+ * Get usage by task from monthly summary in Firestore
+ */
+export async function getUsageByTask(userId: string, month?: string): Promise<Record<AITask, number>> {
+  const summary = await getMonthlyCost(userId, month);
 
   if (!summary) {
-    summary = {
-      userId: record.userId,
-      month,
-      totalCost: 0,
-      callCount: 0,
-      byTask: {} as any,
-      byProvider: {} as any
-    };
-    monthlySummaries.set(key, summary);
+    return {} as Record<AITask, number>;
   }
-
-  // Update totals
-  summary.totalCost += record.cost;
-  summary.callCount += 1;
-
-  // Update by task
-  if (!summary.byTask[record.task]) {
-    summary.byTask[record.task] = { count: 0, cost: 0 };
-  }
-  summary.byTask[record.task].count += 1;
-  summary.byTask[record.task].cost += record.cost;
-
-  // Update by provider
-  if (!summary.byProvider[record.provider]) {
-    summary.byProvider[record.provider] = { count: 0, cost: 0 };
-  }
-  summary.byProvider[record.provider].count += 1;
-  summary.byProvider[record.provider].cost += record.cost;
-}
-
-/**
- * Get monthly cost for user
- */
-export function getMonthlyCost(userId: string, month?: string): MonthlyCostSummary | null {
-  const targetMonth = month || new Date().toISOString().substring(0, 7);
-  const key = `${userId}-${targetMonth}`;
-
-  return monthlySummaries.get(key) || null;
-}
-
-/**
- * Get all-time cost for user
- */
-export function getTotalCost(userId: string): number {
-  return usageRecords
-    .filter((record) => record.userId === userId)
-    .reduce((sum, record) => sum + record.cost, 0);
-}
-
-/**
- * Get usage by task
- */
-export function getUsageByTask(userId: string, month?: string): Record<AITask, number> {
-  const targetMonth = month || new Date().toISOString().substring(0, 7);
-
-  const records = usageRecords.filter(
-    (record) =>
-      record.userId === userId &&
-      record.timestamp.toISOString().substring(0, 7) === targetMonth
-  );
 
   const usage: Record<string, number> = {};
 
-  records.forEach((record) => {
-    usage[record.task] = (usage[record.task] || 0) + 1;
+  Object.entries(summary.byTask).forEach(([task, stats]) => {
+    usage[task] = stats.count;
   });
 
   return usage as Record<AITask, number>;
@@ -168,7 +200,7 @@ export function getUsageByTask(userId: string, month?: string): Record<AITask, n
  * Check if user exceeds cost thresholds
  */
 async function checkCostThresholds(userId: string): Promise<void> {
-  const monthlyCost = getMonthlyCost(userId);
+  const monthlyCost = await getMonthlyCost(userId);
 
   if (!monthlyCost) return;
 
@@ -189,9 +221,9 @@ async function checkCostThresholds(userId: string): Promise<void> {
 /**
  * Get cost estimate for next month based on usage trends
  */
-export function predictNextMonthCost(userId: string): number {
+export async function predictNextMonthCost(userId: string): Promise<number> {
   const currentMonth = new Date().toISOString().substring(0, 7);
-  const currentSummary = getMonthlyCost(userId, currentMonth);
+  const currentSummary = await getMonthlyCost(userId, currentMonth);
 
   if (!currentSummary) return 0;
 
@@ -205,61 +237,76 @@ export function predictNextMonthCost(userId: string): number {
 }
 
 /**
- * Get top users by AI cost
+ * Get top users by AI cost from current month's summaries
  */
-export function getTopUsersByCost(limit: number = 10): Array<{
+export async function getTopUsersByCost(limit: number = 10): Promise<Array<{
   userId: string;
   totalCost: number;
   callCount: number;
-}> {
-  const userCosts = new Map<string, { totalCost: number; callCount: number }>();
+}>> {
+  const currentMonth = new Date().toISOString().substring(0, 7);
 
-  usageRecords.forEach((record) => {
-    const existing = userCosts.get(record.userId) || { totalCost: 0, callCount: 0 };
-    existing.totalCost += record.cost;
-    existing.callCount += 1;
-    userCosts.set(record.userId, existing);
+  const snapshot = await db.collection('ai_monthly_summaries')
+    .where('month', '==', currentMonth)
+    .orderBy('totalCost', 'desc')
+    .limit(limit)
+    .get();
+
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      userId: data.userId,
+      totalCost: data.totalCost,
+      callCount: data.callCount,
+    };
   });
-
-  return Array.from(userCosts.entries())
-    .map(([userId, stats]) => ({ userId, ...stats }))
-    .sort((a, b) => b.totalCost - a.totalCost)
-    .slice(0, limit);
 }
 
 /**
- * Get total platform cost
+ * Get total platform cost from monthly summaries
  */
-export function getTotalPlatformCost(month?: string): number {
+export async function getTotalPlatformCost(month?: string): Promise<number> {
   const targetMonth = month || new Date().toISOString().substring(0, 7);
 
-  return usageRecords
-    .filter((record) => record.timestamp.toISOString().substring(0, 7) === targetMonth)
-    .reduce((sum, record) => sum + record.cost, 0);
+  const snapshot = await db.collection('ai_monthly_summaries')
+    .where('month', '==', targetMonth)
+    .get();
+
+  return snapshot.docs.reduce((sum, doc) => {
+    const data = doc.data();
+    return sum + (data.totalCost || 0);
+  }, 0);
 }
 
 /**
- * Generate cost report for user
+ * Generate cost report for user from Firestore
  */
-export function generateCostReport(
+export async function generateCostReport(
   userId: string,
   startDate: Date,
   endDate: Date
-): {
+): Promise<{
   totalCost: number;
   callCount: number;
   byTask: Record<AITask, { count: number; cost: number }>;
   byProvider: Record<string, { count: number; cost: number }>;
   dailyCosts: Array<{ date: string; cost: number }>;
-} {
-  const records = usageRecords.filter(
-    (record) =>
-      record.userId === userId &&
-      record.timestamp >= startDate &&
-      record.timestamp <= endDate
-  );
+}> {
+  const snapshot = await db.collection('ai_usage')
+    .where('userId', '==', userId)
+    .where('timestamp', '>=', Timestamp.fromDate(startDate))
+    .where('timestamp', '<=', Timestamp.fromDate(endDate))
+    .get();
 
-  const totalCost = records.reduce((sum, record) => sum + record.cost, 0);
+  const records = snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      ...data,
+      timestamp: data.timestamp.toDate(),
+    };
+  });
+
+  const totalCost = records.reduce((sum, record) => sum + (record.cost || 0), 0);
   const callCount = records.length;
 
   const byTask: Record<string, { count: number; cost: number }> = {};
@@ -298,28 +345,45 @@ export function generateCostReport(
 }
 
 /**
- * Clear old records (data retention)
+ * Clear old records (data retention) from Firestore
  */
-export function clearOldRecords(daysToKeep: number = 90): number {
+export async function clearOldRecords(daysToKeep: number = 90): Promise<number> {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
-  const initialLength = usageRecords.length;
+  const snapshot = await db.collection('ai_usage')
+    .where('timestamp', '<', Timestamp.fromDate(cutoffDate))
+    .get();
 
-  // Remove old records
-  let i = usageRecords.length;
-  while (i--) {
-    if (usageRecords[i].timestamp < cutoffDate) {
-      usageRecords.splice(i, 1);
+  const removed = snapshot.size;
+
+  // Batch delete (Firestore supports max 500 operations per batch)
+  const batches: any[] = [];
+  let batch = db.batch();
+  let count = 0;
+
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+    count++;
+
+    if (count === 500) {
+      batches.push(batch);
+      batch = db.batch();
+      count = 0;
     }
+  });
+
+  if (count > 0) {
+    batches.push(batch);
   }
 
-  const removed = initialLength - usageRecords.length;
+  // Commit all batches
+  await Promise.all(batches.map(b => b.commit()));
 
-  logInfo('Old AI usage records cleared', {
+  logInfo('Old AI usage records cleared from Firestore', {
     removed,
     daysToKeep,
-    remaining: usageRecords.length
+    cutoffDate: cutoffDate.toISOString()
   });
 
   return removed;

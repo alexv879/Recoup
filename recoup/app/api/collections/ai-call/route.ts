@@ -16,6 +16,7 @@ import { requireClerkFeature, incrementUsageCounter } from '@/middleware/clerkPr
 import { validateConsentOrThrow } from '@/services/consentService';
 import { errors, handleApiError, UnauthorizedError, NotFoundError, ForbiddenError, ValidationError } from '@/utils/error';
 import { logApiRequest, logApiResponse, logInfo } from '@/utils/logger';
+import { rateLimiters } from '@/lib/ratelimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     logApiRequest('POST', '/api/collections/ai-call', userId);
+
+    // ✅ SECURITY FIX: Rate limiting for expensive AI endpoints
+    const rateLimit = await rateLimiters.ai.check(userId);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Rate limit exceeded. Please try again later.',
+          resetTime: new Date(rateLimit.resetTime).toISOString(),
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+            'X-RateLimit-Reset': rateLimit.resetTime.toString(),
+          },
+        }
+      );
+    }
 
     // 2. Check premium access (NEW: Clerk Billing + usage quota)
     await requireClerkFeature(userId, 'ai_voice_calls_5_per_month');

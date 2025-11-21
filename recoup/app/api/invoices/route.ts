@@ -1,21 +1,13 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { InvoiceCreateSchema } from '../../../lib/validations';
 import { handleError, UnauthorizedError } from '../../../utils/error';
 import { logger } from '../../../utils/logger';
 import { Invoice } from '../../../types/models';
 import { trackServerEvent } from '../../../lib/analytics-server';
-
-/*
 import { db } from '../../../lib/firebase';
 import { Timestamp } from 'firebase-admin/firestore';
 import { nanoid } from 'nanoid';
-*/
-
-// Mock authentication as per the technical specification's auth helpers
-const getAuthUserId = (): string | null => {
-    // In a real app, this would come from Clerk/NextAuth: `auth()`
-    return 'user_2aXf...mock';
-};
 
 // Mock invoice reference generation
 const generateInvoiceReference = () => `INV-${new Date().getFullYear()}${(new Date().getMonth() + 1).toString().padStart(2, '0')}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
@@ -27,7 +19,8 @@ const generateInvoiceReference = () => `INV-${new Date().getFullYear()}${(new Da
  */
 export async function POST(req: Request) {
     try {
-        const userId = getAuthUserId();
+        // ✅ SECURITY FIX: Real Clerk authentication
+        const { userId } = await auth();
         if (!userId) {
             throw new UnauthorizedError('You must be logged in to create an invoice.');
         }
@@ -38,9 +31,9 @@ export async function POST(req: Request) {
         const validatedData = InvoiceCreateSchema.parse(body);
 
         const reference = generateInvoiceReference();
-        const invoiceId = `inv_${Math.random().toString(36).substr(2, 9)}`;
+        const invoiceId = nanoid();
 
-        /*
+        // Create invoice in Firestore
         const invoice: Omit<Invoice, 'invoiceId'> = {
           reference,
           freelancerId: userId,
@@ -57,7 +50,6 @@ export async function POST(req: Request) {
           updatedAt: Timestamp.now(),
         };
         await db.collection('invoices').doc(invoiceId).set(invoice);
-        */
 
         logger.info({ userId, invoiceId, client: validatedData.clientName }, 'Successfully created draft invoice');
 
@@ -82,12 +74,13 @@ export async function POST(req: Request) {
  */
 export async function GET(req: Request) {
     try {
-        const userId = getAuthUserId();
+        // ✅ SECURITY FIX: Real Clerk authentication
+        const { userId } = await auth();
         if (!userId) {
             throw new UnauthorizedError('You must be logged in to view invoices.');
         }
 
-        /*
+        // Query invoices from Firestore
         const url = new URL(req.url);
         const status = url.searchParams.get('status');
         let query = db.collection('invoices').where('freelancerId', '==', userId);
@@ -96,11 +89,8 @@ export async function GET(req: Request) {
         }
         const snapshot = await query.orderBy('createdAt', 'desc').get();
         const invoices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        */
 
-        // Placeholder response
-        const invoices: Invoice[] = [];
-        logger.info(`[DB] Fetching invoices for user ${userId}`);
+        logger.info(`[DB] Fetched ${invoices.length} invoices for user ${userId}`);
 
         return NextResponse.json({ invoices });
     } catch (error) {
