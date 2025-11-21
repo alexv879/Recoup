@@ -10,10 +10,15 @@
  * Auto-syncs subscription tier from Clerk to Firestore User model
  * Ensures local DB always matches Clerk's subscription state
  *
+ * IMPORTANT: Clerk handles BOTH authentication AND subscription billing
+ * - Subscriptions configured in Clerk Dashboard
+ * - Expense tiers: free (£0), pro (£10/month), mtd-pro (£20/month)
+ * - Stripe is ONLY for client payment links (not subscriptions)
+ *
  * Setup:
  * 1. Add endpoint in Clerk Dashboard > Webhooks
  * 2. URL: https://your-domain.com/api/webhooks/clerk
- * 3. Events: subscription.created, subscription.updated, subscription.deleted
+ * 3. Events: subscription.created, subscription.updated, subscription.deleted, user.created, user.updated, user.deleted
  * 4. Copy webhook secret to CLERK_WEBHOOK_SECRET env var
  */
 
@@ -79,6 +84,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Handle different event types
     switch (evt.type) {
+      // Subscription events (billing)
       case 'subscription.created':
         await handleSubscriptionCreated(evt.data);
         break;
@@ -89,6 +95,19 @@ export async function POST(req: NextRequest) {
 
       case 'subscription.deleted':
         await handleSubscriptionDeleted(evt.data);
+        break;
+
+      // User events (authentication)
+      case 'user.created':
+        await handleUserCreated(evt.data);
+        break;
+
+      case 'user.updated':
+        await handleUserUpdated(evt.data);
+        break;
+
+      case 'user.deleted':
+        await handleUserDeleted(evt.data);
         break;
 
       default:
@@ -128,18 +147,33 @@ async function handleSubscriptionCreated(data: any): Promise<void> {
     return;
   }
 
-  // Get collection limit for tier
-  const limit = COLLECTIONS_LIMITS[tier as keyof typeof COLLECTIONS_LIMITS];
+  // Get quotas based on tier
+  const quotas = getExpenseQuotasForTier(tier, plan_slug);
+  const collectionsLimit = COLLECTIONS_LIMITS[tier as keyof typeof COLLECTIONS_LIMITS];
 
   // Update user in Firestore
   await db.collection('users').doc(user_id).update({
     subscriptionTier: tier,
     clerkSubscriptionId: subscription_id,
+    clerkPlanSlug: plan_slug, // Store original plan slug for MTD detection
     stripeSubscriptionId: data.stripe_subscription_id, // If Clerk provides it
     subscriptionStartDate: FieldValue.serverTimestamp(),
-    collectionsEnabled: true,
-    collectionsLimitPerMonth: limit === Infinity ? 999999 : limit,
-    collectionsUsedThisMonth: 0, // Reset on subscription start
+
+    // Expense tracking quotas
+    expensesPerMonth: quotas.expensesPerMonth,
+    receiptStorageMB: quotas.receiptStorageMB,
+    ocrProcessingPerMonth: quotas.ocrProcessingPerMonth,
+    expensesUsedThisMonth: 0, // Reset on subscription start
+    ocrUsedThisMonth: 0,
+
+    // MTD feature flag
+    mtdEnabled: quotas.mtdEnabled,
+
+    // Collections (legacy)
+    collectionsEnabled: tier !== 'free',
+    collectionsLimitPerMonth: collectionsLimit === Infinity ? 999999 : collectionsLimit,
+    collectionsUsedThisMonth: 0,
+
     monthlyUsageResetDate: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });
@@ -147,6 +181,7 @@ async function handleSubscriptionCreated(data: any): Promise<void> {
   logInfo('User upgraded to paid tier', {
     userId: user_id,
     tier,
+    mtdEnabled: quotas.mtdEnabled,
     subscriptionId: subscription_id,
   });
 }
@@ -171,7 +206,9 @@ async function handleSubscriptionUpdated(data: any): Promise<void> {
     return;
   }
 
-  const limit = COLLECTIONS_LIMITS[tier as keyof typeof COLLECTIONS_LIMITS];
+  // Get quotas based on new tier
+  const quotas = getExpenseQuotasForTier(tier, plan_slug);
+  const collectionsLimit = COLLECTIONS_LIMITS[tier as keyof typeof COLLECTIONS_LIMITS];
 
   // Get current user data to check if upgrading or downgrading
   const userDoc = await db.collection('users').doc(user_id).get();
@@ -185,15 +222,33 @@ async function handleSubscriptionUpdated(data: any): Promise<void> {
   await db.collection('users').doc(user_id).update({
     subscriptionTier: tier,
     clerkSubscriptionId: subscription_id,
-    collectionsLimitPerMonth: limit === Infinity ? 999999 : limit,
+    clerkPlanSlug: plan_slug,
+
+    // Expense tracking quotas
+    expensesPerMonth: quotas.expensesPerMonth,
+    receiptStorageMB: quotas.receiptStorageMB,
+    ocrProcessingPerMonth: quotas.ocrProcessingPerMonth,
+
+    // MTD feature flag
+    mtdEnabled: quotas.mtdEnabled,
+
+    // Collections (legacy)
+    collectionsLimitPerMonth: collectionsLimit === Infinity ? 999999 : collectionsLimit,
+
     // Reset usage only if downgrading to prevent abuse
-    ...(wasUpgrade ? {} : { collectionsUsedThisMonth: 0 }),
+    ...(wasUpgrade ? {} : {
+      collectionsUsedThisMonth: 0,
+      expensesUsedThisMonth: 0,
+      ocrUsedThisMonth: 0
+    }),
+
     updatedAt: FieldValue.serverTimestamp(),
   });
 
   logInfo('User subscription tier updated', {
     userId: user_id,
     newTier: tier,
+    mtdEnabled: quotas.mtdEnabled,
     wasUpgrade,
   });
 }
@@ -210,13 +265,31 @@ async function handleSubscriptionDeleted(data: any): Promise<void> {
     subscriptionId: subscription_id,
   });
 
+  // Get free tier quotas
+  const quotas = getExpenseQuotasForTier('free', 'free');
+
   // Downgrade to free tier
   await db.collection('users').doc(user_id).update({
     subscriptionTier: 'free',
     clerkSubscriptionId: null,
+    clerkPlanSlug: null,
     stripeSubscriptionId: null,
+
+    // Expense tracking quotas (free tier)
+    expensesPerMonth: quotas.expensesPerMonth,
+    receiptStorageMB: quotas.receiptStorageMB,
+    ocrProcessingPerMonth: quotas.ocrProcessingPerMonth,
+    expensesUsedThisMonth: 0,
+    ocrUsedThisMonth: 0,
+
+    // MTD disabled
+    mtdEnabled: false,
+
+    // Collections (legacy)
     collectionsLimitPerMonth: 1, // Free tier limit
     collectionsUsedThisMonth: 0,
+    collectionsEnabled: false,
+
     updatedAt: FieldValue.serverTimestamp(),
   });
 
@@ -226,25 +299,83 @@ async function handleSubscriptionDeleted(data: any): Promise<void> {
 }
 
 /**
+ * Get expense tracking quotas for a tier
+ * Based on pricing.ts EXPENSE_PRICING_TIERS
+ */
+function getExpenseQuotasForTier(tier: SubscriptionTier, planSlug: string): {
+  expensesPerMonth: number | null;
+  receiptStorageMB: number;
+  ocrProcessingPerMonth: number | null;
+  mtdEnabled: boolean;
+} {
+  // Check if plan includes MTD
+  const isMTDPlan = planSlug.toLowerCase().includes('mtd');
+
+  // Free tier
+  if (tier === 'free') {
+    return {
+      expensesPerMonth: 50,
+      receiptStorageMB: 100, // 100MB
+      ocrProcessingPerMonth: 10,
+      mtdEnabled: false,
+    };
+  }
+
+  // Pro tier (£10/month) OR MTD-Pro tier (£20/month)
+  if (tier === 'pro') {
+    return {
+      expensesPerMonth: null, // Unlimited
+      receiptStorageMB: 1000, // 1GB
+      ocrProcessingPerMonth: null, // Unlimited
+      mtdEnabled: isMTDPlan, // MTD enabled only for MTD-Pro plans
+    };
+  }
+
+  // Legacy collections tiers (Starter/Growth)
+  return {
+    expensesPerMonth: 50, // Same as free for legacy tiers
+    receiptStorageMB: 500,
+    ocrProcessingPerMonth: 50,
+    mtdEnabled: false,
+  };
+}
+
+/**
  * Map Clerk plan slug to our tier system
- * Handles both founding and standard pricing plans
+ * Handles both expense tiers and legacy collections-based tiers
  */
 function mapPlanSlugToTier(planSlug: string): SubscriptionTier | null {
   const tierMap: Record<string, SubscriptionTier> = {
+    // === EXPENSE TIERS (NEW - Revenue Recovery SaaS) ===
     // Free tier
     free: 'free',
+    expense_free: 'free',
 
+    // Pro tier (£10/month - unlimited expenses)
+    pro: 'pro',
+    expense_pro: 'pro',
+    pro_monthly: 'pro',
+    pro_annual: 'pro',
+
+    // MTD-Pro tier (£20/month - HMRC filing)
+    'mtd-pro': 'pro', // Map to 'pro' since SubscriptionTier type doesn't have mtd-pro
+    mtd_pro: 'pro',
+    mtd_pro_monthly: 'pro',
+    mtd_pro_annual: 'pro',
+    expense_mtd_pro: 'pro',
+
+    // === LEGACY COLLECTIONS TIERS (OLD - keep for backwards compatibility) ===
     // Starter tier (founding & standard)
     starter_founding: 'starter',
     starter_standard: 'starter',
     starter: 'starter',
 
-    // Pro tier (founding & standard)
-    pro_founding: 'pro',
-    pro_standard: 'pro',
-    pro: 'pro',
+    // Growth tier
+    growth_founding: 'growth',
+    growth_standard: 'growth',
+    growth: 'growth',
 
-    // Business tier (founding & standard)
+    // Business tier (map to pro)
     business_founding: 'pro',
     business_standard: 'pro',
     business: 'pro',
@@ -266,4 +397,88 @@ function getTierLevel(tier: SubscriptionTier): number {
     paid: 2, // Map old 'paid' to 'growth' level
   };
   return levels[tier] || 0;
+}
+
+/**
+ * Handle user.created event
+ * Create Firestore user document on signup
+ */
+async function handleUserCreated(data: any): Promise<void> {
+  const { id: userId, email_addresses, first_name, last_name } = data;
+
+  logInfo('Processing user.created', { userId });
+
+  const primaryEmail = email_addresses?.find((e: any) => e.id === data.primary_email_address_id);
+
+  // Create initial user document with free tier
+  await db.collection('users').doc(userId).set({
+    userId,
+    email: primaryEmail?.email_address || '',
+    firstName: first_name || '',
+    lastName: last_name || '',
+    displayName: `${first_name || ''} ${last_name || ''}`.trim(),
+
+    // Subscription (default to free tier)
+    subscriptionTier: 'free',
+
+    // Expense tracking quotas (free tier)
+    expensesPerMonth: 50,
+    receiptStorageMB: 100,
+    ocrProcessingPerMonth: 10,
+    expensesUsedThisMonth: 0,
+    ocrUsedThisMonth: 0,
+
+    // Collections quotas (legacy - keep for backwards compatibility)
+    collectionsEnabled: false,
+    collectionsLimitPerMonth: 1,
+    collectionsUsedThisMonth: 0,
+
+    // Timestamps
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  logInfo('User created in Firestore', { userId });
+}
+
+/**
+ * Handle user.updated event
+ * Sync profile changes to Firestore
+ */
+async function handleUserUpdated(data: any): Promise<void> {
+  const { id: userId, email_addresses, first_name, last_name } = data;
+
+  logInfo('Processing user.updated', { userId });
+
+  const primaryEmail = email_addresses?.find((e: any) => e.id === data.primary_email_address_id);
+
+  // Update user profile
+  await db.collection('users').doc(userId).update({
+    email: primaryEmail?.email_address || '',
+    firstName: first_name || '',
+    lastName: last_name || '',
+    displayName: `${first_name || ''} ${last_name || ''}`.trim(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  logInfo('User profile updated in Firestore', { userId });
+}
+
+/**
+ * Handle user.deleted event
+ * Soft delete or anonymize user data (GDPR compliance)
+ */
+async function handleUserDeleted(data: any): Promise<void> {
+  const { id: userId } = data;
+
+  logInfo('Processing user.deleted', { userId });
+
+  // Soft delete: Mark as deleted but keep data for compliance
+  await db.collection('users').doc(userId).update({
+    deleted: true,
+    deletedAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  logInfo('User marked as deleted in Firestore', { userId });
 }

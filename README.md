@@ -28,8 +28,8 @@ Unlike generic accounting tools (Xero, QuickBooks), Recoup focuses on **revenue 
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
 - **Backend**: Next.js API routes (serverless)
 - **Database**: Firebase/Firestore
-- **Auth**: Clerk v6
-- **Payments**: Stripe
+- **Auth & Billing**: Clerk v6 (handles both authentication AND subscriptions)
+- **Client Payments**: Stripe Payment Links (direct to freelancer)
 - **OCR**: OpenAI Vision (gpt-4o-mini)
 - **Encryption**: AES-256-GCM (for HMRC tokens)
 - **Deployment**: Vercel
@@ -144,6 +144,30 @@ firebase init
 # Deploy security rules
 firebase deploy --only firestore:rules,storage:rules
 ```
+
+### Configure Clerk Subscriptions
+
+**IMPORTANT**: Recoup uses Clerk for BOTH authentication AND subscription billing.
+
+1. **Create Subscription Plans** in Clerk Dashboard:
+   - Go to: https://dashboard.clerk.com → Billing
+   - Create 3 plans:
+     - **Free**: £0/month, slug: `free` or `expense_free`
+     - **Pro**: £10/month (£96/year), slug: `pro_monthly` / `pro_annual`
+     - **MTD-Pro**: £20/month (£192/year), slug: `mtd_pro_monthly` / `mtd_pro_annual`
+
+2. **Set Up Webhook**:
+   - Go to: Clerk Dashboard → Webhooks → Add Endpoint
+   - URL: `https://your-domain.com/api/webhooks/clerk`
+   - Events: `user.created`, `user.updated`, `user.deleted`, `subscription.created`, `subscription.updated`, `subscription.deleted`
+   - Copy signing secret → Add to `.env.local` as `CLERK_WEBHOOK_SECRET`
+
+3. **Add Clerk Domain** to `.env.local`:
+   ```bash
+   NEXT_PUBLIC_CLERK_DOMAIN=your-app.clerk.accounts.dev
+   ```
+
+**For detailed setup instructions**, see `CLERK_SUBSCRIPTION_SETUP.md`
 
 ## 📊 Database Schema
 
