@@ -1,0 +1,56 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper function to check authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check file size (max 10MB)
+    function isValidSize() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Helper function to check file type
+    function isValidReceiptType() {
+      return request.resource.contentType.matches('image/.*') ||
+             request.resource.contentType == 'application/pdf';
+    }
+
+    // Receipts storage
+    // Path: receipts/{userId}/{expenseId}/{fileName}
+    match /receipts/{userId}/{expenseId}/{fileName} {
+      // Users can only access their own receipts
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can upload receipts (with validation)
+      allow write: if isAuthenticated() &&
+                     request.auth.uid == userId &&
+                     isValidSize() &&
+                     isValidReceiptType();
+
+      // Allow deletion
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Receipt thumbnails
+    match /receipts/thumbnails/{userId}/{expenseId}/{fileName} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Agency handoff documents
+    match /agency-handoff/{userId}/{invoiceId}/{fileName} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if false; // Only server can write
+      allow delete: if false; // Only server can delete
+    }
+
+    // Deny all other access by default
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
