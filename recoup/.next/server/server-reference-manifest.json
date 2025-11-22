@@ -1,0 +1,846 @@
+{
+  "node": {
+    "7fcd877b2585077f2f75b017499c9e4b2fffe4be52": {
+      "workers": {
+        "app/_not-found/page": {
+          "moduleId": 338487,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/confirmation/[token]/page": {
+          "moduleId": 747843,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/analytics/page": {
+          "moduleId": 183604,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/clients/[id]/page": {
+          "moduleId": 11070,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/clients/page": {
+          "moduleId": 952888,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/gamification/page": {
+          "moduleId": 866433,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/[id]/page": {
+          "moduleId": 665735,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/[id]/verify-payment/page": {
+          "moduleId": 410555,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/new/page": {
+          "moduleId": 762079,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/page": {
+          "moduleId": 199189,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/notifications/page": {
+          "moduleId": 95628,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/page": {
+          "moduleId": 368719,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/settings/page": {
+          "moduleId": 542941,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/invoice/[id]/page": {
+          "moduleId": 529959,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/offline/page": {
+          "moduleId": 569183,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/pricing/page": {
+          "moduleId": 344239,
+          "async": false,
+          "exportedName": "detectKeylessEnvDriftAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        }
+      },
+      "layer": {
+        "app/_not-found/page": "rsc",
+        "app/confirmation/[token]/page": "rsc",
+        "app/dashboard/analytics/page": "rsc",
+        "app/dashboard/clients/[id]/page": "rsc",
+        "app/dashboard/clients/page": "rsc",
+        "app/dashboard/gamification/page": "rsc",
+        "app/dashboard/invoices/[id]/page": "rsc",
+        "app/dashboard/invoices/[id]/verify-payment/page": "rsc",
+        "app/dashboard/invoices/new/page": "rsc",
+        "app/dashboard/invoices/page": "rsc",
+        "app/dashboard/notifications/page": "rsc",
+        "app/dashboard/page": "rsc",
+        "app/dashboard/settings/page": "rsc",
+        "app/invoice/[id]/page": "rsc",
+        "app/offline/page": "rsc",
+        "app/pricing/page": "rsc"
+      },
+      "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js",
+      "exportedName": "detectKeylessEnvDriftAction"
+    },
+    "7f727d19926b6fccd1105333391d4fcdc3d7c8a8d1": {
+      "workers": {
+        "app/_not-found/page": {
+          "moduleId": 338487,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/confirmation/[token]/page": {
+          "moduleId": 747843,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/analytics/page": {
+          "moduleId": 183604,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/clients/[id]/page": {
+          "moduleId": 11070,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/clients/page": {
+          "moduleId": 952888,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/gamification/page": {
+          "moduleId": 866433,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/invoices/[id]/page": {
+          "moduleId": 665735,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/invoices/[id]/verify-payment/page": {
+          "moduleId": 410555,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/invoices/new/page": {
+          "moduleId": 762079,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/invoices/page": {
+          "moduleId": 199189,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/notifications/page": {
+          "moduleId": 95628,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/page": {
+          "moduleId": 368719,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/dashboard/settings/page": {
+          "moduleId": 542941,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/invoice/[id]/page": {
+          "moduleId": 529959,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/offline/page": {
+          "moduleId": 569183,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        },
+        "app/pricing/page": {
+          "moduleId": 344239,
+          "async": false,
+          "exportedName": "invalidateCacheAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js"
+        }
+      },
+      "layer": {
+        "app/_not-found/page": "action-browser",
+        "app/confirmation/[token]/page": "action-browser",
+        "app/dashboard/analytics/page": "action-browser",
+        "app/dashboard/clients/[id]/page": "action-browser",
+        "app/dashboard/clients/page": "action-browser",
+        "app/dashboard/gamification/page": "action-browser",
+        "app/dashboard/invoices/[id]/page": "action-browser",
+        "app/dashboard/invoices/[id]/verify-payment/page": "action-browser",
+        "app/dashboard/invoices/new/page": "action-browser",
+        "app/dashboard/invoices/page": "action-browser",
+        "app/dashboard/notifications/page": "action-browser",
+        "app/dashboard/page": "action-browser",
+        "app/dashboard/settings/page": "action-browser",
+        "app/invoice/[id]/page": "action-browser",
+        "app/offline/page": "action-browser",
+        "app/pricing/page": "action-browser"
+      },
+      "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js",
+      "exportedName": "invalidateCacheAction"
+    },
+    "7f4e387a58fcadd74df639d52f65b9e44e491b11c0": {
+      "workers": {
+        "app/_not-found/page": {
+          "moduleId": 338487,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/confirmation/[token]/page": {
+          "moduleId": 747843,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/analytics/page": {
+          "moduleId": 183604,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/clients/[id]/page": {
+          "moduleId": 11070,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/clients/page": {
+          "moduleId": 952888,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/gamification/page": {
+          "moduleId": 866433,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/[id]/page": {
+          "moduleId": 665735,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/[id]/verify-payment/page": {
+          "moduleId": 410555,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/new/page": {
+          "moduleId": 762079,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/page": {
+          "moduleId": 199189,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/notifications/page": {
+          "moduleId": 95628,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/page": {
+          "moduleId": 368719,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/settings/page": {
+          "moduleId": 542941,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/invoice/[id]/page": {
+          "moduleId": 529959,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/offline/page": {
+          "moduleId": 569183,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/pricing/page": {
+          "moduleId": 344239,
+          "async": false,
+          "exportedName": "createOrReadKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        }
+      },
+      "layer": {
+        "app/_not-found/page": "rsc",
+        "app/confirmation/[token]/page": "rsc",
+        "app/dashboard/analytics/page": "rsc",
+        "app/dashboard/clients/[id]/page": "rsc",
+        "app/dashboard/clients/page": "rsc",
+        "app/dashboard/gamification/page": "rsc",
+        "app/dashboard/invoices/[id]/page": "rsc",
+        "app/dashboard/invoices/[id]/verify-payment/page": "rsc",
+        "app/dashboard/invoices/new/page": "rsc",
+        "app/dashboard/invoices/page": "rsc",
+        "app/dashboard/notifications/page": "rsc",
+        "app/dashboard/page": "rsc",
+        "app/dashboard/settings/page": "rsc",
+        "app/invoice/[id]/page": "rsc",
+        "app/offline/page": "rsc",
+        "app/pricing/page": "rsc"
+      },
+      "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js",
+      "exportedName": "createOrReadKeylessAction"
+    },
+    "7f5b709744922b31eea7fa4c878e29ad9ad63b7a53": {
+      "workers": {
+        "app/_not-found/page": {
+          "moduleId": 338487,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/confirmation/[token]/page": {
+          "moduleId": 747843,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/analytics/page": {
+          "moduleId": 183604,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/clients/[id]/page": {
+          "moduleId": 11070,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/clients/page": {
+          "moduleId": 952888,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/gamification/page": {
+          "moduleId": 866433,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/invoices/[id]/page": {
+          "moduleId": 665735,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/invoices/[id]/verify-payment/page": {
+          "moduleId": 410555,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/invoices/new/page": {
+          "moduleId": 762079,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/invoices/page": {
+          "moduleId": 199189,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/notifications/page": {
+          "moduleId": 95628,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/page": {
+          "moduleId": 368719,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/settings/page": {
+          "moduleId": 542941,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/invoice/[id]/page": {
+          "moduleId": 529959,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/offline/page": {
+          "moduleId": 569183,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/pricing/page": {
+          "moduleId": 344239,
+          "async": false,
+          "exportedName": "collectKeylessMetadata",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        }
+      },
+      "layer": {
+        "app/_not-found/page": "rsc",
+        "app/confirmation/[token]/page": "rsc",
+        "app/dashboard/analytics/page": "rsc",
+        "app/dashboard/clients/[id]/page": "rsc",
+        "app/dashboard/clients/page": "rsc",
+        "app/dashboard/gamification/page": "rsc",
+        "app/dashboard/invoices/[id]/page": "rsc",
+        "app/dashboard/invoices/[id]/verify-payment/page": "rsc",
+        "app/dashboard/invoices/new/page": "rsc",
+        "app/dashboard/invoices/page": "rsc",
+        "app/dashboard/notifications/page": "rsc",
+        "app/dashboard/page": "rsc",
+        "app/dashboard/settings/page": "rsc",
+        "app/invoice/[id]/page": "rsc",
+        "app/offline/page": "rsc",
+        "app/pricing/page": "rsc"
+      },
+      "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js",
+      "exportedName": "collectKeylessMetadata"
+    },
+    "7ff9403a48e5802e099277d49292041debcbb08019": {
+      "workers": {
+        "app/_not-found/page": {
+          "moduleId": 338487,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/confirmation/[token]/page": {
+          "moduleId": 747843,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/analytics/page": {
+          "moduleId": 183604,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/clients/[id]/page": {
+          "moduleId": 11070,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/clients/page": {
+          "moduleId": 952888,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/gamification/page": {
+          "moduleId": 866433,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/invoices/[id]/page": {
+          "moduleId": 665735,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/invoices/[id]/verify-payment/page": {
+          "moduleId": 410555,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/invoices/new/page": {
+          "moduleId": 762079,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/invoices/page": {
+          "moduleId": 199189,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/notifications/page": {
+          "moduleId": 95628,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/page": {
+          "moduleId": 368719,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/dashboard/settings/page": {
+          "moduleId": 542941,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/invoice/[id]/page": {
+          "moduleId": 529959,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/offline/page": {
+          "moduleId": 569183,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        },
+        "app/pricing/page": {
+          "moduleId": 344239,
+          "async": false,
+          "exportedName": "formatMetadataHeaders",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js"
+        }
+      },
+      "layer": {
+        "app/_not-found/page": "rsc",
+        "app/confirmation/[token]/page": "rsc",
+        "app/dashboard/analytics/page": "rsc",
+        "app/dashboard/clients/[id]/page": "rsc",
+        "app/dashboard/clients/page": "rsc",
+        "app/dashboard/gamification/page": "rsc",
+        "app/dashboard/invoices/[id]/page": "rsc",
+        "app/dashboard/invoices/[id]/verify-payment/page": "rsc",
+        "app/dashboard/invoices/new/page": "rsc",
+        "app/dashboard/invoices/page": "rsc",
+        "app/dashboard/notifications/page": "rsc",
+        "app/dashboard/page": "rsc",
+        "app/dashboard/settings/page": "rsc",
+        "app/invoice/[id]/page": "rsc",
+        "app/offline/page": "rsc",
+        "app/pricing/page": "rsc"
+      },
+      "filename": "node_modules/@clerk/nextjs/dist/esm/server/keyless-custom-headers.js",
+      "exportedName": "formatMetadataHeaders"
+    },
+    "7f4761084f22c573594138a72602f0e1156a521d64": {
+      "workers": {
+        "app/_not-found/page": {
+          "moduleId": 338487,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/confirmation/[token]/page": {
+          "moduleId": 747843,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/analytics/page": {
+          "moduleId": 183604,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/clients/[id]/page": {
+          "moduleId": 11070,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/clients/page": {
+          "moduleId": 952888,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/gamification/page": {
+          "moduleId": 866433,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/[id]/page": {
+          "moduleId": 665735,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/[id]/verify-payment/page": {
+          "moduleId": 410555,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/new/page": {
+          "moduleId": 762079,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/page": {
+          "moduleId": 199189,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/notifications/page": {
+          "moduleId": 95628,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/page": {
+          "moduleId": 368719,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/settings/page": {
+          "moduleId": 542941,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/invoice/[id]/page": {
+          "moduleId": 529959,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/offline/page": {
+          "moduleId": 569183,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/pricing/page": {
+          "moduleId": 344239,
+          "async": false,
+          "exportedName": "syncKeylessConfigAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        }
+      },
+      "layer": {
+        "app/_not-found/page": "action-browser",
+        "app/confirmation/[token]/page": "action-browser",
+        "app/dashboard/analytics/page": "action-browser",
+        "app/dashboard/clients/[id]/page": "action-browser",
+        "app/dashboard/clients/page": "action-browser",
+        "app/dashboard/gamification/page": "action-browser",
+        "app/dashboard/invoices/[id]/page": "action-browser",
+        "app/dashboard/invoices/[id]/verify-payment/page": "action-browser",
+        "app/dashboard/invoices/new/page": "action-browser",
+        "app/dashboard/invoices/page": "action-browser",
+        "app/dashboard/notifications/page": "action-browser",
+        "app/dashboard/page": "action-browser",
+        "app/dashboard/settings/page": "action-browser",
+        "app/invoice/[id]/page": "action-browser",
+        "app/offline/page": "action-browser",
+        "app/pricing/page": "action-browser"
+      },
+      "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js",
+      "exportedName": "syncKeylessConfigAction"
+    },
+    "7f74427299aa66f8c1dc7dd90079a90dee2bccf6e7": {
+      "workers": {
+        "app/_not-found/page": {
+          "moduleId": 338487,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/confirmation/[token]/page": {
+          "moduleId": 747843,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/analytics/page": {
+          "moduleId": 183604,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/clients/[id]/page": {
+          "moduleId": 11070,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/clients/page": {
+          "moduleId": 952888,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/gamification/page": {
+          "moduleId": 866433,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/[id]/page": {
+          "moduleId": 665735,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/[id]/verify-payment/page": {
+          "moduleId": 410555,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/new/page": {
+          "moduleId": 762079,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/invoices/page": {
+          "moduleId": 199189,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/notifications/page": {
+          "moduleId": 95628,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/page": {
+          "moduleId": 368719,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/dashboard/settings/page": {
+          "moduleId": 542941,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/invoice/[id]/page": {
+          "moduleId": 529959,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/offline/page": {
+          "moduleId": 569183,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        },
+        "app/pricing/page": {
+          "moduleId": 344239,
+          "async": false,
+          "exportedName": "deleteKeylessAction",
+          "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js"
+        }
+      },
+      "layer": {
+        "app/_not-found/page": "action-browser",
+        "app/confirmation/[token]/page": "action-browser",
+        "app/dashboard/analytics/page": "action-browser",
+        "app/dashboard/clients/[id]/page": "action-browser",
+        "app/dashboard/clients/page": "action-browser",
+        "app/dashboard/gamification/page": "action-browser",
+        "app/dashboard/invoices/[id]/page": "action-browser",
+        "app/dashboard/invoices/[id]/verify-payment/page": "action-browser",
+        "app/dashboard/invoices/new/page": "action-browser",
+        "app/dashboard/invoices/page": "action-browser",
+        "app/dashboard/notifications/page": "action-browser",
+        "app/dashboard/page": "action-browser",
+        "app/dashboard/settings/page": "action-browser",
+        "app/invoice/[id]/page": "action-browser",
+        "app/offline/page": "action-browser",
+        "app/pricing/page": "action-browser"
+      },
+      "filename": "node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js",
+      "exportedName": "deleteKeylessAction"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "m6XDfjDbvMffuv3i0bLxDLSc4Avw2OMLcNea3D61SXE="
+}

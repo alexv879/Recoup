@@ -1,0 +1,3 @@
+{
+  "/api/hmrc/auth/status/route": "app/api/hmrc/auth/status/route.js"
+}

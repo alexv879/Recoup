@@ -1,0 +1,3 @@
+{
+  "/api/invoices/[id]/escalation/pause/route": "app/api/invoices/[id]/escalation/pause/route.js"
+}

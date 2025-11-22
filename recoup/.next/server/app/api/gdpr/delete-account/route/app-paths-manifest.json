@@ -1,0 +1,3 @@
+{
+  "/api/gdpr/delete-account/route": "app/api/gdpr/delete-account/route.js"
+}

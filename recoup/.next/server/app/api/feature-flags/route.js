@@ -1,0 +1,12 @@
+var R=require("../../../chunks/[turbopack]_runtime.js")("server/app/api/feature-flags/route.js")
+R.c("server/chunks/[root-of-the-server]__5b464294._.js")
+R.c("server/chunks/[root-of-the-server]__352d49ae._.js")
+R.c("server/chunks/node_modules_next_dist_23bfe24c._.js")
+R.c("server/chunks/node_modules_c05df0bd._.js")
+R.c("server/chunks/node_modules_@firebase_app_dist_esm_index_esm_bf899292.js")
+R.c("server/chunks/[root-of-the-server]__9809cb18._.js")
+R.c("server/chunks/_c48f515e._.js")
+R.c("server/chunks/node_modules_9a2b32ad._.js")
+R.c("server/chunks/_next-internal_server_app_api_feature-flags_route_actions_e4c63e2a.js")
+R.m(892752)
+module.exports=R.m(892752).exports

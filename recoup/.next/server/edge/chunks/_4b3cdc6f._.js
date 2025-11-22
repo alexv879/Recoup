@@ -1,0 +1,3 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["chunks/_4b3cdc6f._.js",133139,(e,t,r)=>{self._ENTRIES||={};let n=Promise.resolve().then(()=>e.i(210977));n.catch(()=>{}),self._ENTRIES.middleware_instrumentation=new Proxy(n,{get(e,t){if("then"===t)return(t,r)=>e.then(t,r);let r=(...r)=>e.then(e=>(0,e[t])(...r));return r.then=(r,n)=>e.then(e=>e[t]).then(r,n),r}})},210977,e=>{"use strict";async function t(){console.log("[Instrumentation] Edge runtime detected")}async function r(e,t,r){console.error("[Request Error]",{error:e.message,path:new URL(t.url).pathname,method:t.method,router:r.routerKind})}e.s(["onRequestError",()=>r,"register",()=>t])}]);
+
+//# sourceMappingURL=_4b3cdc6f._.js.map

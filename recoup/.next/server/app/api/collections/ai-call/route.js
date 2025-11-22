@@ -1,0 +1,12 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/collections/ai-call/route.js")
+R.c("server/chunks/[root-of-the-server]__7ef8faa4._.js")
+R.c("server/chunks/[root-of-the-server]__83a1790d._.js")
+R.c("server/chunks/_18be5229._.js")
+R.c("server/chunks/node_modules_c05df0bd._.js")
+R.c("server/chunks/[root-of-the-server]__9809cb18._.js")
+R.c("server/chunks/node_modules_zod_v4_classic_errors_6231ecd5.js")
+R.c("server/chunks/node_modules_next_dist_23bfe24c._.js")
+R.c("server/chunks/node_modules_9a2b32ad._.js")
+R.c("server/chunks/_next-internal_server_app_api_collections_ai-call_route_actions_b289c4c9.js")
+R.m(737954)
+module.exports=R.m(737954).exports

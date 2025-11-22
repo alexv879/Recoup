@@ -10,7 +10,7 @@ import { isHMRCConnected } from '@/lib/hmrc-oauth';
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(

@@ -1,0 +1,3 @@
+{
+  "/api/recurring-invoices/[id]/history/route": "app/api/recurring-invoices/[id]/history/route.js"
+}

@@ -7,14 +7,14 @@ import { auth } from '@clerk/nextjs/server';
 import { getRecurringInvoice, getRecurringInvoiceHistory } from '@/lib/recurring-invoices';
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const recurringInvoice = await getRecurringInvoice(id);
 
     if (!recurringInvoice) {

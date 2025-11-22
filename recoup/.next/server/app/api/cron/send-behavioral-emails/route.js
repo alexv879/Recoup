@@ -1,0 +1,11 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/cron/send-behavioral-emails/route.js")
+R.c("server/chunks/_1f357b32._.js")
+R.c("server/chunks/_59e0212e._.js")
+R.c("server/chunks/node_modules_8d130f24._.js")
+R.c("server/chunks/[root-of-the-server]__9809cb18._.js")
+R.c("server/chunks/_39c9db4c._.js")
+R.c("server/chunks/node_modules_next_dist_23bfe24c._.js")
+R.c("server/chunks/[root-of-the-server]__9c694ecc._.js")
+R.c("server/chunks/_next-internal_server_app_api_cron_send-behavioral-emails_route_actions_e45c8b6e.js")
+R.m(738843)
+module.exports=R.m(738843).exports

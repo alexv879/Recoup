@@ -1,0 +1,3 @@
+{
+  "/api/cron/reset-monthly-usage/route": "app/api/cron/reset-monthly-usage/route.js"
+}

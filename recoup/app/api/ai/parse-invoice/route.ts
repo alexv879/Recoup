@@ -23,7 +23,7 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
  */
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(

@@ -1,0 +1,3 @@
+{
+  "/api/admin/feature-flags/route": "app/api/admin/feature-flags/route.js"
+}

@@ -1,0 +1,3 @@
+{
+  "/api/webhook/sendgrid/route": "app/api/webhook/sendgrid/route.js"
+}

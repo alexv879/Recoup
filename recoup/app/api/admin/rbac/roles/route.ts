@@ -5,7 +5,7 @@
  * POST /api/admin/rbac/roles - Assign role to user
  */
 
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { withSuperAdmin } from '@/lib/middleware/rbac-middleware';
 import {
@@ -47,7 +47,7 @@ export const GET = withSuperAdmin(async (request: NextRequest) => {
 
 export const POST = withSuperAdmin(async (request: NextRequest) => {
   try {
-    const { userId: adminUserId } = auth();
+    const { userId: adminUserId } = await auth();
 
     if (!adminUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -1,0 +1,3 @@
+{
+  "/api/webhook/clerk/route": "app/api/webhook/clerk/route.js"
+}

@@ -6,7 +6,7 @@
  * DELETE /api/admin/feature-flags/[key] - Delete feature flag
  */
 
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getFeatureFlagConfig,
@@ -17,9 +17,9 @@ import {
 } from '@/lib/feature-flags-enhanced';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     key: string;
-  };
+  }>;
 }
 
 // ============================================================================
@@ -28,16 +28,17 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { key } = await params;
     const environment = request.nextUrl.searchParams.get('environment') as any || getCurrentEnvironment();
     const includeAuditLogs = request.nextUrl.searchParams.get('includeAuditLogs') === 'true';
 
-    const flag = await getFeatureFlagConfig(params.key, environment);
+    const flag = await getFeatureFlagConfig(key, environment);
 
     if (!flag) {
       return NextResponse.json(
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const response: any = { flag };
 
     if (includeAuditLogs) {
-      const auditLogs = await getAuditLogs(params.key);
+      const auditLogs = await getAuditLogs(key);
       response.auditLogs = auditLogs;
     }
 
@@ -69,19 +70,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { key } = await params;
     const body = await request.json();
     const environment = body.environment || getCurrentEnvironment();
 
     // Simple toggle
     if (body.enabled !== undefined) {
       const success = await toggleFeatureFlag(
-        params.key,
+        key,
         body.enabled,
         userId,
         environment
@@ -96,7 +98,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
       return NextResponse.json({
         success: true,
-        key: params.key,
+        key,
         enabled: body.enabled,
       });
     }
@@ -122,15 +124,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { key } = await params;
     const environment = request.nextUrl.searchParams.get('environment') as any || getCurrentEnvironment();
 
-    const success = await deleteFeatureFlag(params.key, userId, environment);
+    const success = await deleteFeatureFlag(key, userId, environment);
 
     if (!success) {
       return NextResponse.json(
@@ -141,7 +144,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({
       success: true,
-      key: params.key,
+      key,
       deleted: true,
     });
   } catch (error) {

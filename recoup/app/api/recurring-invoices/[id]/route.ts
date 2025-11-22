@@ -14,9 +14,9 @@ import {
 } from '@/lib/recurring-invoices';
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -25,7 +25,7 @@ interface RouteContext {
  */
 export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const recurringInvoice = await getRecurringInvoice(id);
 
     if (!recurringInvoice) {
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
  */
 export async function PATCH(request: NextRequest, { params }: RouteContext) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
@@ -77,7 +77,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const recurringInvoice = await getRecurringInvoice(id);
 
     if (!recurringInvoice) {
@@ -135,7 +135,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteContext) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
@@ -144,7 +144,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const recurringInvoice = await getRecurringInvoice(id);
 
     if (!recurringInvoice) {
