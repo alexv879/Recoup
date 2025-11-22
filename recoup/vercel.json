@@ -22,6 +22,11 @@
       "path": "/api/cron/check-verification-deadlines",
       "schedule": "0 * * * *",
       "description": "Hourly check for payment verification deadlines - Send reminders at 24h/6h marks, auto-resume collections if deadline expires"
+    },
+    {
+      "path": "/api/cron/process-recurring-invoices",
+      "schedule": "0 0 * * *",
+      "description": "Daily at midnight UTC - Generate invoices from active recurring invoice schedules"
     }
   ]
 }
