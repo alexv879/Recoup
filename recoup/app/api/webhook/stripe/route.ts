@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { db, COLLECTIONS, Timestamp } from '@/lib/firebase';
 import { logInfo, logError } from '@/utils/logger';
 import type { User, Transaction } from '@/types/models';
+import { getTierFromSubscription } from '@/lib/stripePriceMapping';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2025-10-29.clover',
@@ -255,9 +256,9 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 
         const userId = usersSnapshot.docs[0].id;
 
-        // Determine subscription tier from price
-        let tier: 'free' | 'paid' | 'starter' | 'growth' | 'pro' | 'business' = 'paid';
-        // TODO: Map Stripe price IDs to tiers
+        // Determine subscription tier from price IDs
+        const tier = getTierFromSubscription(subscription);
+        logInfo(`[webhook/stripe] Mapped subscription to tier: ${tier}`);
 
         await db.collection(COLLECTIONS.USERS).doc(userId).update({
             stripeSubscriptionId: subscription.id,
