@@ -1,0 +1,154 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`PaymentTimeline matches snapshot 1`] = `
+<div>
+  <div
+    aria-label="Payment timeline"
+    class="relative "
+    role="list"
+  >
+    <div
+      class="sr-only"
+    >
+      <div
+        class="overflow-x-auto "
+      >
+        <table
+          aria-label="Payment timeline events"
+          class="min-w-full border border-gray-200 rounded-lg"
+        >
+          <caption
+            class="sr-only"
+          >
+            Payment timeline events
+          </caption>
+          <thead
+            class="bg-gray-100"
+          >
+            <tr>
+              <th
+                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+                scope="col"
+              >
+                Time
+              </th>
+              <th
+                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+                scope="col"
+              >
+                Event
+              </th>
+              <th
+                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+                scope="col"
+              >
+                Description
+              </th>
+              <th
+                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+                scope="col"
+              >
+                Actor
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              class="even:bg-gray-50"
+            >
+              <td
+                class="px-4 py-2 border-b text-sm text-gray-900"
+              >
+                22/11/2025, 18:00:09
+              </td>
+              <td
+                class="px-4 py-2 border-b text-sm text-gray-900"
+              >
+                sent
+              </td>
+              <td
+                class="px-4 py-2 border-b text-sm text-gray-900"
+              >
+                Sent to client
+              </td>
+              <td
+                class="px-4 py-2 border-b text-sm text-gray-900"
+              />
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div
+      role="listitem"
+    >
+      <div
+        class="flex gap-4 pb-8 relative"
+      >
+        <div
+          aria-label="Invoice sent to client"
+          class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-blue-600 bg-blue-100 relative z-10"
+          role="img"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-mail w-4 h-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"
+            />
+            <rect
+              height="16"
+              rx="2"
+              width="20"
+              x="2"
+              y="4"
+            />
+          </svg>
+        </div>
+        <div
+          class="flex-grow pt-1"
+        >
+          <div
+            class="flex items-start justify-between gap-4"
+          >
+            <div
+              class="flex-grow"
+            >
+              <div
+                class="flex items-center gap-2"
+              >
+                <p
+                  class="font-semibold text-gray-900"
+                >
+                  Invoice sent
+                </p>
+              </div>
+              <p
+                class="text-sm text-gray-600 mt-0.5"
+              >
+                Sent to client
+              </p>
+            </div>
+            <time
+              class="text-sm text-gray-500 flex-shrink-0"
+              datetime="2025-11-22T18:00:09.451Z"
+            >
+              22 Nov, 18:00
+            </time>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

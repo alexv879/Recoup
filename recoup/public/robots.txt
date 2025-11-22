@@ -1,0 +1,18 @@
+# robots.txt for Recoup SaaS
+
+# Allow all crawlers for marketing pages
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /pricing
+Allow: /features
+Allow: /blog
+
+# Disallow authenticated areas
+Disallow: /dashboard
+Disallow: /api
+Disallow: /sign-in
+Disallow: /sign-up
+
+# Sitemap location
+Sitemap: https://recoup.app/sitemap.xml
