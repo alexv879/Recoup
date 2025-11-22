@@ -182,7 +182,7 @@ const USER_OVERRIDES_COLLECTION = 'feature_flag_user_overrides';
  * Get current environment from Node environment variable
  */
 export function getCurrentEnvironment(): FeatureFlagEnvironment {
-  const env = process.env.NODE_ENV || 'development';
+  const env = process.env.NODE_ENV as string | undefined;
 
   if (env === 'production') return 'production';
   if (env === 'staging') return 'staging';
@@ -384,9 +384,9 @@ function evaluateTargetingRules(
                typeof rule.value === 'number' &&
                userValue < rule.value;
       case 'in':
-        return Array.isArray(rule.value) && rule.value.includes(userValue as any);
+        return Array.isArray(rule.value) && (rule.value as (string | number)[]).includes(userValue as string | number);
       case 'notIn':
-        return Array.isArray(rule.value) && !rule.value.includes(userValue as any);
+        return Array.isArray(rule.value) && !(rule.value as (string | number)[]).includes(userValue as string | number);
       default:
         return false;
     }

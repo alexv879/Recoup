@@ -21,7 +21,7 @@ export interface BusinessTierMigrationEmailData {
 }
 
 export function getBusinessTierMigrationEmailSubject(): string {
-    return '🚀 You've Been Upgraded to Pro - More Features, Same Price(3 Months)';
+    return '🚀 You\'ve Been Upgraded to Pro - More Features, Same Price (3 Months)';
 }
 
 export function getBusinessTierMigrationEmailHtml(data: BusinessTierMigrationEmailData): string {

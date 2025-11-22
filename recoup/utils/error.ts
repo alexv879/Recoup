@@ -48,6 +48,12 @@ export class RateLimitError extends CustomError {
     }
 }
 
+export class PaymentRequiredError extends CustomError {
+    constructor(message: string = 'Payment required', public metadata?: any) {
+        super('PAYMENT_REQUIRED', message, 402);
+    }
+}
+
 // Error constants for API responses
 export const errors = {
     VALIDATION_ERROR: 'VALIDATION_ERROR',
@@ -55,11 +61,21 @@ export const errors = {
     FORBIDDEN: 'FORBIDDEN',
     NOT_FOUND: 'NOT_FOUND',
     INTERNAL_ERROR: 'INTERNAL_ERROR',
+    PAYMENT_REQUIRED: 'PAYMENT_REQUIRED',
+
+    // Helper functions to create error instances
+    unauthorized: (message?: string) => new UnauthorizedError(message),
+    forbidden: (message?: string) => new ForbiddenError(message),
+    notFound: (message?: string) => new NotFoundError(message),
+    badRequest: (message?: string) => new BadRequestError(message),
+    validation: (message: string) => new ValidationError(message),
+    paymentRequired: (message?: string, metadata?: any) => new PaymentRequiredError(message, metadata),
+    rateLimit: (message?: string) => new RateLimitError(message),
 };
 
 export async function handleError(error: unknown) {
     if (error instanceof ZodError) {
-        const fieldErrors = error.errors.reduce((acc, e) => {
+        const fieldErrors = error.issues.reduce((acc: Record<string, string>, e: any) => {
             const field = e.path.join('.');
             acc[field] = e.message;
             return acc;

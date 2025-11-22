@@ -11,7 +11,6 @@
  */
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export type PricingMigrationMode = 'preview' | 'active' | 'complete';
 
@@ -39,10 +38,9 @@ const DEFAULT_FLAGS: FeatureFlags = {
  */
 export async function getFeatureFlags(): Promise<FeatureFlags> {
     try {
-        const flagsRef = doc(db, 'system_config', 'feature_flags');
-        const flagsDoc = await getDoc(flagsRef);
+        const flagsDoc = await db.collection('system_config').doc('feature_flags').get();
 
-        if (flagsDoc.exists()) {
+        if (flagsDoc.exists) {
             return { ...DEFAULT_FLAGS, ...flagsDoc.data() } as FeatureFlags;
         }
 
@@ -76,11 +74,9 @@ export async function updateFeatureFlags(
     updates: Partial<FeatureFlags>
 ): Promise<boolean> {
     try {
-        const flagsRef = doc(db, 'system_config', 'feature_flags');
         const currentFlags = await getFeatureFlags();
 
-        await setDoc(
-            flagsRef,
+        await db.collection('system_config').doc('feature_flags').set(
             {
                 ...currentFlags,
                 ...updates,

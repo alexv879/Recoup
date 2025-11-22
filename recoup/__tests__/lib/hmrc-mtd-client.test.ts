@@ -18,7 +18,8 @@ global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 jest.mock('firebase-admin/firestore', () => ({
   getFirestore: jest.fn(() => ({
     collection: jest.fn(() => ({
-      doc: jest.fn(() => ({
+      doc: jest.fn((docId?: string) => ({
+        // @ts-expect-error - Mock object for testing
         get: jest.fn().mockResolvedValue({
           exists: true,
           data: () => ({
@@ -28,9 +29,9 @@ jest.mock('firebase-admin/firestore', () => ({
             token_type: 'Bearer',
             scope: 'read:vat write:vat',
           }),
-        }),
-        set: jest.fn().mockResolvedValue(undefined),
-        delete: jest.fn().mockResolvedValue(undefined),
+        } as any),
+        set: jest.fn((data?: any) => Promise.resolve(undefined as any)),
+        delete: jest.fn(() => Promise.resolve(undefined as any)),
       })),
     })),
   })),
@@ -182,24 +183,25 @@ describe('HMRCMTDClient', () => {
   describe('submitVATReturn', () => {
     it('should submit VAT return successfully', async () => {
       const period: VATPeriod = {
-        start: '2024-01-01',
-        end: '2024-03-31',
+        startDate: '2024-01-01',
+        endDate: '2024-03-31',
         deadline: '2024-05-08',
-        quarter: 1,
-        year: 2024,
+        quarter: '2024-Q1',
       };
 
       const vatReturn: VATReturn = {
         period,
         box1_vatDueOnSales: 10000,
         box2_vatDueOnECAcquisitions: 0,
-        box3_totalVatDue: 10000,
+        box3_totalVATDue: 10000,
         box4_vatReclaimedOnPurchases: 3000,
-        box5_netVatDue: 7000,
+        box5_netVATDue: 7000,
         box6_totalValueSalesExVAT: 50000,
         box7_totalValuePurchasesExVAT: 15000,
-        box8_totalValueGoodsSuppliedExVAT: 0,
-        box9_totalAcquisitionsExVAT: 0,
+        box8_totalValueECSales: 0,
+        box9_totalValueECPurchases: 0,
+        generatedAt: '2024-05-01T10:00:00Z',
+        status: 'draft',
       };
 
       const mockResponse = {
@@ -222,24 +224,25 @@ describe('HMRCMTDClient', () => {
 
     it('should handle submission errors', async () => {
       const period: VATPeriod = {
-        start: '2024-01-01',
-        end: '2024-03-31',
+        startDate: '2024-01-01',
+        endDate: '2024-03-31',
         deadline: '2024-05-08',
-        quarter: 1,
-        year: 2024,
+        quarter: '2024-Q1',
       };
 
       const vatReturn: VATReturn = {
         period,
         box1_vatDueOnSales: 10000,
         box2_vatDueOnECAcquisitions: 0,
-        box3_totalVatDue: 10000,
+        box3_totalVATDue: 10000,
         box4_vatReclaimedOnPurchases: 3000,
-        box5_netVatDue: 7000,
+        box5_netVATDue: 7000,
         box6_totalValueSalesExVAT: 50000,
         box7_totalValuePurchasesExVAT: 15000,
-        box8_totalValueGoodsSuppliedExVAT: 0,
-        box9_totalAcquisitionsExVAT: 0,
+        box8_totalValueECSales: 0,
+        box9_totalValueECPurchases: 0,
+        generatedAt: '2024-05-01T10:00:00Z',
+        status: 'draft',
       };
 
       (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({

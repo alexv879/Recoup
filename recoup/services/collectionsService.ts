@@ -12,6 +12,21 @@ import {
   COLLECTION_DAY_15_REMINDER,
   COLLECTION_DAY_30_REMINDER,
 } from '@/utils/constants';
+import { isCollectionsConsentObject, isBusinessAddressObject } from '@/utils/helpers';
+
+// Alias for backward compatibility
+const COLLECTION_DAY_14_REMINDER = COLLECTION_DAY_15_REMINDER;
+
+/**
+ * Helper function to convert Date | Timestamp to Date
+ */
+function toDate(date: Date | Timestamp | any): Date {
+  if (date instanceof Date) {
+    return date;
+  }
+  // It's a Timestamp
+  return (date as any).toDate ? (date as any).toDate() : new Date((date as any).seconds * 1000);
+}
 
 /**
  * Check if user can use collections demo (1 free per month for free users)
@@ -32,11 +47,11 @@ export async function canUseCollectionsDemo(userId: string): Promise<{
 
   const user = userDoc.data() as User;
 
-  // Paid users have unlimited collections
-  if (user.subscriptionTier === 'paid') {
+  // Paid users (non-free tiers) have unlimited or higher collection limits
+  if (user.subscriptionTier !== 'free') {
     return {
       canUse: true,
-      remaining: -1, // -1 means unlimited
+      remaining: -1, // -1 means unlimited (or handled by tier-specific limits)
       resetDate: new Date(), // Not applicable
     };
   }
@@ -51,7 +66,7 @@ export async function canUseCollectionsDemo(userId: string): Promise<{
 
   // Get collections count for current month
   const collectionsCount = user.collectionsDemoUsedThisMonth || 0;
-  const lastResetDate = user.lastDemoResetDate?.toDate();
+  const lastResetDate = user.lastDemoResetDate ? toDate(user.lastDemoResetDate) : undefined;
 
   // Check if we need to reset the count (new month)
   let actualCollectionsCount = collectionsCount;
@@ -172,8 +187,9 @@ export async function processCollections(): Promise<{
         }
 
         // Calculate days overdue
-        const dueDate = invoice.dueDate.toDate();
-        const daysOverdue = Math.floor((now.toDate().getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+        const dueDate = toDate(invoice.dueDate);
+        const nowDate = new Date(now.toDate());
+        const daysOverdue = Math.floor((nowDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
 
         logInfo('Invoice overdue check', { invoiceRef: invoice.reference, daysOverdue });
 
@@ -237,8 +253,10 @@ export async function processCollections(): Promise<{
               const user = userDoc.data() as User;
 
               // Check SMS consent and subscription tier
-              const hasConsent = user.collectionsConsent?.smsConsent && !user.collectionsConsent?.smsOptedOut;
-              const isPaidUser = user.subscriptionTier === 'paid';
+              const hasConsent = isCollectionsConsentObject(user.collectionsConsent)
+                && user.collectionsConsent.smsConsent
+                && !user.collectionsConsent.smsOptedOut;
+              const isPaidUser = user.subscriptionTier !== 'free';
 
               if (hasConsent && isPaidUser && user.phoneNumber) {
                 try {
@@ -247,7 +265,7 @@ export async function processCollections(): Promise<{
                     recipientPhone: user.phoneNumber,
                     invoiceReference: invoice.reference,
                     amount: invoice.amount,
-                    dueDate: invoice.dueDate.toDate().toLocaleDateString('en-GB'),
+                    dueDate: toDate(invoice.dueDate).toLocaleDateString('en-GB'),
                     template: 'urgent_reminder',
                     paymentLink: invoice.stripePaymentLinkUrl,
                     businessName: user.businessName || 'Recoup',
@@ -354,34 +372,39 @@ export async function processCollections(): Promise<{
               const user = userDoc.data() as User;
 
               // Check consent, subscription tier, and business address
-              const hasConsent = user.collectionsConsent?.physicalMailConsent && !user.collectionsConsent?.physicalMailOptedOut;
-              const isPaidUser = user.subscriptionTier === 'paid';
-              const hasAddress = !!user.businessAddress;
+              const hasConsent = isCollectionsConsentObject(user.collectionsConsent)
+                && user.collectionsConsent.physicalMailConsent
+                && !user.collectionsConsent.physicalMailOptedOut;
+              const isPaidUser = user.subscriptionTier !== 'free';
+              const hasAddress = !!user.businessAddress && isBusinessAddressObject(user.businessAddress);
 
               if (!hasAddress) {
                 // Notify user to set business address
                 logInfo('Day 30 Letter skipped - no business address', { invoiceRef: invoice.reference });
                 // TODO: Send email notification to user to add business address
-              } else if (hasConsent && isPaidUser && user.businessAddress) {
+              } else if (hasConsent && isPaidUser && isBusinessAddressObject(user.businessAddress)) {
                 try {
+                  const businessAddr = user.businessAddress;
+                  const invoiceDateObj = toDate(invoice.invoiceDate);
+
                   // Send physical letter via Lob
                   const letterResult = await sendCollectionLetter({
                     recipient: {
                       recipientName: invoice.clientName,
-                      line1: user.businessAddress.addressLine1,
-                      line2: user.businessAddress.addressLine2,
-                      city: user.businessAddress.city,
-                      postcode: user.businessAddress.postcode,
+                      line1: businessAddr.addressLine1,
+                      line2: businessAddr.addressLine2,
+                      city: businessAddr.city,
+                      postcode: businessAddr.postcode,
                       country: 'GB',
                     },
                     invoiceReference: invoice.reference,
                     amount: invoice.amount,
-                    dueDate: invoice.dueDate.toDate().toLocaleDateString('en-GB'),
+                    dueDate: toDate(invoice.dueDate).toLocaleDateString('en-GB'),
                     daysPastDue: daysOverdue,
-                    invoiceDate: invoice.invoiceDate.toDate().toLocaleDateString('en-GB'),
+                    invoiceDate: invoiceDateObj.toLocaleDateString('en-GB'),
                     template: 'final_warning',
                     businessName: user.businessName || 'Recoup',
-                    businessAddress: `${user.businessAddress.addressLine1}\n${user.businessAddress.addressLine2 || ''}\n${user.businessAddress.city}\n${user.businessAddress.postcode}`,
+                    businessAddress: `${businessAddr.addressLine1}\n${businessAddr.addressLine2 || ''}\n${businessAddr.city}\n${businessAddr.postcode}`,
                     invoiceId: invoice.invoiceId,
                     freelancerId: invoice.freelancerId,
                   });

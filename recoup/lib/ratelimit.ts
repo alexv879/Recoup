@@ -26,7 +26,8 @@ export interface RateLimitResult {
  */
 function defaultKeyGenerator(req: NextRequest): string {
     const forwarded = req.headers.get('x-forwarded-for');
-    const ip = forwarded ? forwarded.split(',')[0] : req.ip || 'unknown';
+    const realIp = req.headers.get('x-real-ip');
+    const ip = forwarded ? forwarded.split(',')[0].trim() : realIp || 'unknown';
     return ip;
 }
 

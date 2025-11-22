@@ -81,27 +81,22 @@ async function checkAchievements(
 ): Promise<Achievement[]> {
   const earnedAchievements: Achievement[] = [];
 
-  for (const achievement of ACHIEVEMENTS) {
+  for (const achievement of Object.values(ACHIEVEMENTS)) {
     if (existingAchievements.some((a) => a.id === achievement.id)) {
       continue; // Already earned
     }
 
-    let isEarned = false;
-    switch (achievement.criteria.type) {
-      case 'xp':
-        if (currentXP >= achievement.criteria.value) {
-          isEarned = true;
-        }
-        break;
-      // Add other criteria checks here (e.g., invoices_created, revenue_collected)
-      // This will require fetching more data based on the achievement type
-    }
+    // Check if user has enough XP for this achievement
+    const isEarned = currentXP >= achievement.xpRequired;
 
     if (isEarned) {
       const newAchievement: Achievement = {
         id: achievement.id,
         name: achievement.name,
         description: achievement.description,
+        icon: achievement.icon,
+        xpRequired: achievement.xpRequired,
+        category: achievement.category,
         dateAwarded: Timestamp.now(),
       };
       earnedAchievements.push(newAchievement);
@@ -135,8 +130,12 @@ export async function calculateUserStats(userId: string): Promise<UserStats> {
         totalInvoiced: 0,
         totalCollected: 0,
         totalReferrals: 0,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+        calculatedAt: Timestamp.now(),
+        averagePaymentDays: 0,
+        onTimePercentage: 0,
+        streak: 0,
+        badges: [],
+        level: 1,
       };
     }
 

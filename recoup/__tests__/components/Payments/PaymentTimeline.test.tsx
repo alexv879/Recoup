@@ -8,8 +8,8 @@ expect.extend(toHaveNoViolations);
 describe('PaymentTimeline', () => {
     it('renders and has no accessibility violations', async () => {
         const events = [
-            { type: 'sent', timestamp: new Date().toISOString(), description: 'Sent to client' },
-            { type: 'payment_verified', timestamp: new Date().toISOString(), description: 'Payment verified' },
+            { type: 'sent' as const, timestamp: new Date().toISOString(), description: 'Sent to client' },
+            { type: 'payment_verified' as const, timestamp: new Date().toISOString(), description: 'Payment verified' },
         ];
 
         const { container } = render(<PaymentTimeline events={events} />);
@@ -19,7 +19,7 @@ describe('PaymentTimeline', () => {
 
     it('matches snapshot', () => {
         const events = [
-            { type: 'sent', timestamp: new Date().toISOString(), description: 'Sent to client' },
+            { type: 'sent' as const, timestamp: new Date().toISOString(), description: 'Sent to client' },
         ];
         const { container } = render(<PaymentTimeline events={events} />);
         expect(container).toMatchSnapshot();

@@ -73,8 +73,13 @@ export async function clientConfirmPayment(
   const confirmation = confirmationDoc.data() as PaymentConfirmation;
 
   // Check token expiration
-  if (confirmation.tokenExpiresAt.toDate() < new Date()) {
-    throw new Error('Confirmation token has expired');
+  if (confirmation.tokenExpiresAt) {
+    const expiryDate = confirmation.tokenExpiresAt instanceof Date
+      ? confirmation.tokenExpiresAt
+      : confirmation.tokenExpiresAt.toDate();
+    if (expiryDate < new Date()) {
+      throw new Error('Confirmation token has expired');
+    }
   }
 
   // Update confirmation
@@ -143,19 +148,22 @@ export async function freelancerVerifyPayment(
 
   // Create transaction record
   const amount = confirmation.clientConfirmedAmount || confirmation.expectedAmount;
+  const commission = amount * RECOUP_COMMISSION_RATE;
   const transaction: Transaction = {
     transactionId: nanoid(),
     invoiceId: confirmation.invoiceId,
     freelancerId: userId,
     amount,
     paymentMethod: confirmation.clientPaymentMethod || 'bank_transfer',
-    recoupCommission: amount * RECOUP_COMMISSION_RATE,
+    relayCommission: commission,
+    recoupCommission: commission,
     freelancerNet: amount * (1 - RECOUP_COMMISSION_RATE),
     commissionRate: RECOUP_COMMISSION_RATE,
     status: 'completed',
     transactionDate: Timestamp.now(),
     completedAt: Timestamp.now(),
     createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
   };
 
   await db
@@ -216,8 +224,13 @@ export async function getPaymentConfirmationByToken(
   const confirmation = snapshot.docs[0].data() as PaymentConfirmation;
 
   // Check token expiration
-  if (confirmation.tokenExpiresAt.toDate() < new Date()) {
-    throw new Error('Confirmation token has expired');
+  if (confirmation.tokenExpiresAt) {
+    const expiryDate = confirmation.tokenExpiresAt instanceof Date
+      ? confirmation.tokenExpiresAt
+      : confirmation.tokenExpiresAt.toDate();
+    if (expiryDate < new Date()) {
+      throw new Error('Confirmation token has expired');
+    }
   }
 
   return confirmation;

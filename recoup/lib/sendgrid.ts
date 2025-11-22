@@ -52,10 +52,10 @@ export async function sendEmail(params: {
     // Check if template ID is provided
     if (!params.templateId || params.templateId === 'undefined') {
       // Fallback: Send plain text email if template ID missing
-      logger.warn('SendGrid template ID missing, falling back to plain text email', {
+      logger.warn({
         to: params.to,
         subject: params.subject,
-      });
+      }, 'SendGrid template ID missing, falling back to plain text email');
 
       const msg = {
         to: params.to,
@@ -94,11 +94,11 @@ export async function sendEmail(params: {
       );
 
       if (isTemplateError) {
-        logger.error('SendGrid template error - please verify template ID in .env', {
+        logger.error({
           templateId: params.templateId,
           to: params.to,
           errors,
-        });
+        }, 'SendGrid template error - please verify template ID in .env');
         throw new Error(
           `SendGrid template error: Template ID "${params.templateId}" not found. ` +
           'Please verify SENDGRID_*_TEMPLATE_ID environment variables are correctly set. ' +
@@ -366,7 +366,7 @@ export async function sendReminderEmail(params: {
         month: 'long',
         year: 'numeric',
       }),
-      days_overdue: daysOverdue.toString(),
+      days_overdue: daysOverdue,
       freelancer_name: user.name || user.firstName || 'Freelancer',
       freelancer_email: user.email,
       freelancer_phone: user.phone || '',
@@ -417,20 +417,20 @@ export async function sendReminderEmail(params: {
     // SendGrid returns array of responses (one per email)
     const messageId = response[0].headers['x-message-id'] as string;
 
-    logger.info('Reminder email sent successfully', {
+    logger.info({
       invoiceId: params.invoiceId,
       level: params.level,
       clientEmail: params.clientEmail,
       messageId,
-    });
+    }, 'Reminder email sent successfully');
 
     return { messageId };
   } catch (error) {
-    logger.error('Failed to send reminder email', {
+    logger.error({
       invoiceId: params.invoiceId,
       level: params.level,
       error: error instanceof Error ? error.message : String(error),
-    });
+    }, 'Failed to send reminder email');
     throw error;
   }
 }

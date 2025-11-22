@@ -83,6 +83,28 @@ import { uploadCommunicationHistory } from '@/lib/firebase-storage';
 import { createAgencyRecoveryTransaction } from './transactionService';
 
 /**
+ * Helper function to convert Date | Timestamp to milliseconds
+ */
+function toMillis(date: Date | Timestamp | any): number {
+  if (date instanceof Date) {
+    return date.getTime();
+  }
+  // It's a Timestamp
+  return (date as any).toMillis ? (date as any).toMillis() : (date as any).seconds * 1000;
+}
+
+/**
+ * Helper function to convert Date | Timestamp to Date
+ */
+function toDate(date: Date | Timestamp | any): Date {
+  if (date instanceof Date) {
+    return date;
+  }
+  // It's a Timestamp
+  return (date as any).toDate ? (date as any).toDate() : new Date((date as any).seconds * 1000);
+}
+
+/**
  * Registered collection agencies
  * In production, maintain database of vetted agencies
  */
@@ -169,7 +191,7 @@ export async function checkEscalationEligibility(invoiceId: string): Promise<{
 
     // 5. Check days past due
     const daysPastDue = Math.floor(
-      (Date.now() - invoice.dueDate.toMillis()) / (1000 * 60 * 60 * 24)
+      (Date.now() - toMillis(invoice.dueDate)) / (1000 * 60 * 60 * 24)
     );
 
     if (daysPastDue < 60) {
@@ -247,7 +269,7 @@ export async function createAgencyHandoff(params: {
 
     // 5. Calculate days past due
     const daysPastDue = Math.floor(
-      (Date.now() - invoice.dueDate.toMillis()) / (1000 * 60 * 60 * 24)
+      (Date.now() - toMillis(invoice.dueDate)) / (1000 * 60 * 60 * 24)
     );
 
     // 6. Build communication history for agency
@@ -257,8 +279,8 @@ export async function createAgencyHandoff(params: {
 
       if (attempt.attemptType === 'sms_reminder') commType = 'sms';
       else if (attempt.attemptType === 'physical_letter') commType = 'letter';
-      else if (attempt.attemptType === 'ai_call') commType = 'call';
-      else commType = 'email'; // email_reminder, manual_contact, payment_received default to email
+      else if (attempt.attemptType === 'ai_call' || attempt.attemptType === 'phone_call') commType = 'call';
+      else commType = 'email'; // email_reminder defaults to email
 
       return {
         date: attempt.createdAt,
@@ -343,7 +365,7 @@ export async function createAgencyHandoff(params: {
 - Client: ${invoice.clientName}
 - Amount: £${invoice.amount.toFixed(2)}
 - Days Past Due: ${daysPastDue}
-- Original Invoice Date: ${invoice.invoiceDate.toDate().toLocaleDateString()}
+- Original Invoice Date: ${toDate(invoice.invoiceDate).toLocaleDateString()}
 
 **Case Summary:**
 ${communicationHistory.length} collection attempts have been made:

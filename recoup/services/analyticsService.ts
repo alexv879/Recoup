@@ -4,6 +4,17 @@ import { NotFoundError } from '@/utils/error';
 import { logDbOperation, logInfo, logError } from '@/utils/logger';
 
 /**
+ * Helper function to convert Date | Timestamp to Date
+ */
+function toDate(date: Date | Timestamp | any): Date {
+  if (date instanceof Date) {
+    return date;
+  }
+  // It's a Timestamp
+  return (date as any).toDate ? (date as any).toDate() : new Date((date as any).seconds * 1000);
+}
+
+/**
  * Analytics Service - Dashboard statistics and insights
  *
  * Provides comprehensive analytics for invoices, collections, and user performance
@@ -41,8 +52,8 @@ export async function getInvoiceStats(userId: string): Promise<{
     const avgPaymentDays =
       paidInvoices.length > 0
         ? paidInvoices.reduce((sum, inv) => {
-          const dueDate = inv.dueDate.toDate();
-          const paidDate = inv.paidAt!.toDate();
+          const dueDate = toDate(inv.dueDate);
+          const paidDate = toDate(inv.paidAt!);
           const days = Math.floor((paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
           return sum + days;
         }, 0) / paidInvoices.length
@@ -144,13 +155,13 @@ export async function getRevenueByMonth(
 
     const invoices = invoicesQuery.docs
       .map((doc) => doc.data() as Invoice)
-      .filter((inv) => inv.paidAt && inv.paidAt.toDate() >= startDate);
+      .filter((inv) => inv.paidAt && toDate(inv.paidAt) >= startDate);
 
     // Group by month
     const monthlyData: Record<string, { revenue: number; collections: number }> = {};
 
     invoices.forEach((inv) => {
-      const paidDate = inv.paidAt!.toDate();
+      const paidDate = toDate(inv.paidAt!);
       const monthKey = `${paidDate.getFullYear()}-${String(paidDate.getMonth() + 1).padStart(2, '0')}`;
 
       if (!monthlyData[monthKey]) {
@@ -246,8 +257,8 @@ export async function getClientBreakdown(userId: string): Promise<
         paidInvoices.length > 0
           ? paidInvoices.reduce((sum, inv) => {
             if (!inv.paidAt) return sum;
-            const dueDate = inv.dueDate.toDate();
-            const paidDate = inv.paidAt.toDate();
+            const dueDate = toDate(inv.dueDate);
+            const paidDate = toDate(inv.paidAt);
             const days = Math.floor((paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
             return sum + days;
           }, 0) / paidInvoices.length
@@ -365,7 +376,7 @@ export async function getUserRank(userId: string): Promise<{
 
     for (const doc of allUsersQuery.docs) {
       const stats = doc.data() as UserStats;
-      if (stats.gamificationXP > userXP) {
+      if ((stats.gamificationXP || 0) > userXP) {
         rank++;
       } else {
         break;
@@ -571,7 +582,7 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
 
     // Combine and sort by date
     const allActivity = [...recentInvoices, ...recentCollections]
-      .sort((a, b) => b.date.toDate().getTime() - a.date.toDate().getTime())
+      .sort((a, b) => toDate(b.date).getTime() - toDate(a.date).getTime())
       .slice(0, limit);
 
     logDbOperation('get_recent_activity', COLLECTIONS.INVOICES, userId, Date.now() - startTime);

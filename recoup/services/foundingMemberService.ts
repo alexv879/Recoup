@@ -18,6 +18,7 @@ import { db, FieldValue, Timestamp } from '@/lib/firebase';
 import { User } from '@/types/models';
 import { FOUNDING_MEMBER_LIMIT, FOUNDING_MEMBER_PRICING, SubscriptionTier } from '@/utils/constants';
 import { logInfo, logError, logWarn } from '@/utils/logger';
+import { toDate } from '@/utils/helpers';
 
 /**
  * Check founding member program status
@@ -72,7 +73,7 @@ export async function registerAsFoundingMember(
   tier: 'starter' | 'growth' | 'pro'
 ): Promise<{
   success: boolean;
-  memberNumber?: number;
+  memberNumber?: string;
   lockedInPrice?: number;
   reason?: string;
   alreadyMember?: boolean;
@@ -122,8 +123,8 @@ export async function registerAsFoundingMember(
         throw new Error('All founding member spots have been claimed');
       }
 
-      // Assign member number (1-indexed)
-      const memberNumber = currentCount + 1;
+      // Assign member number (1-indexed) as string
+      const memberNumber = String(currentCount + 1);
 
       // Get locked-in price (50% off)
       const lockedInPrice = FOUNDING_MEMBER_PRICING[tier];
@@ -173,7 +174,7 @@ export async function registerAsFoundingMember(
  */
 export async function getFoundingMemberDetails(userId: string): Promise<{
   isFoundingMember: boolean;
-  memberNumber?: number;
+  memberNumber?: string;
   joinedAt?: Date;
   lockedInPrice?: number;
 } | null> {
@@ -196,7 +197,7 @@ export async function getFoundingMemberDetails(userId: string): Promise<{
       isFoundingMember: true,
       memberNumber: user.foundingMemberNumber,
       joinedAt: user.foundingMemberJoinedAt
-        ? user.foundingMemberJoinedAt.toDate()
+        ? toDate(user.foundingMemberJoinedAt)
         : undefined,
       lockedInPrice: user.lockedInPrice,
     };
@@ -232,10 +233,12 @@ export async function getAllFoundingMembers(): Promise<
       const user = doc.data() as User;
       return {
         userId: doc.id,
-        memberNumber: user.foundingMemberNumber || 0,
+        memberNumber: typeof user.foundingMemberNumber === 'string'
+          ? parseInt(user.foundingMemberNumber, 10)
+          : user.foundingMemberNumber || 0,
         name: user.name,
         joinedAt: user.foundingMemberJoinedAt
-          ? user.foundingMemberJoinedAt.toDate()
+          ? toDate(user.foundingMemberJoinedAt)
           : new Date(),
         tier: user.subscriptionTier as SubscriptionTier,
       };

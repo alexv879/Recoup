@@ -3,6 +3,8 @@
  * Handles financial transactions and agency recovery processes
  */
 
+import { AgencyRecoveryTransactionResult } from '@/types/models';
+
 export interface AgencyRecoveryTransaction {
     id: string;
     invoiceId: string;
@@ -18,18 +20,31 @@ export interface AgencyRecoveryTransaction {
  */
 export async function createAgencyRecoveryTransaction(params: {
     invoiceId: string;
-    amount: number;
+    freelancerId?: string;
+    agencyHandoffId?: string;
     agencyId: string;
-}): Promise<AgencyRecoveryTransaction> {
-    // Placeholder implementation
-    console.log('Creating agency recovery transaction:', params);
+    grossAmount?: number;
+    amount?: number;
+    agencyCommissionRate?: number;
+    notes?: string;
+}): Promise<AgencyRecoveryTransactionResult> {
+    try {
+        // Placeholder implementation
+        console.log('Creating agency recovery transaction:', params);
 
-    return {
-        id: `txn_${Math.random().toString(36).substring(2, 15)}`,
-        invoiceId: params.invoiceId,
-        amount: params.amount,
-        agencyId: params.agencyId,
-        status: 'pending',
-        createdAt: new Date(),
-    };
+        const transactionId = `txn_${Math.random().toString(36).substring(2, 15)}`;
+
+        // In a real implementation, this would create the transaction in the database
+        // and handle the financial processing
+
+        return {
+            success: true,
+            transactionId,
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error',
+        };
+    }
 }

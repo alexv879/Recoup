@@ -296,7 +296,7 @@ function getSuggestedTierForUpgrade(currentTier: SubscriptionTier): Subscription
   const currentIndex = tierOrder.indexOf(currentTier);
 
   if (currentIndex === -1 || currentIndex >= tierOrder.length - 1) {
-    return 'business'; // Already at top or unknown tier
+    return 'pro'; // Already at top or unknown tier
   }
 
   return tierOrder[currentIndex + 1];
@@ -312,7 +312,7 @@ function getSuggestedTierForFeature(feature: ClerkFeature): SubscriptionTier {
     feature === 'collections_unlimited' ||
     feature === 'dedicated_account_manager'
   ) {
-    return 'business';
+    return 'pro'; // Pro is the highest tier
   }
 
   if (
@@ -321,7 +321,7 @@ function getSuggestedTierForFeature(feature: ClerkFeature): SubscriptionTier {
     feature === 'collections_limit_25' ||
     feature === 'advanced_analytics'
   ) {
-    return 'pro';
+    return 'growth';
   }
 
   if (feature === 'collections_limit_10') {

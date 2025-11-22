@@ -22,6 +22,7 @@
 import { db, FieldValue } from '@/lib/firebase';
 import { User } from '@/types/models';
 import { logError, logInfo } from '@/utils/logger';
+import { isCollectionsConsentObject, toDate } from '@/utils/helpers';
 
 /**
  * Consent types
@@ -63,18 +64,18 @@ export async function getUserConsent(userId: string): Promise<{
     const consent = user.collectionsConsent;
 
     // Check if consent exists and is current version
-    const needsUpdate = !consent ||
+    const needsUpdate = !isCollectionsConsentObject(consent) ||
       !consent.consentVersion ||
       consent.consentVersion !== CURRENT_CONSENT_VERSION;
 
     return {
-      smsConsent: consent?.smsConsent || false,
-      callConsent: consent?.callConsent || false,
-      callRecordingConsent: consent?.callRecordingConsent || false,
-      physicalMailConsent: consent?.physicalMailConsent || false,
-      dataStorageConsent: consent?.dataStorageConsent || false,
-      consentDate: consent?.consentDate?.toDate(),
-      consentVersion: consent?.consentVersion,
+      smsConsent: isCollectionsConsentObject(consent) ? consent.smsConsent || false : false,
+      callConsent: isCollectionsConsentObject(consent) ? consent.callConsent || false : false,
+      callRecordingConsent: isCollectionsConsentObject(consent) ? consent.callRecordingConsent || false : false,
+      physicalMailConsent: isCollectionsConsentObject(consent) ? consent.physicalMailConsent || false : false,
+      dataStorageConsent: isCollectionsConsentObject(consent) ? consent.dataStorageConsent || false : false,
+      consentDate: isCollectionsConsentObject(consent) && consent.consentDate ? toDate(consent.consentDate) : undefined,
+      consentVersion: isCollectionsConsentObject(consent) ? consent.consentVersion : undefined,
       needsUpdate,
     };
 

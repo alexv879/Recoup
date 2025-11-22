@@ -291,7 +291,15 @@ Unsubscribe: https://relay.app/unsubscribe?email=${encodeURIComponent(clientEmai
   };
 
   try {
-    await sendEmail(msg);
+    await sendEmail({
+      to: clientEmail,
+      from: typeof msg.from === 'string'
+        ? { email: msg.from }
+        : msg.from,
+      subject: msg.subject,
+      html: msg.html as string,
+      fallbackText: msg.text as string,
+    });
     logInfo(
       `Early pre-due notice sent for invoice ${invoiceId} to ${clientEmail}`
     );
@@ -508,7 +516,7 @@ ${businessName}
       to: clientEmail,
       subject,
       html,
-      text,
+      fallbackText: text,
     });
 
     logInfo('Friendly reminder sent', {
@@ -517,9 +525,14 @@ ${businessName}
       amount,
       daysOverdue: 5,
     });
+
+    return {
+      success: true,
+      messageId: `friendly-reminder-${invoiceId}-${Date.now()}`,
+    };
   } catch (error) {
     logError('Failed to send friendly reminder', error as Error);
-    throw error;
+    return { success: false, error: String(error) };
   }
 }
 
@@ -770,7 +783,7 @@ Interest charged under the Late Payment of Commercial Debts (Interest) Act 1998
       to: clientEmail,
       subject,
       html,
-      text,
+      fallbackText: text,
     });
 
     logInfo('Firm reminder sent', {
@@ -1069,7 +1082,7 @@ Failure to respond may result in County Court proceedings
       to: clientEmail,
       subject,
       html,
-      text,
+      fallbackText: text,
     });
 
     logInfo('Final notice sent', {

@@ -160,13 +160,13 @@ export class HMRCMTDClient {
       periodKey,
       vatDueSales: vatReturn.box1_vatDueOnSales,
       vatDueAcquisitions: vatReturn.box2_vatDueOnECAcquisitions,
-      totalVatDue: vatReturn.box3_totalVatDue,
+      totalVatDue: vatReturn.box3_totalVATDue,
       vatReclaimedCurrPeriod: vatReturn.box4_vatReclaimedOnPurchases,
-      netVatDue: Math.abs(vatReturn.box5_netVatDue), // HMRC expects positive value
+      netVatDue: Math.abs(vatReturn.box5_netVATDue), // HMRC expects positive value
       totalValueSalesExVAT: vatReturn.box6_totalValueSalesExVAT,
       totalValuePurchasesExVAT: vatReturn.box7_totalValuePurchasesExVAT,
-      totalValueGoodsSuppliedExVAT: vatReturn.box8_totalValueGoodsSuppliedExVAT,
-      totalAcquisitionsExVAT: vatReturn.box9_totalAcquisitionsExVAT,
+      totalValueGoodsSuppliedExVAT: vatReturn.box8_totalValueECSales,
+      totalAcquisitionsExVAT: vatReturn.box9_totalValueECPurchases,
       finalised: true,
     };
 

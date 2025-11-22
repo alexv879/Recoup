@@ -10,15 +10,19 @@ describe('Dashboard CollectionsTimeline', () => {
         const events = [
             {
                 eventId: 'e1',
-                eventType: 'reminder_sent',
-                timestamp: new Date().toISOString(),
+                invoiceId: 'inv1',
+                escalationLevel: 'gentle' as const,
+                eventType: 'reminder_sent' as const,
+                timestamp: new Date(),
                 message: 'Friendly reminder sent',
                 channel: 'email',
             },
             {
                 eventId: 'e2',
-                eventType: 'escalated',
-                timestamp: new Date().toISOString(),
+                invoiceId: 'inv1',
+                escalationLevel: 'firm' as const,
+                eventType: 'escalated' as const,
+                timestamp: new Date(),
                 message: 'Escalated to firm',
                 channel: 'email',
             },
@@ -33,8 +37,10 @@ describe('Dashboard CollectionsTimeline', () => {
         const events = [
             {
                 eventId: 'e1',
-                eventType: 'reminder_sent',
-                timestamp: new Date().toISOString(),
+                invoiceId: 'inv1',
+                escalationLevel: 'gentle' as const,
+                eventType: 'reminder_sent' as const,
+                timestamp: new Date(),
                 message: 'Friendly reminder sent',
                 channel: 'email',
             },

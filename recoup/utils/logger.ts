@@ -28,8 +28,8 @@ export const logInfo = (message: string, data?: any) => {
     logger.info(data, message);
 };
 
-export const logError = (message: string, error?: any) => {
-    logger.error(error, message);
+export const logError = (message: string, error?: any, context?: any) => {
+    logger.error({ ...error, ...context }, message);
 };
 
 export const logWarn = (message: string, data?: any) => {
@@ -44,6 +44,6 @@ export const logApiResponse = (method: string, url: string, status: number, data
     logger.info({ method, url, status, ...data }, 'API Response');
 };
 
-export const logDbOperation = (operation: string, collection: string, data?: any) => {
-    logger.info({ operation, collection, ...data }, 'Database Operation');
+export const logDbOperation = (operation: string, collection: string, data?: any, duration?: number) => {
+    logger.info({ operation, collection, duration, ...data }, 'Database Operation');
 };
