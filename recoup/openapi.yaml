@@ -1,0 +1,446 @@
+openapi: 3.0.3
+info:
+  title: Recoup API
+  description: |
+    Invoice and collections management platform for UK freelancers.
+
+    ## Features
+    - Invoice creation and management
+    - Automated payment collections
+    - HMRC MTD VAT integration
+    - Recurring invoices
+    - AI invoice parsing (OCR)
+    - GDPR data export
+
+    ## Authentication
+    All endpoints require authentication via Clerk session tokens.
+    Include the session token in the `Authorization: Bearer <token>` header.
+
+  version: 1.0.0
+  contact:
+    name: Recoup Support
+    email: support@recoup.com
+    url: https://recoup.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.recoup.com
+    description: Production
+  - url: https://staging.recoup.com
+    description: Staging
+  - url: http://localhost:3000
+    description: Local development
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Invoices
+    description: Invoice management
+  - name: Recurring Invoices
+    description: Automatic recurring billing
+  - name: HMRC MTD
+    description: UK HMRC Making Tax Digital integration
+  - name: AI
+    description: AI-powered features (invoice parsing, expense categorization)
+  - name: GDPR
+    description: Data protection and privacy
+  - name: Feature Flags
+    description: Feature flag management (admin only)
+  - name: RBAC
+    description: Role-based access control (admin only)
+  - name: Admin
+    description: Admin dashboard and analytics
+
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      description: Check API and database health status
+      tags: [Health]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                  services:
+                    type: object
+                    properties:
+                      api:
+                        type: string
+                        example: ok
+                      database:
+                        type: string
+                        example: ok
+                  version:
+                    type: string
+                    example: 1.0.0
+        '503':
+          description: Service is unhealthy
+
+  /api/recurring-invoices:
+    get:
+      summary: List recurring invoices
+      description: Get all recurring invoices for authenticated user
+      tags: [Recurring Invoices]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, paused, completed, cancelled]
+          description: Filter by status
+      responses:
+        '200':
+          description: List of recurring invoices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recurringInvoices:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecurringInvoice'
+                  count:
+                    type: integer
+
+    post:
+      summary: Create recurring invoice
+      description: Create a new recurring invoice schedule
+      tags: [Recurring Invoices]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRecurringInvoice'
+      responses:
+        '201':
+          description: Recurring invoice created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  id:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Validation error
+
+  /api/hmrc/auth/status:
+    get:
+      summary: HMRC connection status
+      description: Check if user has connected their HMRC account
+      tags: [HMRC MTD]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Connection status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connected:
+                    type: boolean
+
+  /api/hmrc/vat/submit:
+    post:
+      summary: Submit VAT return
+      description: Submit VAT return directly to HMRC MTD API
+      tags: [HMRC MTD]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vatReturn:
+                  $ref: '#/components/schemas/VATReturn'
+                periodKey:
+                  type: string
+                  example: '24A1'
+      responses:
+        '200':
+          description: VAT return submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  processingDate:
+                    type: string
+                  formBundleNumber:
+                    type: string
+                  chargeRefNumber:
+                    type: string
+
+  /api/ai/parse-invoice:
+    post:
+      summary: Parse invoice with AI
+      description: Extract structured data from invoice image using GPT-4 Vision
+      tags: [AI]
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageUrl:
+                  type: string
+                  format: uri
+                options:
+                  type: object
+      responses:
+        '200':
+          description: Invoice parsed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  invoice:
+                    $ref: '#/components/schemas/ParsedInvoice'
+                  validation:
+                    type: object
+                    properties:
+                      errors:
+                        type: array
+                        items:
+                          type: string
+                      isValid:
+                        type: boolean
+
+  /api/gdpr/data-export:
+    get:
+      summary: Export all user data
+      description: GDPR Right of Access - Export all personal data
+      tags: [GDPR]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum: [json, csv]
+            default: json
+      responses:
+        '200':
+          description: Data export
+          content:
+            application/json:
+              schema:
+                type: object
+            text/csv:
+              schema:
+                type: string
+
+  /api/gdpr/delete-account:
+    post:
+      summary: Delete account
+      description: GDPR Right to Erasure - Request account deletion
+      tags: [GDPR]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirmEmail:
+                  type: string
+                  format: email
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Account deleted/anonymized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  type:
+                    type: string
+                    enum: [soft_delete, hard_delete]
+                  message:
+                    type: string
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RecurringInvoice:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        clientId:
+          type: string
+        clientName:
+          type: string
+        description:
+          type: string
+        frequency:
+          type: string
+          enum: [weekly, biweekly, monthly, quarterly, annually]
+        startDate:
+          type: string
+          format: date
+        nextInvoiceDate:
+          type: string
+          format: date
+        total:
+          type: integer
+          description: Total amount in pence
+        status:
+          type: string
+          enum: [active, paused, completed, cancelled]
+
+    CreateRecurringInvoice:
+      type: object
+      required:
+        - clientId
+        - clientName
+        - clientEmail
+        - description
+        - lineItems
+        - frequency
+        - startDate
+      properties:
+        clientId:
+          type: string
+        clientName:
+          type: string
+        clientEmail:
+          type: string
+          format: email
+        description:
+          type: string
+        lineItems:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              quantity:
+                type: number
+              unitPrice:
+                type: integer
+        frequency:
+          type: string
+          enum: [weekly, biweekly, monthly, quarterly, annually]
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        paymentTermsDays:
+          type: integer
+          default: 30
+
+    VATReturn:
+      type: object
+      properties:
+        period:
+          type: object
+        box1_vatDueOnSales:
+          type: integer
+        box2_vatDueOnECAcquisitions:
+          type: integer
+        box3_totalVatDue:
+          type: integer
+        box4_vatReclaimedOnPurchases:
+          type: integer
+        box5_netVatDue:
+          type: integer
+        box6_totalValueSalesExVAT:
+          type: integer
+        box7_totalValuePurchasesExVAT:
+          type: integer
+        box8_totalValueGoodsSuppliedExVAT:
+          type: integer
+        box9_totalAcquisitionsExVAT:
+          type: integer
+
+    ParsedInvoice:
+      type: object
+      properties:
+        invoiceNumber:
+          type: string
+        invoiceDate:
+          type: string
+          format: date
+        supplierName:
+          type: string
+        lineItems:
+          type: array
+          items:
+            type: object
+        subtotal:
+          type: integer
+        vatAmount:
+          type: integer
+        total:
+          type: integer
+        currency:
+          type: string
+        confidence:
+          type: object
+          properties:
+            overall:
+              type: number
+              minimum: 0
+              maximum: 1
+            amounts:
+              type: number
+            dates:
+              type: number
