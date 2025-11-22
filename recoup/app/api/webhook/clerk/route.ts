@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/nextjs/server';
+import Stripe from 'stripe';
 import { db, COLLECTIONS, Timestamp, FieldValue } from '@/lib/firebase';
 import { logInfo, logError } from '@/utils/logger';
 import type { User } from '@/types/models';
+import type { ClerkUserData, ClerkSessionData } from '@/types/webhooks';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    apiVersion: '2025-10-29.clover',
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -116,11 +122,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
  * Handle user created event
  * Create user document in Firestore
  */
-async function handleUserCreated(userData: any) {
-    logInfo(`[webhook/clerk] Processing user.created: ${userData.id}`);
+async function handleUserCreated(userData: ClerkUserData) {
+    const userId = userData.id;
+    if (!userId) {
+        logError('[webhook/clerk] User ID missing in user.created event');
+        return;
+    }
+
+    logInfo(`[webhook/clerk] Processing user.created: ${userId}`);
 
     try {
-        const userId = userData.id;
         const email = userData.email_addresses?.[0]?.email_address || '';
         const firstName = userData.first_name || '';
         const lastName = userData.last_name || '';
@@ -220,11 +231,16 @@ async function handleUserCreated(userData: any) {
  * Handle user updated event
  * Update user document in Firestore
  */
-async function handleUserUpdated(userData: any) {
-    logInfo(`[webhook/clerk] Processing user.updated: ${userData.id}`);
+async function handleUserUpdated(userData: ClerkUserData) {
+    const userId = userData.id;
+    if (!userId) {
+        logError('[webhook/clerk] User ID missing in user.updated event');
+        return;
+    }
+
+    logInfo(`[webhook/clerk] Processing user.updated: ${userId}`);
 
     try {
-        const userId = userData.id;
         const email = userData.email_addresses?.[0]?.email_address || '';
         const firstName = userData.first_name || '';
         const lastName = userData.last_name || '';
@@ -259,11 +275,45 @@ async function handleUserUpdated(userData: any) {
  * Handle user deleted event
  * Soft delete user and anonymize data
  */
-async function handleUserDeleted(userData: any) {
-    logInfo(`[webhook/clerk] Processing user.deleted: ${userData.id}`);
+async function handleUserDeleted(userData: ClerkUserData) {
+    const userId = userData.id;
+    if (!userId) {
+        logError('[webhook/clerk] User ID missing in user.deleted event');
+        return;
+    }
+
+    logInfo(`[webhook/clerk] Processing user.deleted: ${userId}`);
 
     try {
-        const userId = userData.id;
+
+        // Get user data to find Stripe customer ID
+        const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
+        const user = userDoc.exists ? (userDoc.data() as User) : null;
+
+        // Cancel any active Stripe subscriptions
+        if (user?.stripeCustomerId) {
+            try {
+                logInfo(`[webhook/clerk] Cancelling Stripe subscriptions for customer: ${user.stripeCustomerId}`);
+
+                // List all active subscriptions for this customer
+                const subscriptions = await stripe.subscriptions.list({
+                    customer: user.stripeCustomerId,
+                    status: 'active',
+                    limit: 100,
+                });
+
+                // Cancel each active subscription
+                for (const subscription of subscriptions.data) {
+                    await stripe.subscriptions.cancel(subscription.id);
+                    logInfo(`[webhook/clerk] Cancelled subscription: ${subscription.id}`);
+                }
+
+                logInfo(`[webhook/clerk] Cancelled ${subscriptions.data.length} Stripe subscription(s)`);
+            } catch (stripeError) {
+                logError('[webhook/clerk] Error cancelling Stripe subscriptions:', stripeError);
+                // Don't throw - continue with user deletion even if Stripe fails
+            }
+        }
 
         // Soft delete user (set status to deleted, keep data for compliance)
         await db.collection(COLLECTIONS.USERS).doc(userId).update({
@@ -276,9 +326,6 @@ async function handleUserDeleted(userData: any) {
             encryptedBankDetails: null,
             updatedAt: Timestamp.now(),
         });
-
-        // Cancel any active subscriptions
-        // TODO: Call Stripe to cancel subscription
 
         // Update invoices to mark as archived
         const invoicesSnapshot = await db
@@ -306,7 +353,7 @@ async function handleUserDeleted(userData: any) {
  * Handle session created event
  * Track user login
  */
-async function handleSessionCreated(sessionData: any) {
+async function handleSessionCreated(sessionData: ClerkSessionData) {
     const userId = sessionData.user_id;
     if (!userId) return;
 
@@ -338,7 +385,7 @@ async function handleSessionCreated(sessionData: any) {
  * Handle session ended event
  * Track session duration
  */
-async function handleSessionEnded(sessionData: any) {
+async function handleSessionEnded(sessionData: ClerkSessionData) {
     const userId = sessionData.user_id;
     if (!userId) return;
 

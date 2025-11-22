@@ -33,6 +33,7 @@ export interface User {
   businessType?: 'freelancer' | 'agency' | 'consultant';
   subscriptionTier: 'free' | 'starter' | 'growth' | 'pro';
   subscriptionStatus?: 'active' | 'inactive' | 'cancelled';
+  stripeCustomerId?: string; // Stripe customer ID for subscription management
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
   collectionsUsedThisMonth?: number; // Total collections used this month (all tiers)
