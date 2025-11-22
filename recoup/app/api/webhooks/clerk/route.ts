@@ -26,6 +26,7 @@ import { COLLECTIONS_LIMITS, normalizeTier, SubscriptionTier } from '@/utils/con
 import { logInfo, logError, logWarn } from '@/utils/logger';
 import { handleApiError } from '@/utils/error';
 import { BadRequestError, UnauthorizedError } from '@/utils/error';
+import type { ClerkWebhookEvent, ClerkSubscriptionData } from '@/types/webhooks';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,14 +60,14 @@ export async function POST(req: NextRequest) {
 
     // 2. Verify webhook with Svix
     const wh = new Webhook(WEBHOOK_SECRET);
-    let evt: any;
+    let evt: ClerkWebhookEvent<ClerkSubscriptionData>;
 
     try {
       evt = wh.verify(body, {
         'svix-id': svix_id,
         'svix-timestamp': svix_timestamp,
         'svix-signature': svix_signature,
-      });
+      }) as ClerkWebhookEvent<ClerkSubscriptionData>;
     } catch (err) {
       logError('Clerk webhook verification failed', err as Error);
       throw new UnauthorizedError('Invalid webhook signature');
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
  * Handle subscription.created event
  * New user subscribes to a paid plan
  */
-async function handleSubscriptionCreated(data: any): Promise<void> {
+async function handleSubscriptionCreated(data: ClerkSubscriptionData): Promise<void> {
   const { user_id, plan_slug, subscription_id, status } = data;
 
   logInfo('Processing subscription.created', {
@@ -121,6 +122,11 @@ async function handleSubscriptionCreated(data: any): Promise<void> {
   });
 
   // Map Clerk plan slug to our tier system
+  if (!plan_slug) {
+    logWarn('No plan slug in subscription.created', { data });
+    return;
+  }
+
   const tier = mapPlanSlugToTier(plan_slug);
 
   if (!tier) {
@@ -155,7 +161,7 @@ async function handleSubscriptionCreated(data: any): Promise<void> {
  * Handle subscription.updated event
  * User upgrades/downgrades their plan
  */
-async function handleSubscriptionUpdated(data: any): Promise<void> {
+async function handleSubscriptionUpdated(data: ClerkSubscriptionData): Promise<void> {
   const { user_id, plan_slug, subscription_id } = data;
 
   logInfo('Processing subscription.updated', {
@@ -163,6 +169,11 @@ async function handleSubscriptionUpdated(data: any): Promise<void> {
     planSlug: plan_slug,
     subscriptionId: subscription_id,
   });
+
+  if (!plan_slug) {
+    logWarn('No plan slug in subscription.updated', { data });
+    return;
+  }
 
   const tier = mapPlanSlugToTier(plan_slug);
 
@@ -202,7 +213,7 @@ async function handleSubscriptionUpdated(data: any): Promise<void> {
  * Handle subscription.deleted event
  * User cancels their subscription
  */
-async function handleSubscriptionDeleted(data: any): Promise<void> {
+async function handleSubscriptionDeleted(data: ClerkSubscriptionData): Promise<void> {
   const { user_id, subscription_id } = data;
 
   logInfo('Processing subscription.deleted', {

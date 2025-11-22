@@ -10,7 +10,7 @@ import { db, COLLECTIONS } from '@/lib/firebase';
 import { errors, handleApiError, UnauthorizedError, RateLimitError, NotFoundError } from '@/utils/error';
 import { checkUserRateLimit, ratelimit } from '@/lib/ratelimit';
 import { logApiRequest, logApiResponse } from '@/utils/logger';
-import type { User } from '@/types/models';
+import type { User, Invoice } from '@/types/models';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,13 +54,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         ]);
 
         // 5. Calculate financial metrics
-        const allInvoices = allInvoicesQuery.docs.map((doc) => doc.data());
+        const allInvoices = allInvoicesQuery.docs.map((doc) => doc.data() as Invoice);
         const totalRevenue = allInvoices
-            .filter((inv: any) => inv.status === 'paid')
-            .reduce((sum: number, inv: any) => sum + inv.amount, 0);
+            .filter((inv) => inv.status === 'paid')
+            .reduce((sum, inv) => sum + inv.amount, 0);
         const outstandingAmount = allInvoices
-            .filter((inv: any) => inv.status !== 'paid' && inv.status !== 'cancelled')
-            .reduce((sum: number, inv: any) => sum + inv.amount, 0);
+            .filter((inv) => inv.status !== 'paid' && inv.status !== 'cancelled')
+            .reduce((sum, inv) => sum + inv.amount, 0);
         const collectionsRevenue = collectionsStats.revenue || 0;
 
         // 6. Calculate this month's metrics
@@ -74,9 +74,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
         const thisMonthInvoices = invoicesSnapshot.docs.length;
         const thisMonthRevenue = invoicesSnapshot.docs
-            .map((doc) => doc.data())
-            .filter((inv: any) => inv.status === 'paid')
-            .reduce((sum: number, inv: any) => sum + inv.amount, 0);
+            .map((doc) => doc.data() as Invoice)
+            .filter((inv) => inv.status === 'paid')
+            .reduce((sum, inv) => sum + inv.amount, 0);
 
         // 7. Build summary response
         const summary = {
@@ -93,13 +93,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
                 outstandingAmount,
                 collectionsRevenue,
                 thisMonthRevenue,
-                averageInvoiceValue: invoiceStats.total > 0 ? allInvoices.reduce((sum: number, inv: any) => sum + inv.amount, 0) / invoiceStats.total : 0,
+                averageInvoiceValue: invoiceStats.total > 0 ? allInvoices.reduce((sum, inv) => sum + inv.amount, 0) / invoiceStats.total : 0,
             },
             invoices: {
                 total: invoiceStats.total,
                 paid: invoiceStats.paid,
                 overdue: invoiceStats.overdue,
-                draft: allInvoices.filter((inv: any) => inv.status === 'draft').length,
+                draft: allInvoices.filter((inv) => inv.status === 'draft').length,
                 thisMonth: thisMonthInvoices,
                 averagePaymentDays: Math.round(invoiceStats.avgPaymentDays || 0),
             },

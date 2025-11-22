@@ -2,6 +2,27 @@
  * Tests for HMRC MTD API Client
  */
 
+// Mock hmrc-oauth module before imports
+jest.mock('../../lib/hmrc-oauth', () => ({
+  getValidAccessToken: jest.fn().mockResolvedValue('mock-access-token'),
+  getHMRCTokens: jest.fn().mockResolvedValue({
+    access_token: 'mock-access-token',
+    refresh_token: 'mock-refresh-token',
+    expires_at: Date.now() + 7200000, // 2 hours from now
+    token_type: 'Bearer',
+    scope: 'read:vat write:vat',
+  }),
+  storeHMRCTokens: jest.fn().mockResolvedValue(undefined),
+  revokeHMRCAccess: jest.fn().mockResolvedValue(undefined),
+  refreshAccessToken: jest.fn().mockResolvedValue({
+    access_token: 'new-mock-access-token',
+    refresh_token: 'new-mock-refresh-token',
+    expires_at: Date.now() + 7200000,
+    token_type: 'Bearer',
+    scope: 'read:vat write:vat',
+  }),
+}));
+
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import {
   HMRCMTDClient,
@@ -14,37 +35,16 @@ import type { VATReturn, VATPeriod } from '@/lib/mtd-vat';
 // Mock fetch globally
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
-// Mock Firebase Admin Firestore
-jest.mock('firebase-admin/firestore', () => ({
-  getFirestore: jest.fn(() => ({
-    collection: jest.fn(() => ({
-      doc: jest.fn((docId?: string) => ({
-        // @ts-expect-error - Mock object for testing
-        get: jest.fn().mockResolvedValue({
-          exists: true,
-          data: () => ({
-            access_token: 'mock-access-token',
-            refresh_token: 'mock-refresh-token',
-            expires_at: Date.now() + 7200000, // 2 hours from now
-            token_type: 'Bearer',
-            scope: 'read:vat write:vat',
-          }),
-        } as any),
-        set: jest.fn((data?: any) => Promise.resolve(undefined as any)),
-        delete: jest.fn(() => Promise.resolve(undefined as any)),
-      })),
-    })),
-  })),
-}));
-
 describe('HMRCMTDClient', () => {
   let client: HMRCMTDClient;
   const mockUserId = 'user_123';
   const mockVRN = '123456789';
 
   beforeEach(() => {
+    // Clear fetch mock
+    (global.fetch as jest.MockedFunction<typeof fetch>).mockClear();
+
     client = new HMRCMTDClient(mockUserId, mockVRN);
-    jest.clearAllMocks();
   });
 
   describe('getVATObligations', () => {

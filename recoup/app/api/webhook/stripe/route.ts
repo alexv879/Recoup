@@ -383,16 +383,52 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
         const metadata = paymentIntent.metadata || {};
         const invoiceId = metadata.invoiceId;
         const freelancerId = metadata.freelancerId;
+        const failureReason = paymentIntent.last_payment_error?.message || 'Payment declined';
 
         if (!invoiceId || !freelancerId) {
             logInfo('[webhook/stripe] No invoice/freelancer metadata, skipping');
             return;
         }
 
-        // TODO: Send notification to freelancer about failed payment
-        // TODO: Update invoice with failed payment attempt
+        // Get invoice and freelancer data
+        const [invoiceDoc, freelancerDoc] = await Promise.all([
+            db.collection(COLLECTIONS.INVOICES).doc(invoiceId).get(),
+            db.collection(COLLECTIONS.USERS).doc(freelancerId).get(),
+        ]);
 
-        logInfo(`[webhook/stripe] Payment failed for invoice: ${invoiceId}`);
+        if (!invoiceDoc.exists || !freelancerDoc.exists) {
+            logError('[webhook/stripe] Invoice or freelancer not found');
+            return;
+        }
+
+        const invoice = invoiceDoc.data();
+        const freelancer = freelancerDoc.data() as User;
+
+        // Update invoice with failed payment attempt
+        await db.collection(COLLECTIONS.INVOICES).doc(invoiceId).update({
+            lastPaymentAttempt: Timestamp.now(),
+            lastPaymentError: failureReason,
+            paymentFailedCount: (invoice?.paymentFailedCount || 0) + 1,
+            updatedAt: Timestamp.now(),
+        });
+
+        // Send notification to freelancer
+        try {
+            const { sendNotificationEmail } = await import('@/lib/sendgrid');
+            await sendNotificationEmail({
+                toEmail: freelancer.email,
+                subject: `Payment Failed - Invoice ${invoice?.reference}`,
+                message: `A payment attempt for invoice ${invoice?.reference} from ${invoice?.clientName} has failed.\n\nReason: ${failureReason}\n\nThe client has been notified and may attempt payment again. You can view the invoice details in your dashboard.`,
+                actionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/invoices/${invoiceId}`,
+            });
+
+            logInfo(`[webhook/stripe] Sent failed payment notification to freelancer ${freelancerId}`);
+        } catch (emailError) {
+            // Don't throw on email error - log and continue
+            logError('[webhook/stripe] Failed to send notification email:', emailError);
+        }
+
+        logInfo(`[webhook/stripe] Payment failed for invoice ${invoiceId}: ${failureReason}`);
     } catch (error) {
         logError('[webhook/stripe] Error handling payment failed:', error);
         throw error;

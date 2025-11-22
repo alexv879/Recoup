@@ -35,6 +35,26 @@ export interface ClerkSessionData {
   status?: string;
 }
 
+export interface ClerkSubscriptionData {
+  id: string;
+  user_id: string;
+  plan?: string;
+  plan_slug?: string;
+  subscription_id?: string;
+  stripe_subscription_id?: string;
+  status: 'active' | 'canceled' | 'past_due' | 'trialing';
+  current_period_end?: number;
+  cancel_at_period_end?: boolean;
+  [key: string]: unknown;
+}
+
+export interface ClerkWebhookEvent<T = unknown> {
+  type: string;
+  data: T;
+  object?: string;
+  timestamp?: number;
+}
+
 // ============ STRIPE WEBHOOKS ============
 
 export interface StripeSubscriptionData {
