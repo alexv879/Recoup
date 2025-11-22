@@ -54,7 +54,7 @@ exports[`Dashboard CollectionsTimeline matches snapshot 1`] = `
             <td
               class="px-4 py-2 border-b text-sm text-gray-900"
             >
-              22/11/2025, 20:46:39
+              22/11/2025, 22:52:29
             </td>
             <td
               class="px-4 py-2 border-b text-sm text-gray-900"
@@ -96,7 +96,7 @@ exports[`Dashboard CollectionsTimeline matches snapshot 1`] = `
         class="flex-1 min-w-0"
       >
         <button
-          aria-label="reminder sent event. Friendly reminder sent. Nov 22, 2025, 8:46 PM. Click to expand details"
+          aria-label="reminder sent event. Friendly reminder sent. Nov 22, 2025, 10:52 PM. Click to expand details"
           class="w-full text-left group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
           type="button"
         >
@@ -132,7 +132,7 @@ exports[`Dashboard CollectionsTimeline matches snapshot 1`] = `
                 <p
                   class="text-xs text-gray-500"
                 >
-                  Nov 22, 2025, 8:46 PM
+                  Nov 22, 2025, 10:52 PM
                 </p>
               </div>
               <div

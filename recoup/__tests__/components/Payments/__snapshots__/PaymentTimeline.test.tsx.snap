@@ -54,7 +54,7 @@ exports[`PaymentTimeline matches snapshot 1`] = `
             <td
               class="px-4 py-2 border-b text-sm text-gray-900"
             >
-              22/11/2025, 20:46:39
+              22/11/2025, 22:52:29
             </td>
             <td
               class="px-4 py-2 border-b text-sm text-gray-900"
@@ -141,9 +141,9 @@ exports[`PaymentTimeline matches snapshot 1`] = `
             </div>
             <time
               class="text-sm text-gray-500 flex-shrink-0"
-              datetime="2025-11-22T20:46:39.537Z"
+              datetime="2025-11-22T22:52:29.559Z"
             >
-              22 Nov, 20:46
+              22 Nov, 22:52
             </time>
           </div>
         </div>
