@@ -1,3 +1,0 @@
-{
-  "/api/cron/check-verification-deadlines/route": "app/api/cron/check-verification-deadlines/route.js"
-}

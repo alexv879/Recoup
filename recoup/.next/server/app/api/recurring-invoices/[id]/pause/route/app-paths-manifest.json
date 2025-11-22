@@ -1,3 +1,0 @@
-{
-  "/api/recurring-invoices/[id]/pause/route": "app/api/recurring-invoices/[id]/pause/route.js"
-}

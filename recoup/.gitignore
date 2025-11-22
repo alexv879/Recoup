@@ -1,1 +1,26 @@
 node_modules
+
+# Next.js build artifacts (never commit)
+.next/
+/.next/
+out/
+/out/
+build/
+/build/
+dist/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment variables
+.env*.local
+.env
+
+# Misc
+.DS_Store
+*.pem
+*.log
+
+# Vercel
+.vercel

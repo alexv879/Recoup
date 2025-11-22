@@ -1,3 +1,0 @@
-{
-  "/api/cron/send-behavioral-emails/route": "app/api/cron/send-behavioral-emails/route.js"
-}

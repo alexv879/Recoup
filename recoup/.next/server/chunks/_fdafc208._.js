@@ -1,3 +1,0 @@
-module.exports=[769449,e=>{"use strict";async function r(){await e.A(145684),console.log("[Instrumentation] Server monitoring initialized")}async function o(e,r,o){console.error("[Request Error]",{error:e.message,path:new URL(r.url).pathname,method:r.method,router:o.routerKind})}e.s(["onRequestError",()=>o,"register",()=>r])},145684,e=>{e.v(r=>Promise.all(["server/chunks/[root-of-the-server]__7f94a3cb._.js","server/chunks/[root-of-the-server]__37829f95._.js"].map(r=>e.l(r))).then(()=>r(670697)))}];
-
-//# sourceMappingURL=_fdafc208._.js.map

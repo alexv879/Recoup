@@ -1,3 +1,0 @@
-{
-  "/api/admin/feature-flags/[key]/route": "app/api/admin/feature-flags/[key]/route.js"
-}

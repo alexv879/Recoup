@@ -1,3 +1,0 @@
-{
-  "/api/admin/rbac/users/[userId]/route": "app/api/admin/rbac/users/[userId]/route.js"
-}
