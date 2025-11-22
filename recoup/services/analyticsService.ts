@@ -420,34 +420,41 @@ export async function getTopUsers(
     }
 
     const usersQuery = await query.limit(limit).get();
+    const statsData = usersQuery.docs.map((doc: any) => doc.data() as UserStats);
 
-    const topUsers = await Promise.all(
-      usersQuery.docs.map(async (doc: any, index: number) => {
-        const stats = doc.data() as UserStats;
+    // Batch fetch all users to avoid N+1 query
+    const userIds = statsData.map((stats: UserStats) => stats.userId);
+    const userRefs = userIds.map((userId: string) => db.collection(COLLECTIONS.USERS).doc(userId));
+    const userDocs = await db.getAll(...userRefs);
 
-        // Get user name
-        const userDoc = await db.collection(COLLECTIONS.USERS).doc(stats.userId).get();
-        const user = userDoc.exists ? (userDoc.data() as User) : null;
+    // Create a map of userId -> user data for O(1) lookup
+    const userMap = new Map<string, User | null>();
+    userDocs.forEach((doc, index) => {
+      userMap.set(userIds[index], doc.exists ? (doc.data() as User) : null);
+    });
 
-        return {
-          rank: index + 1,
-          userId: stats.userId,
-          name: user?.name || 'Anonymous',
-          metric:
-            sortBy === 'xp'
-              ? stats.gamificationXP
-              : sortBy === 'recovery'
-                ? stats.totalCollected
-                : 0,
-          value:
-            sortBy === 'xp'
-              ? `${stats.gamificationXP} XP`
-              : sortBy === 'recovery'
-                ? `£${stats.totalCollected}`
-                : '',
-        };
-      })
-    );
+    // Map stats to top users with user data
+    const topUsers = statsData.map((stats: UserStats, index: number) => {
+      const user = userMap.get(stats.userId);
+
+      return {
+        rank: index + 1,
+        userId: stats.userId,
+        name: user?.name || 'Anonymous',
+        metric:
+          sortBy === 'xp'
+            ? stats.gamificationXP
+            : sortBy === 'recovery'
+              ? stats.totalCollected
+              : 0,
+        value:
+          sortBy === 'xp'
+            ? `${stats.gamificationXP} XP`
+            : sortBy === 'recovery'
+              ? `£${stats.totalCollected}`
+              : '',
+      };
+    });
 
     logDbOperation('get_top_users', COLLECTIONS.USER_STATS, undefined, Date.now() - startTime);
 
