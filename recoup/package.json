@@ -8,12 +8,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "test:axe": "jest --runInBand --testPathPattern=__tests__/axe|jest-axe",
     "check:contrast": "python3 scripts/check_contrast.py || python scripts/check_contrast.py",
     "generate:testpdf": "python3 scripts/generate_test_pdf.py || python scripts/generate_test_pdf.py",
-    "start:python-pdf": "python3 -m uvicorn python-services.pdf_service.main:app --host 0.0.0.0 --port 8000 || python -m uvicorn python-services.pdf_service.main:app --host 0.0.0.0 --port 8000"
+    "start:python-pdf": "python3 -m uvicorn python-services.pdf_service.main:app --host 0.0.0.0 --port 8000 || python -m uvicorn python-services.pdf_service.main:app --host 0.0.0.0 --port 8000",
+    "type-check": "tsc --noEmit",
+    "validate": "npm run format:check && npm run lint && npm run type-check && npm run test"
   },
   "keywords": [
     "invoicing",
@@ -87,7 +93,9 @@
     "@types/ws": "^8.18.1",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.0.3",
+    "eslint-config-prettier": "^9.1.0",
     "jest": "^30.2.0",
+    "prettier": "^3.4.2",
     "ts-jest": "^29.4.5"
   }
 }

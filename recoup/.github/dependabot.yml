@@ -1,0 +1,137 @@
+# ============================================================================
+# Dependabot Configuration
+# ============================================================================
+# Automated dependency updates for security patches and version upgrades
+# Docs: https://docs.github.com/en/code-security/dependabot
+# ============================================================================
+
+version: 2
+
+updates:
+  # ============================================================================
+  # NPM DEPENDENCIES (Main App)
+  # ============================================================================
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
+    open-pull-requests-limit: 10
+
+    # Reviewers and assignees
+    reviewers:
+      - 'your-github-username'
+    assignees:
+      - 'your-github-username'
+
+    # Group updates by type
+    groups:
+      # Security updates (high priority)
+      security-updates:
+        patterns:
+          - '*'
+        update-types:
+          - 'security'
+
+      # Production dependencies (medium priority)
+      production-dependencies:
+        patterns:
+          - '*'
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
+
+      # Development dependencies (low priority)
+      development-dependencies:
+        patterns:
+          - '*'
+        dependency-type: 'development'
+        update-types:
+          - 'minor'
+          - 'patch'
+
+    # Version update strategies
+    versioning-strategy: 'increase'
+
+    # Commit message prefix
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+
+    # Label PRs
+    labels:
+      - 'dependencies'
+      - 'automated'
+
+    # Ignore specific packages (if problematic)
+    ignore:
+      # Ignore major version updates for these packages (breaking changes)
+      - dependency-name: 'next'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
+
+  # ============================================================================
+  # PYTHON DEPENDENCIES (PDF Service)
+  # ============================================================================
+  - package-ecosystem: 'pip'
+    directory: '/python-services'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'your-github-username'
+    commit-message:
+      prefix: 'chore(python-deps)'
+    labels:
+      - 'dependencies'
+      - 'python'
+      - 'automated'
+
+  # ============================================================================
+  # GITHUB ACTIONS
+  # ============================================================================
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'your-github-username'
+    commit-message:
+      prefix: 'chore(ci)'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+      - 'automated'
+
+  # ============================================================================
+  # DOCKER (if using Docker)
+  # ============================================================================
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/London'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'your-github-username'
+    commit-message:
+      prefix: 'chore(docker)'
+    labels:
+      - 'dependencies'
+      - 'docker'
+      - 'automated'
