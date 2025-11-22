@@ -74,7 +74,7 @@ const customJestConfig = {
     '!**/types/**',
   ],
 
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 70,
       functions: 70,

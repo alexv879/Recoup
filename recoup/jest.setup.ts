@@ -88,10 +88,10 @@ jest.mock('@clerk/nextjs', () => ({
     firstName: 'Test',
     lastName: 'User',
   })),
-  ClerkProvider: ({ children }: { children: React.ReactNode }) => children,
-  SignIn: () => <div>Sign In Mock</div>,
-  SignUp: () => <div>Sign Up Mock</div>,
-  UserButton: () => <div>User Button Mock</div>,
+  ClerkProvider: ({ children }: { children: any }) => children,
+  SignIn: () => 'Sign In Mock',
+  SignUp: () => 'Sign Up Mock',
+  UserButton: () => 'User Button Mock',
 }));
 
 // Mock Firebase Admin
