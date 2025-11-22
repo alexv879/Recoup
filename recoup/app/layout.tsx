@@ -1,5 +1,4 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
 import './globals.css';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -9,7 +8,8 @@ import { ClientProviders } from '@/components/ClientProviders';
 // Import tracing setup to initialize OpenTelemetry
 // import '@/lib/tracing';
 
-const inter = Inter({ subsets: ['latin'] });
+// Use system font instead of Google Fonts to avoid build issues
+// Can be replaced with Inter from next/font/google once network access is available
 
 export const metadata: Metadata = {
   title: 'Recoup - Invoice & Payment Tracking',
@@ -85,7 +85,7 @@ export default function RootLayout({
           <link rel="apple-touch-startup-image" href="/splash/ipadpro3_splash.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)" />
           <link rel="apple-touch-startup-image" href="/splash/ipadpro2_splash.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" />
         </head>
-        <body className={inter.className}>
+        <body className="font-sans antialiased">
           <SkipLink />
           <ClientProviders>
             <AnalyticsProvider>

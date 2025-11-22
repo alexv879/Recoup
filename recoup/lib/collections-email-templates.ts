@@ -45,6 +45,7 @@
  */
 
 import { sendEmail } from '@/lib/sendgrid';
+import type { MailDataRequired } from '@sendgrid/mail';
 import {
   calculateLatePaymentInterest,
   formatCurrency,
@@ -73,6 +74,19 @@ interface CollectionsEmailParams {
   secondReminderDate?: Date; // Date of Day 15 reminder (for Day 30 reference)
 }
 
+// Type aliases for compatibility
+type EmailReminderParams = CollectionsEmailParams;
+type EmailSendResult = { success: boolean; messageId?: string; error?: string; };
+
+// Helper function for date formatting
+const formatDate = (date: Date): string => {
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+};
+
 // ============================================================
 // DAY 5: FRIENDLY REMINDER (No Interest)
 // ============================================================
@@ -97,10 +111,10 @@ export async function sendEarlyPreDueNotice(
     description,
     freelancerName,
     freelancerBusinessName,
-    businessName,
     invoiceViewUrl,
     paymentUrl,
   } = params;
+  const businessName = freelancerBusinessName; // Alias for template compatibility
 
   const dueDateFormatted = formatDate(dueDate);
   const daysUntilDue = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -277,18 +291,17 @@ Unsubscribe: https://relay.app/unsubscribe?email=${encodeURIComponent(clientEmai
   };
 
   try {
-    await sgMail.send(msg);
-    logger.info(
+    await sendEmail(msg);
+    logInfo(
       `Early pre-due notice sent for invoice ${invoiceId} to ${clientEmail}`
     );
     return {
       success: true,
       messageId: `early-predue-${invoiceId}-${Date.now()}`,
-      timestamp: new Date(),
     };
   } catch (error) {
-    logger.error(`Failed to send early pre-due notice for invoice ${invoiceId}:`, error);
-    throw error;
+    logError(`Failed to send early pre-due notice for invoice ${invoiceId}:`, error);
+    return { success: false, error: String(error) };
   }
 }
 

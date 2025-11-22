@@ -1,5 +1,6 @@
 // Behavioral trigger logic for invoice creation and sending
-import { listInvoices } from '@/services/invoiceService';
+// TODO: Implement invoiceService
+// import { listInvoices } from '@/services/invoiceService';
 import { Notification, User, Invoice } from '@/types/models';
 import { db, Timestamp, COLLECTIONS } from '@/lib/firebase';
 import { sendNotificationEmail } from '@/lib/sendgrid';
@@ -7,7 +8,9 @@ import { emitEvent } from '@/lib/analytics/emitter';
 
 // Trigger 1: Incomplete Invoice Creation
 export async function triggerIncompleteInvoiceCreation(user: User) {
-    const { invoices } = await listInvoices({ userId: user.userId });
+    // TODO: Implement listInvoices service
+    const invoices: any[] = [];
+    // const { invoices } = await listInvoices({ userId: user.userId });
     if (!invoices || invoices.length === 0) {
         // User opened onboarding email but did not create invoice in 24h
         const notification: Notification = {
@@ -39,7 +42,9 @@ export async function triggerIncompleteInvoiceCreation(user: User) {
 
 // Trigger 2: Invoice Created but Not Sent
 export async function triggerInvoiceCreatedNotSent(user: User) {
-    const { invoices } = await listInvoices({ userId: user.userId, status: 'draft' });
+    // TODO: Implement listInvoices service
+    const invoices: any[] = [];
+    // const { invoices } = await listInvoices({ userId: user.userId, status: 'draft' });
     if (invoices.length > 0) {
         for (const invoice of invoices) {
             const notification: Notification = {

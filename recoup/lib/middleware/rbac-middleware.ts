@@ -11,7 +11,7 @@
  * ```
  */
 
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   hasPermission,
@@ -44,7 +44,7 @@ export function withPermission(
 ): RouteHandler {
   return async (request: NextRequest, context?: any) => {
     try {
-      const { userId } = auth();
+      const { userId } = await auth();
 
       if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -104,7 +104,7 @@ export function withRole(
 ): RouteHandler {
   return async (request: NextRequest, context?: any) => {
     try {
-      const { userId } = auth();
+      const { userId } = await auth();
 
       if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -164,7 +164,7 @@ export function withAnyPermission(
 ): RouteHandler {
   return async (request: NextRequest, context?: any) => {
     try {
-      const { userId } = auth();
+      const { userId } = await auth();
 
       if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

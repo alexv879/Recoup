@@ -11,6 +11,7 @@ import '@testing-library/jest-dom';
 // ENVIRONMENT VARIABLES
 // ============================================================================
 
+// @ts-ignore - TypeScript strict mode treats NODE_ENV as readonly
 process.env.NODE_ENV = 'test';
 
 // Firebase (mock credentials for testing)
@@ -111,7 +112,7 @@ jest.mock('firebase-admin/firestore', () => {
     },
   };
 
-  const mockCollection = {
+  const mockCollection: any = {
     doc: jest.fn(() => ({
       get: jest.fn(() => Promise.resolve(mockDoc)),
       set: jest.fn(() => Promise.resolve()),
