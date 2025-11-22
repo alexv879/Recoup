@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db, COLLECTIONS, Timestamp } from '@/lib/firebase';
 import { sendEmail } from '@/lib/sendgrid';
 import { z } from 'zod';
+import { logError } from '@/utils/logger';
 
 const paymentClaimSchema = z.object({
     paymentMethod: z.enum(['bank_transfer', 'cash', 'cheque']),
@@ -108,7 +109,7 @@ export async function POST(
             claimId,
         });
     } catch (error) {
-        console.error('Error claiming payment:', error);
+        logError('Error claiming payment', error);
         if (error instanceof z.ZodError) {
             return NextResponse.json(
                 { error: 'Invalid payment claim data', details: error.issues },

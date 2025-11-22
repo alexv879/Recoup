@@ -13,6 +13,7 @@ import {
   getCurrentEnvironment,
   type UserContext,
 } from '@/lib/feature-flags-enhanced';
+import { logError } from '@/utils/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       evaluation,
     });
   } catch (error) {
-    console.error('Error evaluating feature flag:', error);
+    logError('Error evaluating feature flag', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -3,86 +3,87 @@
 exports[`Dashboard CollectionsTimeline matches snapshot 1`] = `
 <div>
   <div
+    class="sr-only"
+  >
+    <div
+      class="overflow-x-auto "
+    >
+      <table
+        aria-label="Collections timeline events"
+        class="min-w-full border border-gray-200 rounded-lg"
+      >
+        <caption
+          class="sr-only"
+        >
+          Collections timeline events
+        </caption>
+        <thead
+          class="bg-gray-100"
+        >
+          <tr>
+            <th
+              class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+              scope="col"
+            >
+              Time
+            </th>
+            <th
+              class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+              scope="col"
+            >
+              Type
+            </th>
+            <th
+              class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+              scope="col"
+            >
+              Message
+            </th>
+            <th
+              class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+              scope="col"
+            >
+              Channel
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            class="even:bg-gray-50"
+          >
+            <td
+              class="px-4 py-2 border-b text-sm text-gray-900"
+            >
+              22/11/2025, 20:30:19
+            </td>
+            <td
+              class="px-4 py-2 border-b text-sm text-gray-900"
+            >
+              reminder sent
+            </td>
+            <td
+              class="px-4 py-2 border-b text-sm text-gray-900"
+            >
+              Friendly reminder sent
+            </td>
+            <td
+              class="px-4 py-2 border-b text-sm text-gray-900"
+            >
+              email
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
     aria-label="Collections timeline"
     class="space-y-0"
     role="list"
   >
     <div
-      class="sr-only"
-    >
-      <div
-        class="overflow-x-auto "
-      >
-        <table
-          aria-label="Collections timeline events"
-          class="min-w-full border border-gray-200 rounded-lg"
-        >
-          <caption
-            class="sr-only"
-          >
-            Collections timeline events
-          </caption>
-          <thead
-            class="bg-gray-100"
-          >
-            <tr>
-              <th
-                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
-                scope="col"
-              >
-                Time
-              </th>
-              <th
-                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
-                scope="col"
-              >
-                Type
-              </th>
-              <th
-                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
-                scope="col"
-              >
-                Message
-              </th>
-              <th
-                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
-                scope="col"
-              >
-                Channel
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              class="even:bg-gray-50"
-            >
-              <td
-                class="px-4 py-2 border-b text-sm text-gray-900"
-              >
-                22/11/2025, 18:00:09
-              </td>
-              <td
-                class="px-4 py-2 border-b text-sm text-gray-900"
-              >
-                reminder sent
-              </td>
-              <td
-                class="px-4 py-2 border-b text-sm text-gray-900"
-              >
-                Friendly reminder sent
-              </td>
-              <td
-                class="px-4 py-2 border-b text-sm text-gray-900"
-              >
-                email
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div
       class="relative flex gap-4 pb-6"
+      role="listitem"
     >
       <div
         aria-hidden="true"
@@ -95,7 +96,7 @@ exports[`Dashboard CollectionsTimeline matches snapshot 1`] = `
         class="flex-1 min-w-0"
       >
         <button
-          aria-label="reminder sent event. Friendly reminder sent. Nov 22, 2025, 6:00 PM. Click to expand details"
+          aria-label="reminder sent event. Friendly reminder sent. Nov 22, 2025, 8:30 PM. Click to expand details"
           class="w-full text-left group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
           type="button"
         >
@@ -131,7 +132,7 @@ exports[`Dashboard CollectionsTimeline matches snapshot 1`] = `
                 <p
                   class="text-xs text-gray-500"
                 >
-                  Nov 22, 2025, 6:00 PM
+                  Nov 22, 2025, 8:30 PM
                 </p>
               </div>
               <div

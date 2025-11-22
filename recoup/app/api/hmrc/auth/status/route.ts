@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { isHMRCConnected } from '@/lib/hmrc-oauth';
+import { logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
       connected,
     });
   } catch (error) {
-    console.error('HMRC status check error:', error);
+    logError('HMRC status check error', error);
     return NextResponse.json(
       { error: 'Failed to check HMRC connection status' },
       { status: 500 }

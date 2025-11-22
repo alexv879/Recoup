@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getRecurringInvoice, getRecurringInvoiceHistory } from '@/lib/recurring-invoices';
+import { logError } from '@/utils/logger';
 
 interface RouteContext {
   params: Promise<{
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       count: history.length,
     });
   } catch (error: any) {
-    console.error('Get recurring invoice history error:', error);
+    logError('Get recurring invoice history error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to fetch recurring invoice history' },
       { status: 500 }

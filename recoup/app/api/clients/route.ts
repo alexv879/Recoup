@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getClients, archiveClient, addClient } from '@/services/clientService.server';
 import { auth } from '@clerk/nextjs/server';
 import { trackEvent } from '@/lib/analytics';
+import { logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
     try {
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(clients);
     } catch (error) {
-        console.error('Error fetching clients:', error);
+        logError('Error fetching clients', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     } catch (error) {
-        console.error('Error performing client action:', error);
+        logError('Error performing client action', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

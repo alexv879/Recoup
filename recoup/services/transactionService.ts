@@ -4,6 +4,7 @@
  */
 
 import { AgencyRecoveryTransactionResult } from '@/types/models';
+import { logInfo } from '@/utils/logger';
 
 export interface AgencyRecoveryTransaction {
     id: string;
@@ -30,7 +31,7 @@ export async function createAgencyRecoveryTransaction(params: {
 }): Promise<AgencyRecoveryTransactionResult> {
     try {
         // Placeholder implementation
-        console.log('Creating agency recovery transaction:', params);
+        logInfo('Creating agency recovery transaction', params);
 
         const transactionId = `txn_${Math.random().toString(36).substring(2, 15)}`;
 

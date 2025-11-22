@@ -12,6 +12,7 @@ import {
   cancelRecurringInvoice,
   getRecurringInvoiceHistory,
 } from '@/lib/recurring-invoices';
+import { logError } from '@/utils/logger';
 
 interface RouteContext {
   params: Promise<{
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     return NextResponse.json({ recurringInvoice });
   } catch (error: any) {
-    console.error('Get recurring invoice error:', error);
+    logError('Get recurring invoice error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to fetch recurring invoice' },
       { status: 500 }
@@ -121,7 +122,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       message: 'Recurring invoice updated successfully',
     });
   } catch (error: any) {
-    console.error('Update recurring invoice error:', error);
+    logError('Update recurring invoice error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to update recurring invoice' },
       { status: 500 }
@@ -169,7 +170,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
       message: 'Recurring invoice cancelled successfully',
     });
   } catch (error: any) {
-    console.error('Cancel recurring invoice error:', error);
+    logError('Cancel recurring invoice error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to cancel recurring invoice' },
       { status: 500 }

@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { logError } from '@/utils/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       });
     }
   } catch (error: any) {
-    console.error('Account deletion error:', error);
+    logError('Account deletion error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to delete account' },
       { status: 500 }

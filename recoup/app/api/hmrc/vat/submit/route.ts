@@ -9,6 +9,7 @@ import { auth } from '@clerk/nextjs/server';
 import { HMRCMTDClient } from '@/lib/hmrc-mtd-client';
 import { getFirestore } from 'firebase-admin/firestore';
 import type { VATReturn } from '@/lib/mtd-vat';
+import { logError } from '@/utils/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
       ...response,
     });
   } catch (error: any) {
-    console.error('HMRC VAT submission error:', error);
+    logError('HMRC VAT submission error', error);
 
     if (error.message?.includes('not connected')) {
       return NextResponse.json(

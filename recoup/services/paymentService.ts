@@ -147,7 +147,10 @@ export async function freelancerVerifyPayment(
   });
 
   // Create transaction record
-  const amount = confirmation.clientConfirmedAmount || confirmation.expectedAmount;
+  const amount = confirmation.clientConfirmedAmount ?? confirmation.expectedAmount;
+  if (!amount || amount <= 0) {
+    throw new Error('Invalid payment amount: amount must be greater than 0');
+  }
   const commission = amount * RECOUP_COMMISSION_RATE;
   const transaction: Transaction = {
     transactionId: nanoid(),

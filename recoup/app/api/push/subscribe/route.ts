@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { db, COLLECTIONS } from '@/lib/firebase';
+import { logInfo, logError } from '@/utils/logger';
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       pushSubscriptionUpdatedAt: new Date(),
     });
 
-    console.log('[Push] Subscription saved for user:', userId);
+    logInfo('[Push] Subscription saved for user', userId);
 
     return NextResponse.json({
       success: true,
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Push] Failed to save subscription:', error);
+    logError('[Push] Failed to save subscription', error);
 
     return NextResponse.json(
       { error: 'Failed to save push subscription' },
@@ -72,7 +73,7 @@ export async function DELETE(req: NextRequest) {
       pushSubscriptionUpdatedAt: new Date(),
     });
 
-    console.log('[Push] Subscription removed for user:', userId);
+    logInfo('[Push] Subscription removed for user', userId);
 
     return NextResponse.json({
       success: true,
@@ -80,7 +81,7 @@ export async function DELETE(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Push] Failed to remove subscription:', error);
+    logError('[Push] Failed to remove subscription', error);
 
     return NextResponse.json(
       { error: 'Failed to remove push subscription' },

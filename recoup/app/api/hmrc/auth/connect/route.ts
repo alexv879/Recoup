@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getAuthorizationUrl } from '@/lib/hmrc-oauth';
 import { randomBytes } from 'crypto';
+import { logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('HMRC connection error:', error);
+    logError('HMRC connection error', error);
     return NextResponse.json(
       { error: 'Failed to initiate HMRC connection' },
       { status: 500 }

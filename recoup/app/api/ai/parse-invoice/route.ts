@@ -14,6 +14,7 @@ import {
   isSupportedFormat,
   estimateParsingCost,
 } from '@/lib/ai-invoice-parser';
+import { logError } from '@/utils/logger';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error('Invoice parsing error:', error);
+    logError('Invoice parsing error', error);
 
     // Handle specific OpenAI errors
     if (error.message?.includes('Invalid OpenAI API key')) {

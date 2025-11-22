@@ -15,6 +15,7 @@ import {
   getPermissionAuditLogs,
   Role,
 } from '@/lib/rbac';
+import { logError } from '@/utils/logger';
 
 interface RouteParams {
   params: Promise<{
@@ -50,7 +51,7 @@ export const GET = withAdmin(async (request: NextRequest, { params }: RouteParam
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error fetching user role:', error);
+    logError('Error fetching user role', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -113,7 +114,7 @@ export const PATCH = withAdmin(async (request: NextRequest, { params }: RoutePar
       organizationId: body.organizationId,
     });
   } catch (error) {
-    console.error('Error updating user role:', error);
+    logError('Error updating user role', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

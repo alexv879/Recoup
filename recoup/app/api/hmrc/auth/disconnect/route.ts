@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { revokeHMRCAccess } from '@/lib/hmrc-oauth';
+import { logError } from '@/utils/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
       message: 'HMRC connection removed successfully',
     });
   } catch (error) {
-    console.error('HMRC disconnect error:', error);
+    logError('HMRC disconnect error', error);
     return NextResponse.json(
       { error: 'Failed to disconnect HMRC' },
       { status: 500 }

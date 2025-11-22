@@ -14,6 +14,7 @@ import {
   getUserRole,
   Role,
 } from '@/lib/rbac';
+import { logError } from '@/utils/logger';
 
 // ============================================================================
 // GET - List all roles and permissions
@@ -33,7 +34,7 @@ export const GET = withSuperAdmin(async (request: NextRequest) => {
       totalRoles: roles.length,
     });
   } catch (error) {
-    console.error('Error fetching roles:', error);
+    logError('Error fetching roles', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -94,7 +95,7 @@ export const POST = withSuperAdmin(async (request: NextRequest) => {
       organizationId: body.organizationId,
     });
   } catch (error) {
-    console.error('Error assigning role:', error);
+    logError('Error assigning role', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

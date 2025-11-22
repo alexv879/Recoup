@@ -15,6 +15,7 @@ import {
   getCurrentEnvironment,
   type FeatureFlagConfig,
 } from '@/lib/feature-flags-enhanced';
+import { logError } from '@/utils/logger';
 
 // ============================================================================
 // GET - List all feature flags
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       count: flags.length,
     });
   } catch (error) {
-    console.error('Error fetching feature flags:', error);
+    logError('Error fetching feature flags', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
       flag: savedFlag,
     });
   } catch (error) {
-    console.error('Error creating/updating feature flag:', error);
+    logError('Error creating/updating feature flag', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

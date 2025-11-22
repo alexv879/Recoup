@@ -12,6 +12,7 @@ import {
     type ReminderLevel,
     type EmailTemplateVariables
 } from '@/lib/emailTemplateRenderer';
+import { logError } from '@/utils/logger';
 
 export async function POST(request: NextRequest) {
     try {
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(preview);
     } catch (error) {
-        console.error('Email preview error:', error);
+        logError('Email preview error', error);
         return NextResponse.json(
             { error: 'Failed to generate email preview' },
             { status: 500 }

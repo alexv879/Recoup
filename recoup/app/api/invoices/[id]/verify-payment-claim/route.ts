@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { db, COLLECTIONS, Timestamp } from '@/lib/firebase';
 import { sendEmail } from '@/lib/sendgrid';
 import { z } from 'zod';
+import { logError } from '@/utils/logger';
 
 const verificationSchema = z.object({
     verified: z.boolean(),
@@ -133,7 +134,7 @@ export async function POST(
             });
         }
     } catch (error) {
-        console.error('Error verifying payment claim:', error);
+        logError('Error verifying payment claim', error);
         if (error instanceof z.ZodError) {
             return NextResponse.json(
                 { error: 'Invalid verification data', details: error.issues },

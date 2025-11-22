@@ -153,7 +153,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 freelancerNet,
                 commissionRate: 0.03,
                 status: 'completed',
-                stripeChargeId: session.payment_intent as string,
+                stripeChargeId: session.payment_intent ? String(session.payment_intent) : undefined,
                 transactionDate: Timestamp.now(),
                 completedAt: Timestamp.now(),
                 createdAt: Timestamp.now(),

@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getRecurringInvoice, pauseRecurringInvoice } from '@/lib/recurring-invoices';
+import { logError } from '@/utils/logger';
 
 interface RouteContext {
   params: Promise<{
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       message: 'Recurring invoice paused successfully',
     });
   } catch (error: any) {
-    console.error('Pause recurring invoice error:', error);
+    logError('Pause recurring invoice error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to pause recurring invoice' },
       { status: 500 }

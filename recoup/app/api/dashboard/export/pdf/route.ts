@@ -73,8 +73,20 @@ export async function GET(request: NextRequest) {
         doc.end();
 
         // Wait for PDF generation to complete
-        await new Promise<void>((resolve) => {
-            passThrough.on('end', resolve);
+        await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error('PDF generation timeout after 30 seconds'));
+            }, 30000);
+
+            passThrough.on('end', () => {
+                clearTimeout(timeout);
+                resolve();
+            });
+
+            passThrough.on('error', (err) => {
+                clearTimeout(timeout);
+                reject(err);
+            });
         });
 
         const pdfBuffer = Buffer.concat(chunks);

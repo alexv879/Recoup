@@ -15,6 +15,7 @@ import {
   getAuditLogs,
   getCurrentEnvironment,
 } from '@/lib/feature-flags-enhanced';
+import { logError } from '@/utils/logger';
 
 interface RouteParams {
   params: Promise<{
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error fetching feature flag:', error);
+    logError('Error fetching feature flag', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -110,7 +111,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: 400 }
     );
   } catch (error) {
-    console.error('Error updating feature flag:', error);
+    logError('Error updating feature flag', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -148,7 +149,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       deleted: true,
     });
   } catch (error) {
-    console.error('Error deleting feature flag:', error);
+    logError('Error deleting feature flag', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

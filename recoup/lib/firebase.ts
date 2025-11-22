@@ -1,6 +1,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
+import { logInfo, logError } from '@/utils/logger';
 
 // Only initialize Firebase on the server side
 if (typeof window === 'undefined') {
@@ -21,15 +22,15 @@ if (typeof window === 'undefined') {
             privateKey,
           }),
         });
-        console.log('✅ Firebase Admin initialized successfully');
+        logInfo('Firebase Admin initialized successfully');
       } else {
-        console.warn('⚠️  Firebase credentials not configured - app will not function at runtime');
+        logInfo('Firebase credentials not configured - app will not function at runtime');
       }
     } catch (error) {
-      console.error('❌ Firebase Admin initialization error:', error);
+      logError('Firebase Admin initialization error', error);
       // Don't throw during build - allow build to complete
       if (process.env.NODE_ENV !== 'production') {
-        console.warn('⚠️  Continuing despite Firebase error (build mode)');
+        logInfo('Continuing despite Firebase error (build mode)');
       }
     }
   }

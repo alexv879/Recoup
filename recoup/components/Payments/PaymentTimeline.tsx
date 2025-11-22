@@ -339,7 +339,7 @@ export function PaymentTimeline({
   }
 
   return (
-    <div className={`relative ${className}`} role="list" aria-label="Payment timeline">
+    <>
       {/* Screen reader summary table for timeline events */}
       <div className="sr-only">
         <AccessibleTable
@@ -359,17 +359,19 @@ export function PaymentTimeline({
           ariaLabel="Payment timeline events"
         />
       </div>
-      {events.map((event, index) => (
-        <div key={`${event.type}-${event.timestamp}-${index}`} role="listitem">
-          <TimelineEventItem
-            event={event}
-            index={index}
-            isLast={index === events.length - 1}
-            showMetadata={showMetadata}
-          />
-        </div>
-      ))}
-    </div>
+      <div className={`relative ${className}`} role="list" aria-label="Payment timeline">
+        {events.map((event, index) => (
+          <div key={`${event.type}-${event.timestamp}-${index}`} role="listitem">
+            <TimelineEventItem
+              event={event}
+              index={index}
+              isLast={index === events.length - 1}
+              showMetadata={showMetadata}
+            />
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 

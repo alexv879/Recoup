@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { exchangeCodeForToken, storeHMRCTokens } from '@/lib/hmrc-oauth';
+import { logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     // Check for OAuth errors
     if (error) {
-      console.error('HMRC OAuth error:', error);
+      logError('HMRC OAuth error', error);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/settings/integrations?error=hmrc_auth_failed`
       );
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('HMRC callback error:', error);
+    logError('HMRC callback error', error);
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/settings/integrations?error=token_exchange_failed`
     );

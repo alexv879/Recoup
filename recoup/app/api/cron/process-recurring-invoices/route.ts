@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { processRecurringInvoices } from '@/lib/recurring-invoices';
+import { logInfo, logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,11 +31,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log('[CRON] Processing recurring invoices...');
+    logInfo('[CRON] Processing recurring invoices...');
 
     const results = await processRecurringInvoices();
 
-    console.log('[CRON] Recurring invoices processed:', results);
+    logInfo('[CRON] Recurring invoices processed', results);
 
     return NextResponse.json({
       success: true,
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error('[CRON] Process recurring invoices error:', error);
+    logError('[CRON] Process recurring invoices error', error);
     return NextResponse.json(
       {
         success: false,

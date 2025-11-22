@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getFeatureFlags, shouldShowPricingV3 } from '@/lib/featureFlags';
+import { logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
     try {
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
             userId: userId || null,
         });
     } catch (error) {
-        console.error('Error fetching feature flags:', error);
+        logError('Error fetching feature flags', error);
 
         return NextResponse.json(
             {
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
             message: 'Feature flags updated successfully',
         });
     } catch (error) {
-        console.error('Error updating feature flags:', error);
+        logError('Error updating feature flags', error);
 
         return NextResponse.json(
             { success: false, error: 'Internal server error' },

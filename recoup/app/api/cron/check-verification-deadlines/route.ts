@@ -25,7 +25,7 @@ import { db, Timestamp } from '@/lib/firebase';
 import { resumeEscalation } from '@/jobs/collectionsEscalator';
 import { sendNotificationEmail } from '@/lib/sendgrid';
 import { trackEvent } from '@/lib/analytics';
-import { logApiRequest, logApiResponse } from '@/utils/logger';
+import { logApiRequest, logApiResponse, logInfo, logError } from '@/utils/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,7 +62,7 @@ async function checkVerificationDeadlines(): Promise<VerificationCheckResult> {
         const snapshot = await claimsQuery.get();
         result.scannedCount = snapshot.size;
 
-        console.log(`[Verification Cron] Scanning ${snapshot.size} pending payment claims`);
+        logInfo(`[Verification Cron] Scanning ${snapshot.size} pending payment claims`);
 
         for (const claimDoc of snapshot.docs) {
             const claim = claimDoc.data();
@@ -76,7 +76,7 @@ async function checkVerificationDeadlines(): Promise<VerificationCheckResult> {
 
                 // Check if deadline has expired
                 if (timeUntilDeadline <= 0) {
-                    console.log(`[Verification Cron] Deadline expired for claim ${claimId}, auto-resuming collections`);
+                    logInfo(`[Verification Cron] Deadline expired for claim ${claimId}, auto-resuming collections`);
 
                     // Auto-resume collections
                     await resumeEscalation(
@@ -120,7 +120,7 @@ async function checkVerificationDeadlines(): Promise<VerificationCheckResult> {
 
                 // Check if we should send 24h reminder
                 if (!reminderSent24h && now >= twentyFourHourMark && timeUntilDeadline <= TWENTY_FOUR_HOURS_MS) {
-                    console.log(`[Verification Cron] Sending 24h reminder for claim ${claimId}`);
+                    logInfo(`[Verification Cron] Sending 24h reminder for claim ${claimId}`);
 
                     try {
                         await sendVerificationReminder(claim, 24);
@@ -134,14 +134,14 @@ async function checkVerificationDeadlines(): Promise<VerificationCheckResult> {
 
                         result.reminders24h++;
                     } catch (emailError) {
-                        console.error(`[Verification Cron] Failed to send 24h reminder for ${claimId}:`, emailError);
+                        logError(`[Verification Cron] Failed to send 24h reminder for ${claimId}`, emailError);
                         result.errors.push(`24h reminder failed for ${claimId}`);
                     }
                 }
 
                 // Check if we should send 6h reminder (urgent)
                 if (!reminderSent6h && now >= sixHourMark && timeUntilDeadline <= SIX_HOURS_MS) {
-                    console.log(`[Verification Cron] Sending 6h urgent reminder for claim ${claimId}`);
+                    logInfo(`[Verification Cron] Sending 6h urgent reminder for claim ${claimId}`);
 
                     try {
                         await sendVerificationReminder(claim, 6);
@@ -155,20 +155,20 @@ async function checkVerificationDeadlines(): Promise<VerificationCheckResult> {
 
                         result.reminders6h++;
                     } catch (emailError) {
-                        console.error(`[Verification Cron] Failed to send 6h reminder for ${claimId}:`, emailError);
+                        logError(`[Verification Cron] Failed to send 6h reminder for ${claimId}`, emailError);
                         result.errors.push(`6h reminder failed for ${claimId}`);
                     }
                 }
             } catch (claimError) {
-                console.error(`[Verification Cron] Error processing claim ${claimId}:`, claimError);
+                logError(`[Verification Cron] Error processing claim ${claimId}`, claimError);
                 result.errors.push(`Failed to process claim ${claimId}`);
             }
         }
 
-        console.log(`[Verification Cron] Complete:`, result);
+        logInfo(`[Verification Cron] Complete`, result);
         return result;
     } catch (error) {
-        console.error('[Verification Cron] Fatal error:', error);
+        logError('[Verification Cron] Fatal error', error);
         result.errors.push(error instanceof Error ? error.message : 'Unknown error');
         return result;
     }
@@ -308,7 +308,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         const duration = Date.now() - startTime;
         logApiResponse('GET', '/api/cron/check-verification-deadlines', 500, duration);
 
-        console.error('[Verification Cron] Fatal error:', error);
+        logError('[Verification Cron] Fatal error', error);
 
         return NextResponse.json(
             {

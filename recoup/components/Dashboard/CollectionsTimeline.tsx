@@ -56,11 +56,7 @@ export function CollectionsTimeline({ events, onEventClick }: CollectionsTimelin
     );
 
     return (
-        <div
-            role="list"
-            aria-label="Collections timeline"
-            className="space-y-0"
-        >
+        <>
             {/* Accessible table for screen readers: make timeline data available in table semantics */}
             <div className="sr-only">
                 <AccessibleTable
@@ -80,7 +76,12 @@ export function CollectionsTimeline({ events, onEventClick }: CollectionsTimelin
                     ariaLabel="Collections timeline events"
                 />
             </div>
-            {sortedEvents.map((event, index) => {
+            <div
+                role="list"
+                aria-label="Collections timeline"
+                className="space-y-0"
+            >
+                {sortedEvents.map((event, index) => {
                 const isExpanded = expandedEvents.has(event.eventId);
                 const isLast = index === sortedEvents.length - 1;
 
@@ -116,7 +117,7 @@ export function CollectionsTimeline({ events, onEventClick }: CollectionsTimelin
                 const style = eventTypeStyles[event.eventType] || eventTypeStyles.reminder_sent;
 
                 return (
-                    <div key={event.eventId} className="relative flex gap-4 pb-6">
+                    <div key={event.eventId} role="listitem" className="relative flex gap-4 pb-6">
                         {/* Vertical Line */}
                         {!isLast && (
                             <div
@@ -212,6 +213,7 @@ export function CollectionsTimeline({ events, onEventClick }: CollectionsTimelin
                     </div>
                 );
             })}
-        </div>
+            </div>
+        </>
     );
 }

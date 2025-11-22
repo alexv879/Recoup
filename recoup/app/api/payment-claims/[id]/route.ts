@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { db, COLLECTIONS } from '@/lib/firebase';
+import { logError } from '@/utils/logger';
 
 /**
  * GET /api/payment-claims/[id]
@@ -45,7 +46,7 @@ export async function GET(
             ...claim,
         });
     } catch (error) {
-        console.error('Error fetching payment claim:', error);
+        logError('Error fetching payment claim', error);
         return NextResponse.json(
             { error: 'Failed to fetch payment claim' },
             { status: 500 }

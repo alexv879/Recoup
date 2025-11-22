@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getFirestore } from 'firebase-admin/firestore';
+import { logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error('Data export error:', error);
+    logError('Data export error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to export data' },
       { status: 500 }

@@ -3,82 +3,82 @@
 exports[`PaymentTimeline matches snapshot 1`] = `
 <div>
   <div
+    class="sr-only"
+  >
+    <div
+      class="overflow-x-auto "
+    >
+      <table
+        aria-label="Payment timeline events"
+        class="min-w-full border border-gray-200 rounded-lg"
+      >
+        <caption
+          class="sr-only"
+        >
+          Payment timeline events
+        </caption>
+        <thead
+          class="bg-gray-100"
+        >
+          <tr>
+            <th
+              class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+              scope="col"
+            >
+              Time
+            </th>
+            <th
+              class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+              scope="col"
+            >
+              Event
+            </th>
+            <th
+              class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+              scope="col"
+            >
+              Description
+            </th>
+            <th
+              class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
+              scope="col"
+            >
+              Actor
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            class="even:bg-gray-50"
+          >
+            <td
+              class="px-4 py-2 border-b text-sm text-gray-900"
+            >
+              22/11/2025, 20:30:19
+            </td>
+            <td
+              class="px-4 py-2 border-b text-sm text-gray-900"
+            >
+              sent
+            </td>
+            <td
+              class="px-4 py-2 border-b text-sm text-gray-900"
+            >
+              Sent to client
+            </td>
+            <td
+              class="px-4 py-2 border-b text-sm text-gray-900"
+            />
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
     aria-label="Payment timeline"
     class="relative "
     role="list"
   >
-    <div
-      class="sr-only"
-    >
-      <div
-        class="overflow-x-auto "
-      >
-        <table
-          aria-label="Payment timeline events"
-          class="min-w-full border border-gray-200 rounded-lg"
-        >
-          <caption
-            class="sr-only"
-          >
-            Payment timeline events
-          </caption>
-          <thead
-            class="bg-gray-100"
-          >
-            <tr>
-              <th
-                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
-                scope="col"
-              >
-                Time
-              </th>
-              <th
-                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
-                scope="col"
-              >
-                Event
-              </th>
-              <th
-                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
-                scope="col"
-              >
-                Description
-              </th>
-              <th
-                class="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b"
-                scope="col"
-              >
-                Actor
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              class="even:bg-gray-50"
-            >
-              <td
-                class="px-4 py-2 border-b text-sm text-gray-900"
-              >
-                22/11/2025, 18:00:09
-              </td>
-              <td
-                class="px-4 py-2 border-b text-sm text-gray-900"
-              >
-                sent
-              </td>
-              <td
-                class="px-4 py-2 border-b text-sm text-gray-900"
-              >
-                Sent to client
-              </td>
-              <td
-                class="px-4 py-2 border-b text-sm text-gray-900"
-              />
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
     <div
       role="listitem"
     >
@@ -141,9 +141,9 @@ exports[`PaymentTimeline matches snapshot 1`] = `
             </div>
             <time
               class="text-sm text-gray-500 flex-shrink-0"
-              datetime="2025-11-22T18:00:09.451Z"
+              datetime="2025-11-22T20:30:19.541Z"
             >
-              22 Nov, 18:00
+              22 Nov, 20:30
             </time>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { HMRCMTDClient } from '@/lib/hmrc-mtd-client';
 import { getFirestore } from 'firebase-admin/firestore';
+import { logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
       count: obligations.length,
     });
   } catch (error: any) {
-    console.error('HMRC obligations error:', error);
+    logError('HMRC obligations error', error);
 
     if (error.message?.includes('not connected')) {
       return NextResponse.json(

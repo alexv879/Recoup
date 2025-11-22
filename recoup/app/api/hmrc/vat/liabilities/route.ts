@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { HMRCMTDClient } from '@/lib/hmrc-mtd-client';
 import { getFirestore } from 'firebase-admin/firestore';
+import { logError } from '@/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
       totalOutstanding: liabilities.reduce((sum, l) => sum + l.outstandingAmount, 0),
     });
   } catch (error: any) {
-    console.error('HMRC liabilities error:', error);
+    logError('HMRC liabilities error', error);
 
     if (error.message?.includes('not connected')) {
       return NextResponse.json(

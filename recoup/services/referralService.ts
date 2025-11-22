@@ -1,6 +1,8 @@
 // NOTE: This implementation assumes the existence of helper functions and database schemas
 // as defined in the technical specification (e.g., db access, Referral type, FieldValue).
 
+import { logInfo } from '@/utils/logger';
+
 /*
 import { db } from '../lib/firebase';
 import { Referral } from '../types/models';
@@ -22,7 +24,7 @@ export async function generateReferralCode(userId: string): Promise<string> {
   // const code = generateSecureCode(6);
   // await db.collection('users').doc(userId).update({ referralCode: code });
   // return code;
-  console.log(`Generating referral code for ${userId}`);
+  logInfo(`Generating referral code for ${userId}`);
   return `REC-DUMMYCODE`; // Placeholder for Recoup
 }
 
@@ -51,10 +53,10 @@ export async function processReferral(referralCode: string, newUserId: string) {
   await addAccountCredit(referrerId, 5);
   await addAccountCredit(newUserId, 5);
   */
-  console.log(`[DB] Processing referral code ${referralCode} for new user ${newUserId}`);
+  logInfo(`[DB] Processing referral code ${referralCode} for new user ${newUserId}`);
 }
 
 export async function addAccountCredit(userId: string, amount: number) {
   // await db.collection('users').doc(userId).update({ accountCredit: FieldValue.increment(amount) });
-  console.log(`[DB] Adding ${amount} credit to user ${userId}`);
+  logInfo(`[DB] Adding ${amount} credit to user ${userId}`);
 }

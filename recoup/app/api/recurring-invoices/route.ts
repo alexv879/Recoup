@@ -13,6 +13,7 @@ import {
   calculateNextInvoiceDate,
 } from '@/lib/recurring-invoices';
 import type { RecurringInvoice } from '@/lib/recurring-invoices';
+import { logError } from '@/utils/logger';
 
 /**
  * GET /api/recurring-invoices
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
       count: recurringInvoices.length,
     });
   } catch (error: any) {
-    console.error('Get recurring invoices error:', error);
+    logError('Get recurring invoices error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to fetch recurring invoices' },
       { status: 500 }
@@ -116,7 +117,7 @@ export async function POST(request: NextRequest) {
       message: 'Recurring invoice created successfully',
     }, { status: 201 });
   } catch (error: any) {
-    console.error('Create recurring invoice error:', error);
+    logError('Create recurring invoice error', error);
     return NextResponse.json(
       { error: error.message || 'Failed to create recurring invoice' },
       { status: 500 }
