@@ -75,9 +75,36 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       throw new ValidationError('Invoice is already paid');
     }
 
-    // 8. Get user for business name
+    // 8. Get user for business name and verify SMS opt-out status
     const userDoc = await db.collection('users').doc(userId).get();
-    const businessName = userDoc.data()?.businessName || userDoc.data()?.name || 'Your Freelancer';
+    const userData = userDoc.data();
+    const businessName = userData?.businessName || userData?.name || 'Your Freelancer';
+
+    // CRITICAL: Check if freelancer's consent includes smsOptedOut flag
+    // This field tracks if the FREELANCER has globally disabled SMS for their account
+    if (userData?.collectionsConsent && typeof userData.collectionsConsent === 'object') {
+      if (userData.collectionsConsent.smsOptedOut === true) {
+        throw new ForbiddenError(
+          'SMS sending is disabled for your account. Please contact support to re-enable.'
+        );
+      }
+    }
+
+    // CRITICAL: Check if CLIENT has opted out of receiving SMS (UK PECR compliance)
+    // Must honor client's opt-out immediately to comply with UK regulations
+    // We track opt-outs by normalized phone number since clients don't have accounts
+    const normalizedPhone = recipientPhone.replace(/\s+/g, ''); // Remove spaces
+    const clientOptOutDoc = await db
+      .collection('sms_opt_outs')
+      .doc(normalizedPhone)
+      .get();
+
+    if (clientOptOutDoc.exists) {
+      const optOutData = clientOptOutDoc.data();
+      throw new ForbiddenError(
+        `This phone number opted out of SMS on ${optOutData?.optedOutAt?.toDate().toLocaleDateString()}. Cannot send SMS (UK PECR compliance).`
+      );
+    }
 
     // 9. Calculate days past due
     const dueDateMillis = invoice.dueDate instanceof Date ? invoice.dueDate.getTime() : (invoice.dueDate as any).toMillis();

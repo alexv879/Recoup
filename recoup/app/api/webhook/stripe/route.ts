@@ -5,6 +5,7 @@ import { db, COLLECTIONS, Timestamp } from '@/lib/firebase';
 import { logInfo, logError } from '@/utils/logger';
 import type { User, Transaction } from '@/types/models';
 import { getTierFromSubscription } from '@/lib/stripePriceMapping';
+import { processWithIdempotency } from '@/lib/idempotency';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2025-10-29.clover',
@@ -56,53 +57,75 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
         logInfo(`[webhook/stripe] Event type: ${event.type}`);
 
-        // 3. Handle different event types
+        // 3. Handle different event types with idempotency protection
         try {
-            switch (event.type) {
-                case 'checkout.session.completed': {
-                    const session = event.data.object as Stripe.Checkout.Session;
-                    await handleCheckoutCompleted(session);
-                    break;
-                }
+            // Check if event was already processed
+            const { processed, alreadyProcessed } = await processWithIdempotency(
+                event.id,
+                'stripe',
+                event.type,
+                async () => {
+                    switch (event.type) {
+                        case 'checkout.session.completed': {
+                            const session = event.data.object as Stripe.Checkout.Session;
+                            await handleCheckoutCompleted(session);
+                            break;
+                        }
 
-                case 'invoice.payment_succeeded': {
-                    const invoice = event.data.object as Stripe.Invoice;
-                    await handleInvoicePaymentSucceeded(invoice);
-                    break;
-                }
+                        case 'invoice.payment_succeeded': {
+                            const invoice = event.data.object as Stripe.Invoice;
+                            await handleInvoicePaymentSucceeded(invoice);
+                            break;
+                        }
 
-                case 'customer.subscription.created': {
-                    const subscription = event.data.object as Stripe.Subscription;
-                    await handleSubscriptionCreated(subscription);
-                    break;
-                }
+                        case 'customer.subscription.created': {
+                            const subscription = event.data.object as Stripe.Subscription;
+                            await handleSubscriptionCreated(subscription);
+                            break;
+                        }
 
-                case 'customer.subscription.updated': {
-                    const subscription = event.data.object as Stripe.Subscription;
-                    await handleSubscriptionUpdated(subscription);
-                    break;
-                }
+                        case 'customer.subscription.updated': {
+                            const subscription = event.data.object as Stripe.Subscription;
+                            await handleSubscriptionUpdated(subscription);
+                            break;
+                        }
 
-                case 'customer.subscription.deleted': {
-                    const subscription = event.data.object as Stripe.Subscription;
-                    await handleSubscriptionDeleted(subscription);
-                    break;
-                }
+                        case 'customer.subscription.deleted': {
+                            const subscription = event.data.object as Stripe.Subscription;
+                            await handleSubscriptionDeleted(subscription);
+                            break;
+                        }
 
-                case 'payment_intent.succeeded': {
-                    const paymentIntent = event.data.object as Stripe.PaymentIntent;
-                    await handlePaymentIntentSucceeded(paymentIntent);
-                    break;
-                }
+                        case 'payment_intent.succeeded': {
+                            const paymentIntent = event.data.object as Stripe.PaymentIntent;
+                            await handlePaymentIntentSucceeded(paymentIntent);
+                            break;
+                        }
 
-                case 'payment_intent.payment_failed': {
-                    const paymentIntent = event.data.object as Stripe.PaymentIntent;
-                    await handlePaymentIntentFailed(paymentIntent);
-                    break;
-                }
+                        case 'payment_intent.payment_failed': {
+                            const paymentIntent = event.data.object as Stripe.PaymentIntent;
+                            await handlePaymentIntentFailed(paymentIntent);
+                            break;
+                        }
 
-                default:
-                    logInfo(`[webhook/stripe] Unhandled event type: ${event.type}`);
+                        default:
+                            logInfo(`[webhook/stripe] Unhandled event type: ${event.type}`);
+                    }
+                },
+                {
+                    // Store metadata for debugging
+                    customerId: (event.data.object as any).customer,
+                    subscriptionId: (event.data.object as any).subscription,
+                }
+            );
+
+            if (alreadyProcessed) {
+                logInfo(`[webhook/stripe] Event ${event.id} already processed - returning success`);
+                return NextResponse.json({ received: true, alreadyProcessed: true });
+            }
+
+            if (!processed) {
+                logError(`[webhook/stripe] Event ${event.id} was not processed due to race condition`);
             }
 
             const duration = Date.now() - startTime;
@@ -211,14 +234,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             return;
         }
 
-        // Create transaction record
+        // Create transaction record and update invoice atomically
         if (invoiceId && session.amount_total) {
             const amount = session.amount_total / 100; // Convert from cents
             const commission = amount * 0.03; // 3% commission
             const freelancerNet = amount * 0.97;
 
+            const transactionId = `txn_${Date.now()}_${session.id.slice(-8)}`;
+
             const transaction: Transaction = {
-                transactionId: `txn_${Date.now()}`,
+                transactionId,
                 invoiceId,
                 freelancerId,
                 amount,
@@ -234,16 +259,36 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 updatedAt: Timestamp.now(),
             };
 
-            await db.collection(COLLECTIONS.TRANSACTIONS).doc(transaction.transactionId).set(transaction);
+            // Use transaction to atomically create transaction and update invoice
+            await db.runTransaction(async (txn) => {
+                const invoiceRef = db.collection(COLLECTIONS.INVOICES).doc(invoiceId);
+                const invoiceDoc = await txn.get(invoiceRef);
 
-            // Update invoice status to paid
-            await db.collection(COLLECTIONS.INVOICES).doc(invoiceId).update({
-                status: 'paid',
-                paidAt: Timestamp.now(),
-                updatedAt: Timestamp.now(),
+                if (!invoiceDoc.exists) {
+                    throw new Error(`Invoice ${invoiceId} not found`);
+                }
+
+                const invoiceData = invoiceDoc.data();
+
+                // Only update if not already paid (extra safety)
+                if (invoiceData?.status === 'paid') {
+                    logInfo(`[webhook/stripe] Invoice ${invoiceId} already marked as paid - skipping`);
+                    return;
+                }
+
+                // Create transaction
+                const txnRef = db.collection(COLLECTIONS.TRANSACTIONS).doc(transactionId);
+                txn.set(txnRef, transaction);
+
+                // Update invoice
+                txn.update(invoiceRef, {
+                    status: 'paid',
+                    paidAt: Timestamp.now(),
+                    updatedAt: Timestamp.now(),
+                });
             });
 
-            logInfo(`[webhook/stripe] Transaction created: ${transaction.transactionId}`);
+            logInfo(`[webhook/stripe] Transaction created atomically: ${transactionId}`);
         }
 
         // Update subscription if this was a subscription payment

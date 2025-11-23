@@ -91,6 +91,10 @@ export const COLLECTIONS = {
   FAILED_WEBHOOKS: 'failed_webhooks',
   ESCALATION_STATES: 'escalation_states',
   ESCALATION_TIMELINE: 'escalation_timeline',
+  PROCESSED_EVENTS: 'processed_events',
+  SMS_OPT_OUTS: 'sms_opt_outs',
+  SMS_OPT_OUT_AUDIT: 'sms_opt_out_audit',
+  SMS_REPLIES: 'sms_replies',
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date

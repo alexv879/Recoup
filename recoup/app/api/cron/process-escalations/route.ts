@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { runEscalationWorker } from '@/jobs/collectionsEscalator';
 import { logInfo, logError } from '@/utils/logger';
 import { handleApiError } from '@/utils/error';
+import { withCronLock } from '@/lib/cronLock';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,22 +40,31 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
         logInfo('Starting collections escalation cron job');
 
-        // 2. Run escalation worker
-        const result = await runEscalationWorker();
+        // 2. Run escalation worker with distributed lock
+        return await withCronLock(
+            {
+                jobName: 'process-escalations',
+                lockDuration: 360, // 6 minutes max (runs every 6 hours)
+                heartbeatInterval: 60, // Send heartbeat every minute
+            },
+            async () => {
+                const result = await runEscalationWorker();
 
-        const duration = Date.now() - startTime;
+                const duration = Date.now() - startTime;
 
-        logInfo('Collections escalation cron job completed', {
-            ...result,
-            durationMs: duration,
-        });
+                logInfo('Collections escalation cron job completed', {
+                    ...result,
+                    durationMs: duration,
+                });
 
-        return NextResponse.json({
-            success: true,
-            ...result,
-            duration: `${duration}ms`,
-            timestamp: new Date().toISOString(),
-        });
+                return NextResponse.json({
+                    success: true,
+                    ...result,
+                    duration: `${duration}ms`,
+                    timestamp: new Date().toISOString(),
+                });
+            }
+        );
     } catch (error: any) {
         const duration = Date.now() - startTime;
         logError('Collections escalation cron job failed', error);

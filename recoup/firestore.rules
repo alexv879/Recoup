@@ -1,0 +1,379 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    // Check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Check if user owns the resource
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Check if user is admin (via custom claim)
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    // Check if incoming data has required fields
+    function hasRequiredFields(requiredFields) {
+      return request.resource.data.keys().hasAll(requiredFields);
+    }
+
+    // Prevent modification of certain fields
+    function unchangedFields(fields) {
+      return fields.toSet().hasAll(
+        request.resource.data.diff(resource.data).affectedKeys()
+      ) == false;
+    }
+
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+
+    match /users/{userId} {
+      // Users can read their own data
+      allow read: if isOwner(userId);
+
+      // Users can update their own data (except sensitive fields)
+      allow update: if isOwner(userId) &&
+        unchangedFields([
+          'stripeCustomerId',
+          'stripeSubscriptionId',
+          'subscriptionTier',
+          'subscriptionStatus',
+          'collectionsUsed',
+          'createdAt'
+        ]);
+
+      // Only admins or server can create/delete users
+      allow create, delete: if isAdmin();
+    }
+
+    // ============================================
+    // INVOICES COLLECTION
+    // ============================================
+
+    match /invoices/{invoiceId} {
+      // Freelancers can read/write their own invoices
+      allow read, create, update: if isSignedIn() &&
+        (
+          resource.data.freelancerId == request.auth.uid ||
+          request.resource.data.freelancerId == request.auth.uid
+        );
+
+      // Clients can read invoices sent to their email (read-only)
+      allow read: if isSignedIn() &&
+        resource.data.clientEmail == request.auth.token.email;
+
+      // Only admins or server can delete invoices
+      allow delete: if isAdmin();
+    }
+
+    // ============================================
+    // TRANSACTIONS COLLECTION
+    // ============================================
+
+    match /transactions/{transactionId} {
+      // Freelancers can read their own transactions
+      allow read: if isSignedIn() &&
+        resource.data.freelancerId == request.auth.uid;
+
+      // Only server can create/update/delete transactions
+      allow write: if false; // Server-only via Admin SDK
+    }
+
+    // ============================================
+    // CLIENTS COLLECTION
+    // ============================================
+
+    match /clients/{clientId} {
+      // Freelancers can read/write their own clients
+      allow read, create, update: if isSignedIn() &&
+        (
+          resource.data.freelancerId == request.auth.uid ||
+          request.resource.data.freelancerId == request.auth.uid
+        );
+
+      // Only admins can delete clients
+      allow delete: if isAdmin();
+    }
+
+    // ============================================
+    // PAYMENT CONFIRMATIONS
+    // ============================================
+
+    match /payment_confirmations/{confirmationId} {
+      // Freelancers can read confirmations for their invoices
+      allow read: if isSignedIn() &&
+        resource.data.freelancerId == request.auth.uid;
+
+      // Clients can create confirmations for their payments
+      allow create: if isSignedIn();
+
+      // Only server can update/delete
+      allow update, delete: if false; // Server-only
+    }
+
+    // ============================================
+    // PAYMENT CLAIMS
+    // ============================================
+
+    match /payment_claims/{claimId} {
+      // Freelancers can read/create claims for their invoices
+      allow read, create: if isSignedIn() &&
+        (
+          resource.data.freelancerId == request.auth.uid ||
+          request.resource.data.freelancerId == request.auth.uid
+        );
+
+      // Only server can update/delete claims
+      allow update, delete: if false; // Server-only
+    }
+
+    // ============================================
+    // NOTIFICATIONS COLLECTION
+    // ============================================
+
+    match /notifications/{notificationId} {
+      // Users can read/update their own notifications
+      allow read, update: if isSignedIn() &&
+        resource.data.freelancerId == request.auth.uid;
+
+      // Only server can create/delete notifications
+      allow create, delete: if false; // Server-only
+    }
+
+    // ============================================
+    // COLLECTION ATTEMPTS (Server-only)
+    // ============================================
+
+    match /collection_attempts/{attemptId} {
+      // Freelancers can read attempts for their invoices
+      allow read: if isSignedIn() &&
+        resource.data.freelancerId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only via Admin SDK
+    }
+
+    // ============================================
+    // AGENCY HANDOFFS (Server-only)
+    // ============================================
+
+    match /agency_handoffs/{handoffId} {
+      // Freelancers can read their own agency handoffs
+      allow read: if isSignedIn() &&
+        resource.data.freelancerId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only via Admin SDK
+    }
+
+    // ============================================
+    // EMAILS SENT (Server-only)
+    // ============================================
+
+    match /emails_sent/{emailId} {
+      // Freelancers can read emails sent for their invoices
+      allow read: if isSignedIn() &&
+        resource.data.freelancerId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only via Admin SDK
+    }
+
+    // ============================================
+    // ESCALATION STATES (Server-only)
+    // ============================================
+
+    match /escalation_states/{stateId} {
+      // Freelancers can read escalation states for their invoices
+      allow read: if isSignedIn() &&
+        resource.data.freelancerId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only via Admin SDK
+    }
+
+    // ============================================
+    // ESCALATION TIMELINE (Server-only)
+    // ============================================
+
+    match /escalation_timeline/{timelineId} {
+      // Freelancers can read timeline events for their invoices
+      allow read: if isSignedIn() &&
+        resource.data.freelancerId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only via Admin SDK
+    }
+
+    // ============================================
+    // FAILED WEBHOOKS (Admin and Server-only)
+    // ============================================
+
+    match /failed_webhooks/{webhookId} {
+      // Only admins can read failed webhooks
+      allow read: if isAdmin();
+
+      // Only server can write
+      allow write: if false; // Server-only via Admin SDK
+    }
+
+    // ============================================
+    // PROCESSED EVENTS (Server-only)
+    // ============================================
+
+    match /processed_events/{eventId} {
+      // No client access - server-only for idempotency
+      allow read, write: if false; // Server-only via Admin SDK
+    }
+
+    // ============================================
+    // REFERRALS SYSTEM
+    // ============================================
+
+    match /referrals/{referralId} {
+      // Users can read referrals where they are referrer or referee
+      allow read: if isSignedIn() &&
+        (
+          resource.data.referrerId == request.auth.uid ||
+          resource.data.refereeId == request.auth.uid
+        );
+
+      // Users can create referrals
+      allow create: if isSignedIn();
+
+      // Only server can update/delete
+      allow update, delete: if false; // Server-only
+    }
+
+    match /referral_credits/{creditId} {
+      // Users can read their own credits
+      allow read: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only
+    }
+
+    match /referral_payouts/{payoutId} {
+      // Users can read their own payouts
+      allow read: if isSignedIn() &&
+        resource.data.referrerId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only
+    }
+
+    // ============================================
+    // USER BEHAVIOR & ANALYTICS (Server-only)
+    // ============================================
+
+    match /user_behavior_profile/{profileId} {
+      // Users can read their own behavior profile
+      allow read: if isSignedIn() && profileId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only
+    }
+
+    match /user_stats/{statsId} {
+      // Users can read their own stats
+      allow read: if isSignedIn() && statsId == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only
+    }
+
+    match /user_events/{eventId} {
+      // Users can read their own events
+      allow read: if isSignedIn() &&
+        resource.data.user_id == request.auth.uid;
+
+      // Server can create events
+      allow create: if isSignedIn();
+
+      // Only server can update/delete
+      allow update, delete: if false; // Server-only
+    }
+
+    match /daily_summaries/{summaryId} {
+      // Users can read their own daily summaries
+      allow read: if isSignedIn() &&
+        resource.data.user_id == request.auth.uid;
+
+      // Only server can write
+      allow write: if false; // Server-only
+    }
+
+    // ============================================
+    // ONBOARDING PROGRESS
+    // ============================================
+
+    match /onboarding_progress/{userId} {
+      // Users can read/update their own onboarding progress
+      allow read, update: if isOwner(userId);
+
+      // Server can create onboarding progress
+      allow create: if isSignedIn();
+
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+
+    // ============================================
+    // SYSTEM CONFIGURATION (Public Read, Admin Write)
+    // ============================================
+
+    match /system_config/{configId} {
+      // Anyone can read system config (feature flags, etc.)
+      allow read: if true;
+
+      // Only admins can write
+      allow write: if isAdmin();
+    }
+
+    // ============================================
+    // SMS OPT-OUTS (Server-only)
+    // ============================================
+
+    match /sms_opt_outs/{phoneNumber} {
+      // No client access - server-only for compliance
+      allow read, write: if false; // Server-only via Admin SDK
+    }
+
+    match /sms_opt_out_audit/{auditId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+
+      // Only server can write
+      allow write: if false; // Server-only
+    }
+
+    match /sms_replies/{replyId} {
+      // Only server can write
+      allow write: if false; // Server-only
+
+      // Admins can read
+      allow read: if isAdmin();
+    }
+
+    // ============================================
+    // DEFAULT DENY ALL
+    // ============================================
+
+    // Deny access to any collection not explicitly allowed above
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
