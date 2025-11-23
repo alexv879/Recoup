@@ -64,6 +64,10 @@ export async function runEscalationWorker(): Promise<EscalationWorkerResult> {
         errors: [],
     };
 
+    // Rate limiting configuration
+    const MAX_INVOICES_PER_RUN = 50; // Process max 50 invoices per run to avoid timeouts and rate limits
+    const DELAY_BETWEEN_EMAILS_MS = 100; // 100ms delay between sends (max 600/min, well under SendGrid limit)
+
     try {
         logInfo('Starting collections escalation worker');
 
@@ -72,12 +76,14 @@ export async function runEscalationWorker(): Promise<EscalationWorkerResult> {
         const overdueInvoicesSnapshot = await db
             .collection(COLLECTIONS.INVOICES)
             .where('status', 'in', ['overdue', 'in_collections'])
+            .limit(MAX_INVOICES_PER_RUN) // Limit query to prevent processing too many
             .get();
 
         result.scannedCount = overdueInvoicesSnapshot.size;
-        logInfo(`Found ${result.scannedCount} overdue invoices to process`);
+        logInfo(`Found ${result.scannedCount} overdue invoices to process (max ${MAX_INVOICES_PER_RUN} per run)`);
 
-        // 2. Process each invoice
+        // 2. Process each invoice with rate limiting
+        let processedCount = 0;
         for (const invoiceDoc of overdueInvoicesSnapshot.docs) {
             try {
                 const invoice = invoiceDoc.data() as Invoice;
@@ -131,6 +137,12 @@ export async function runEscalationWorker(): Promise<EscalationWorkerResult> {
                         escalationState
                     );
                     result.escalatedCount++;
+                    processedCount++;
+
+                    // Rate limiting: Add delay after sending emails/SMS to avoid hitting SendGrid/Twilio limits
+                    if (processedCount < overdueInvoicesSnapshot.size) {
+                        await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_EMAILS_MS));
+                    }
                 } else {
                     result.skippedCount++;
                 }
@@ -373,38 +385,76 @@ async function sendEscalationSMS(
     daysOverdue: number
 ): Promise<void> {
     try {
-        // Get user phone number
+        // Get user data for business name
         const userDoc = await db.collection(COLLECTIONS.USERS).doc(invoice.freelancerId).get();
         const user = userDoc.data() as User;
 
-        // SMS functionality not implemented yet - User interface doesn't have phoneNumber
-        logWarn(`SMS reminders not implemented yet - skipping for user ${invoice.freelancerId}`);
-        return;
+        // Check if we have a phone number (prefer invoice clientPhone, fallback to user phoneNumber)
+        const recipientPhone = invoice.clientPhone || user.phoneNumber;
+        if (!recipientPhone) {
+            logInfo(`No phone number available for invoice ${invoice.reference} - skipping SMS`);
+            return;
+        }
 
-        const updatedInvoice = {
-            ...invoice,
-            template_level: (level === 'final' || level === 'agency') ? '30' : (level === 'firm') ? '15' : '5', // Correct inline logic applied
-            dueDate: (invoice.dueDate as any).toDate
-                ? (invoice.dueDate as any).toDate().toLocaleDateString('en-GB')
-                : (invoice.dueDate as Date).toLocaleDateString('en-GB'), // Format dueDate
-            paymentLink: invoice.stripePaymentLinkUrl || undefined, // Resolve paymentLink
-        };
+        // Check SMS consent
+        const consent = user.collectionsConsent;
+        if (typeof consent === 'object' && consent?.smsOptedOut) {
+            logInfo(`Client opted out of SMS for invoice ${invoice.reference} - skipping`);
+            return;
+        }
+        if (typeof consent === 'object' && !consent?.smsConsent) {
+            logInfo(`No SMS consent for invoice ${invoice.reference} - skipping`);
+            return;
+        }
 
-        // SMS functionality not implemented - skip the actual sending
-        // const result = await sendCollectionSMS({
-        //     recipientPhone: user.phoneNumber,
-        //     invoiceReference: updatedInvoice.reference,
-        //     amount: updatedInvoice.amount,
-        //     dueDate: updatedInvoice.dueDate, // Use formatted dueDate
-        //     template: 'gentle_reminder', // Use a valid SMSTemplate value
-        //     paymentLink: updatedInvoice.paymentLink, // No changes needed
-        //     businessName: user.businessName || 'Relay', // Provide default value
-        //     invoiceId: updatedInvoice.invoiceId,
-        //     freelancerId: updatedInvoice.freelancerId,
-        // });
+        // Map escalation level to SMS template
+        let smsTemplate: 'gentle_reminder' | 'firm_reminder' | 'final_notice' | 'payment_link';
+        switch (level) {
+            case 'gentle':
+                smsTemplate = 'gentle_reminder';
+                break;
+            case 'firm':
+                smsTemplate = 'firm_reminder';
+                break;
+            case 'final':
+                smsTemplate = 'final_notice';
+                break;
+            case 'agency':
+                // Don't send SMS at agency level - too late
+                logInfo(`Skipping SMS at agency level for invoice ${invoice.reference}`);
+                return;
+            default:
+                smsTemplate = 'gentle_reminder';
+        }
 
-        // For now, just log that SMS would be sent
-        logInfo(`SMS reminder would be sent for invoice ${invoice.reference} at level ${level}`);
+        // Format due date
+        const dueDate = (invoice.dueDate as any).toDate
+            ? (invoice.dueDate as any).toDate().toLocaleDateString('en-GB')
+            : (invoice.dueDate as Date).toLocaleDateString('en-GB');
+
+        // Send SMS via Twilio
+        const result = await sendCollectionSMS({
+            recipientPhone,
+            invoiceReference: invoice.reference,
+            amount: invoice.amount,
+            dueDate,
+            template: smsTemplate,
+            paymentLink: invoice.stripePaymentLinkUrl,
+            businessName: user.businessName || user.name || 'Recoup',
+            invoiceId: invoice.invoiceId,
+            freelancerId: invoice.freelancerId,
+        });
+
+        if (!result.success) {
+            logError(`SMS sending failed for invoice ${invoice.reference}: ${result.error}`);
+            return;
+        }
+
+        logInfo(`SMS reminder sent successfully for invoice ${invoice.reference} at level ${level}`, {
+            messageSid: result.messageSid,
+            status: result.status,
+        });
+
         // Add timeline event
         await addTimelineEvent(invoice.invoiceId, {
             eventId: `${invoice.invoiceId}-sms-${Date.now()}`,
@@ -415,8 +465,9 @@ async function sendEscalationSMS(
             timestamp: new Date(),
             message: `${ESCALATION_CONFIGS[level].badgeText} reminder sent via SMS`,
             metadata: {
-                // messageSid: result.messageSid,
+                messageSid: result.messageSid,
                 daysOverdue,
+                cost: result.cost,
             },
         });
 

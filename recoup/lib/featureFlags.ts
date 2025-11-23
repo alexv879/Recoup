@@ -20,6 +20,11 @@ export interface FeatureFlags {
     PRICING_MIGRATION_MODE: PricingMigrationMode;
     PRICING_V3_ROLLOUT_PERCENTAGE: number; // 0-100: gradual rollout percentage
 
+    // Collections Features
+    AGENCY_HANDOFF_ENABLED: boolean; // Agency handoff integration (INCOMPLETE - Coming Soon)
+    VOICE_AI_ENABLED: boolean; // Voice AI calling feature (BETA - Needs testing)
+    SMS_COLLECTIONS_ENABLED: boolean; // SMS collections via Twilio
+
     // Future flags can be added here
     // Example: EMAIL_SEQUENCE_V2_ENABLED: boolean;
 }
@@ -29,6 +34,11 @@ const DEFAULT_FLAGS: FeatureFlags = {
     PRICING_V3_ENABLED: false, // Disabled by default for safety
     PRICING_MIGRATION_MODE: 'preview', // Start in preview mode
     PRICING_V3_ROLLOUT_PERCENTAGE: 0, // 0% rollout initially
+
+    // Collections features - disabled by default until fully tested
+    AGENCY_HANDOFF_ENABLED: false, // COMING SOON: Integration incomplete (40% built)
+    VOICE_AI_ENABLED: false, // BETA: Voice AI needs production testing
+    SMS_COLLECTIONS_ENABLED: true, // READY: SMS collections now fully implemented
 };
 
 /**

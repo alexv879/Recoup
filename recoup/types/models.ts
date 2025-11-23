@@ -92,6 +92,7 @@ export interface Invoice {
   clientId: string;
   clientName: string;
   clientEmail: string;
+  clientPhone?: string; // Client phone number for SMS collections
   reference: string;
   amount: number; // in pence
   status: 'draft' | 'sent' | 'paid' | 'overdue' | 'in_collections' | 'disputed' | 'cancelled';
@@ -282,5 +283,22 @@ export interface AgencyRecoveryTransactionResult {
   success: boolean;
   transactionId?: string;
   error?: string;
+}
+
+export interface FailedWebhook {
+  webhookId: string;
+  source: 'stripe' | 'clerk' | 'sendgrid' | 'twilio';
+  eventType: string;
+  eventId?: string;
+  payload: any;
+  signature?: string;
+  error: string;
+  retryCount: number;
+  maxRetries: number;
+  nextRetryAt?: Date | Timestamp;
+  lastAttemptAt: Date | Timestamp;
+  status: 'pending_retry' | 'retrying' | 'failed' | 'dead_letter';
+  createdAt: Date | Timestamp;
+  updatedAt: Date | Timestamp;
 }
 

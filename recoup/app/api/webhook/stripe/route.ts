@@ -57,57 +57,77 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         logInfo(`[webhook/stripe] Event type: ${event.type}`);
 
         // 3. Handle different event types
-        switch (event.type) {
-            case 'checkout.session.completed': {
-                const session = event.data.object as Stripe.Checkout.Session;
-                await handleCheckoutCompleted(session);
-                break;
+        try {
+            switch (event.type) {
+                case 'checkout.session.completed': {
+                    const session = event.data.object as Stripe.Checkout.Session;
+                    await handleCheckoutCompleted(session);
+                    break;
+                }
+
+                case 'invoice.payment_succeeded': {
+                    const invoice = event.data.object as Stripe.Invoice;
+                    await handleInvoicePaymentSucceeded(invoice);
+                    break;
+                }
+
+                case 'customer.subscription.created': {
+                    const subscription = event.data.object as Stripe.Subscription;
+                    await handleSubscriptionCreated(subscription);
+                    break;
+                }
+
+                case 'customer.subscription.updated': {
+                    const subscription = event.data.object as Stripe.Subscription;
+                    await handleSubscriptionUpdated(subscription);
+                    break;
+                }
+
+                case 'customer.subscription.deleted': {
+                    const subscription = event.data.object as Stripe.Subscription;
+                    await handleSubscriptionDeleted(subscription);
+                    break;
+                }
+
+                case 'payment_intent.succeeded': {
+                    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+                    await handlePaymentIntentSucceeded(paymentIntent);
+                    break;
+                }
+
+                case 'payment_intent.payment_failed': {
+                    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+                    await handlePaymentIntentFailed(paymentIntent);
+                    break;
+                }
+
+                default:
+                    logInfo(`[webhook/stripe] Unhandled event type: ${event.type}`);
             }
 
-            case 'invoice.payment_succeeded': {
-                const invoice = event.data.object as Stripe.Invoice;
-                await handleInvoicePaymentSucceeded(invoice);
-                break;
-            }
+            const duration = Date.now() - startTime;
+            logInfo(`[webhook/stripe] Webhook processed in ${duration}ms`);
 
-            case 'customer.subscription.created': {
-                const subscription = event.data.object as Stripe.Subscription;
-                await handleSubscriptionCreated(subscription);
-                break;
-            }
+            return NextResponse.json({ received: true });
+        } catch (handlerError) {
+            // Store failed webhook for retry
+            const { storeFailedWebhook } = await import('@/lib/webhook-retry');
+            await storeFailedWebhook({
+                source: 'stripe',
+                eventType: event.type,
+                eventId: event.id,
+                payload: event,
+                signature: signature,
+                error: handlerError instanceof Error ? handlerError.message : 'Unknown error',
+            });
 
-            case 'customer.subscription.updated': {
-                const subscription = event.data.object as Stripe.Subscription;
-                await handleSubscriptionUpdated(subscription);
-                break;
-            }
-
-            case 'customer.subscription.deleted': {
-                const subscription = event.data.object as Stripe.Subscription;
-                await handleSubscriptionDeleted(subscription);
-                break;
-            }
-
-            case 'payment_intent.succeeded': {
-                const paymentIntent = event.data.object as Stripe.PaymentIntent;
-                await handlePaymentIntentSucceeded(paymentIntent);
-                break;
-            }
-
-            case 'payment_intent.payment_failed': {
-                const paymentIntent = event.data.object as Stripe.PaymentIntent;
-                await handlePaymentIntentFailed(paymentIntent);
-                break;
-            }
-
-            default:
-                logInfo(`[webhook/stripe] Unhandled event type: ${event.type}`);
+            // Still return 500 so Stripe knows it failed
+            logError('[webhook/stripe] Error processing webhook (stored for retry):', handlerError);
+            return NextResponse.json(
+                { error: 'Webhook handler failed - stored for retry' },
+                { status: 500 }
+            );
         }
-
-        const duration = Date.now() - startTime;
-        logInfo(`[webhook/stripe] Webhook processed in ${duration}ms`);
-
-        return NextResponse.json({ received: true });
     } catch (error) {
         const duration = Date.now() - startTime;
         logError('[webhook/stripe] Error processing webhook:', error);
@@ -115,6 +135,59 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             { error: 'Webhook handler failed' },
             { status: 500 }
         );
+    }
+}
+
+/**
+ * Handle Stripe webhook event (for retries)
+ * Called by webhook retry mechanism
+ */
+export async function handleStripeWebhookEvent(event: Stripe.Event): Promise<void> {
+    switch (event.type) {
+        case 'checkout.session.completed': {
+            const session = event.data.object as Stripe.Checkout.Session;
+            await handleCheckoutCompleted(session);
+            break;
+        }
+
+        case 'invoice.payment_succeeded': {
+            const invoice = event.data.object as Stripe.Invoice;
+            await handleInvoicePaymentSucceeded(invoice);
+            break;
+        }
+
+        case 'customer.subscription.created': {
+            const subscription = event.data.object as Stripe.Subscription;
+            await handleSubscriptionCreated(subscription);
+            break;
+        }
+
+        case 'customer.subscription.updated': {
+            const subscription = event.data.object as Stripe.Subscription;
+            await handleSubscriptionUpdated(subscription);
+            break;
+        }
+
+        case 'customer.subscription.deleted': {
+            const subscription = event.data.object as Stripe.Subscription;
+            await handleSubscriptionDeleted(subscription);
+            break;
+        }
+
+        case 'payment_intent.succeeded': {
+            const paymentIntent = event.data.object as Stripe.PaymentIntent;
+            await handlePaymentIntentSucceeded(paymentIntent);
+            break;
+        }
+
+        case 'payment_intent.payment_failed': {
+            const paymentIntent = event.data.object as Stripe.PaymentIntent;
+            await handlePaymentIntentFailed(paymentIntent);
+            break;
+        }
+
+        default:
+            logInfo(`[webhook/stripe] Unhandled event type during retry: ${event.type}`);
     }
 }
 

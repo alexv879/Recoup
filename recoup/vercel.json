@@ -27,6 +27,11 @@
       "path": "/api/cron/process-recurring-invoices",
       "schedule": "0 0 * * *",
       "description": "Daily at midnight UTC - Generate invoices from active recurring invoice schedules"
+    },
+    {
+      "path": "/api/cron/retry-webhooks",
+      "schedule": "* * * * *",
+      "description": "Every minute - Retry failed webhooks with exponential backoff (max 5 retries before dead letter queue)"
     }
   ]
 }

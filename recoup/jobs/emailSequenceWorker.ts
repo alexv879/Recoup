@@ -269,18 +269,23 @@ export async function runEmailSequenceWorker(): Promise<{
     let skipped = 0;
     let failed = 0;
 
+    // Rate limiting configuration
+    const MAX_INVOICES_PER_RUN = 50; // Process max 50 invoices per run
+    const DELAY_BETWEEN_EMAILS_MS = 100; // 100ms delay between sends
+
     try {
         // Query all overdue invoices that are not paid or cancelled
         const invoicesRef = firestore.collection('invoices');
         const query = invoicesRef
             .where('status', 'in', ['sent', 'overdue'])
-            .where('dueDate', '<', new Date());
+            .where('dueDate', '<', new Date())
+            .limit(MAX_INVOICES_PER_RUN); // Add limit to prevent processing too many
 
         const snapshot = await query.get();
 
-        logInfo(`Found ${snapshot.size} potentially overdue invoices to process`);
+        logInfo(`Found ${snapshot.size} potentially overdue invoices to process (max ${MAX_INVOICES_PER_RUN} per run)`);
 
-        // Process each invoice
+        // Process each invoice with rate limiting
         for (const doc of snapshot.docs) {
             const invoice = { id: doc.id, ...doc.data() } as Invoice;
             processed++;
@@ -289,6 +294,11 @@ export async function runEmailSequenceWorker(): Promise<{
 
             if (levelSent) {
                 sent++;
+
+                // Rate limiting: Add delay after sending emails to avoid hitting SendGrid limits
+                if (processed < snapshot.size) {
+                    await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_EMAILS_MS));
+                }
             } else {
                 skipped++;
             }
