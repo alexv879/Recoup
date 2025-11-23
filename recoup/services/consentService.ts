@@ -265,46 +265,117 @@ export async function requestDataDeletion(userId: string): Promise<{
       itemsDeleted: attempts.size,
     });
 
-    // AUDIT TASK #7: Delete files from Firebase Storage (GDPR compliance)
+    // AUDIT TASK #7 (COMPLETED): Delete ALL files from Firebase Storage (GDPR compliance - Task 1.3)
     try {
-      // Import storage utilities
-      const { listHandoffDocuments, deleteDocument } = await import('@/lib/firebase-storage');
+      // Import Firebase Admin Storage
+      const { Storage } = await import('@google-cloud/storage');
+      const storage = new Storage();
 
-      // Find all handoffs for this user to get document references
-      const handoffsSnapshot = await db
-        .collection('agency_handoffs')
-        .where('freelancerId', '==', userId)
-        .get();
+      const bucketName = process.env.FIREBASE_STORAGE_BUCKET || `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.appspot.com`;
+      const bucket = storage.bucket(bucketName);
 
-      let filesDeleted = 0;
+      let totalFilesDeleted = 0;
 
-      for (const handoffDoc of handoffsSnapshot.docs) {
-        const handoffId = handoffDoc.id;
+      // STORAGE PATHS TO DELETE:
+      // 1. Voice call recordings: calls/{userId}/**
+      // 2. Physical letter PDFs: letters/{userId}/**
+      // 3. Uploaded documents: documents/{userId}/**
+      // 4. Agency handoff documents: handoffs/{userId}/**
+      // 5. Receipt images: receipts/{userId}/**
+      // 6. Invoice attachments: invoices/{userId}/**
 
-        // List all documents for this handoff
-        const docsResult = await listHandoffDocuments(handoffId, userId);
+      const userStoragePaths = [
+        `calls/${userId}/`,
+        `letters/${userId}/`,
+        `documents/${userId}/`,
+        `handoffs/${userId}/`,
+        `receipts/${userId}/`,
+        `invoices/${userId}/`,
+      ];
 
-        if (docsResult.success && docsResult.documents) {
-          // Delete each document
-          for (const doc of docsResult.documents) {
-            const deleteResult = await deleteDocument(doc.storagePath);
-            if (deleteResult.success) {
-              filesDeleted++;
+      for (const prefix of userStoragePaths) {
+        try {
+          // List all files with this prefix
+          const [files] = await bucket.getFiles({ prefix });
+
+          logInfo(`Found ${files.length} files in ${prefix}`, { userId, prefix, count: files.length });
+
+          // Delete each file
+          for (const file of files) {
+            try {
+              await file.delete();
+              totalFilesDeleted++;
+              logInfo(`Deleted file: ${file.name}`, { userId, filePath: file.name });
+            } catch (fileError) {
+              logError(`Failed to delete file: ${file.name}`, fileError);
+              // Continue with other files even if one fails
             }
           }
+        } catch (pathError) {
+          logWarn(`No files found or error accessing path: ${prefix}`, pathError);
+          // Continue with other paths even if one fails
         }
       }
 
-      logInfo('Cloud storage files deleted', {
+      // Also delete handoff-specific documents (legacy structure)
+      try {
+        const handoffsSnapshot = await db
+          .collection('agency_handoffs')
+          .where('freelancerId', '==', userId)
+          .get();
+
+        for (const handoffDoc of handoffsSnapshot.docs) {
+          const handoffData = handoffDoc.data();
+
+          // Delete documents referenced in handoff metadata
+          if (handoffData.documents && Array.isArray(handoffData.documents)) {
+            for (const docRef of handoffData.documents) {
+              if (docRef.storagePath) {
+                try {
+                  await bucket.file(docRef.storagePath).delete();
+                  totalFilesDeleted++;
+                  logInfo(`Deleted handoff document: ${docRef.storagePath}`, { userId });
+                } catch (docError) {
+                  logWarn(`Failed to delete handoff document: ${docRef.storagePath}`, docError);
+                }
+              }
+            }
+          }
+        }
+      } catch (handoffError) {
+        logWarn('Error processing handoff documents', handoffError);
+      }
+
+      logInfo('Cloud storage deletion completed', {
         userId,
-        filesDeleted,
-        handoffsProcessed: handoffsSnapshot.size,
+        totalFilesDeleted,
+        pathsProcessed: userStoragePaths.length,
+      });
+
+      // Update deletion request log with file count
+      await db.collection('data_deletion_requests').add({
+        userId,
+        requestDate: FieldValue.serverTimestamp(),
+        status: 'completed',
+        firestoreItemsDeleted: attempts.size,
+        storageFilesDeleted: totalFilesDeleted,
+        storagePaths: userStoragePaths,
       });
 
     } catch (storageError) {
       logError('Failed to delete cloud storage files', storageError);
-      // Continue - file deletion failure shouldn't block the consent removal
-      // Files will have 30-day TTL and be automatically cleaned up
+
+      // Log partial failure
+      await db.collection('data_deletion_requests').add({
+        userId,
+        requestDate: FieldValue.serverTimestamp(),
+        status: 'partial_failure',
+        firestoreItemsDeleted: attempts.size,
+        storageError: storageError instanceof Error ? storageError.message : 'Unknown storage error',
+      });
+
+      // Continue - file deletion failure shouldn't completely block GDPR compliance
+      // The user's Firestore data has been deleted, which is the primary requirement
     }
 
     logInfo('Data deletion completed', { userId, itemsDeleted: attempts.size });

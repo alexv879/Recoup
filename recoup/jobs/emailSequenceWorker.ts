@@ -1,5 +1,7 @@
 /**
- * Email Sequence Worker
+ * @deprecated This worker is deprecated and will be removed.
+ * The logic has been consolidated into the new `collectionsEscalator.ts` worker,
+ * which provides a unified, state-driven approach to all collection attempts.
  * 
  * Hourly cron job that scans overdue invoices and triggers Day 5/15/30 reminder emails
  * based on days overdue. Implements idempotency to prevent duplicate sends.

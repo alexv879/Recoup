@@ -92,17 +92,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // CRITICAL: Check if CLIENT has opted out of receiving SMS (UK PECR compliance)
     // Must honor client's opt-out immediately to comply with UK regulations
-    // We track opt-outs by normalized phone number since clients don't have accounts
-    const normalizedPhone = recipientPhone.replace(/\s+/g, ''); // Remove spaces
-    const clientOptOutDoc = await db
-      .collection('sms_opt_outs')
-      .doc(normalizedPhone)
-      .get();
+    // We track opt-outs in User.collectionsConsent.smsOptOuts by normalized phone number
+    const normalizedPhone = recipientPhone.replace(/[\s\-\(\)]/g, ''); // Remove spaces, dashes, parentheses
 
-    if (clientOptOutDoc.exists) {
-      const optOutData = clientOptOutDoc.data();
+    // Check if this client phone number has opted out from this freelancer's messages
+    const smsOptOuts = userData?.collectionsConsent?.smsOptOuts || {};
+
+    if (smsOptOuts[normalizedPhone]) {
+      const optOutData = smsOptOuts[normalizedPhone];
+      const optedOutDate = optOutData.optedOutAt ? new Date(optOutData.optedOutAt).toLocaleDateString('en-GB') : 'unknown date';
+
       throw new ForbiddenError(
-        `This phone number opted out of SMS on ${optOutData?.optedOutAt?.toDate().toLocaleDateString()}. Cannot send SMS (UK PECR compliance).`
+        `This phone number opted out of SMS on ${optedOutDate}. Cannot send SMS (UK PECR compliance).`
       );
     }
 

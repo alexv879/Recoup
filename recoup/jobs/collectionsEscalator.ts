@@ -399,11 +399,23 @@ async function sendEscalationSMS(
         // Check SMS consent
         const consent = user.collectionsConsent;
         if (typeof consent === 'object' && consent?.smsOptedOut) {
-            logInfo(`Client opted out of SMS for invoice ${invoice.reference} - skipping`);
+            logInfo(`Freelancer has globally disabled SMS for invoice ${invoice.reference} - skipping`);
             return;
         }
         if (typeof consent === 'object' && !consent?.smsConsent) {
             logInfo(`No SMS consent for invoice ${invoice.reference} - skipping`);
+            return;
+        }
+
+        // CRITICAL: Check if CLIENT has opted out (UK PECR compliance - Task 1.2)
+        // Must honor client's opt-out immediately to comply with UK regulations
+        const normalizedPhone = recipientPhone.replace(/[\s\-\(\)]/g, '');
+        const smsOptOuts = (typeof consent === 'object' && consent?.smsOptOuts) || {};
+
+        if (smsOptOuts[normalizedPhone]) {
+            const optOutData = smsOptOuts[normalizedPhone];
+            const optedOutDate = optOutData.optedOutAt ? new Date(optOutData.optedOutAt).toLocaleDateString('en-GB') : 'unknown';
+            logInfo(`Client phone number ${normalizedPhone} opted out on ${optedOutDate} - skipping SMS for invoice ${invoice.reference} (UK PECR compliance)`);
             return;
         }
 

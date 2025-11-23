@@ -11,16 +11,49 @@ export interface BusinessAddress {
   country?: string;
 }
 
+/**
+ * SMS Opt-Out Record
+ *
+ * UK PECR Compliance: Tracks when a client opted out of SMS communications
+ * from a specific freelancer. Must be honored immediately.
+ *
+ * Task 1.2 - Production Readiness Refactoring
+ */
+export interface SmsOptOutRecord {
+  optedOutAt: string; // ISO 8601 timestamp
+  reason: 'user_request' | 'bounce' | 'complaint' | 'manual';
+  keyword?: string; // e.g., "STOP", "UNSUBSCRIBE"
+  twilioMessageSid?: string; // Twilio message ID that triggered opt-out
+}
+
+/**
+ * Collections Consent
+ *
+ * Tracks user consent for various collections activities.
+ * GDPR and UK PECR compliant.
+ */
 export interface CollectionsConsent {
+  // Freelancer-level consent flags
   smsConsent?: boolean;
-  smsOptedOut?: boolean;
+  smsOptedOut?: boolean; // Global SMS disable for this freelancer
   callConsent?: boolean;
   callRecordingConsent?: boolean;
   physicalMailConsent?: boolean;
   physicalMailOptedOut?: boolean;
   dataStorageConsent?: boolean;
+
+  // Consent metadata
   consentDate?: Date | Timestamp;
   consentVersion?: string;
+  ipAddress?: string;
+  lastUpdated?: string; // ISO 8601 timestamp
+
+  // Client-specific opt-outs (UK PECR compliance - Task 1.2)
+  // Maps normalized phone number → opt-out record
+  // Example: { "+447700900123": { optedOutAt: "2025-01-15T10:30:00Z", reason: "user_request", keyword: "STOP" } }
+  smsOptOuts?: {
+    [normalizedClientPhone: string]: SmsOptOutRecord;
+  };
 }
 
 export interface User {
@@ -35,17 +68,15 @@ export interface User {
   subscriptionStatus?: 'active' | 'inactive' | 'cancelled';
   stripeCustomerId?: string; // Stripe customer ID for subscription management
   collectionsEnabled: boolean;
-  collectionsDemoUsedThisMonth?: number;
-  collectionsUsedThisMonth?: number; // Total collections used this month (all tiers)
-  collectionsConsent?: boolean | CollectionsConsent; // Whether user has consented to collections
+  collectionsUsage?: { [key: string]: number }; // e.g. { 'sms': 5, 'letters': 1 }
+  collectionsConsent?: CollectionsConsent; // Whether user has consented to collections
   monthlyUsageResetDate?: Date | Timestamp; // Last time monthly usage was reset
-  lastDemoResetDate?: Date | Timestamp; // Last time demo was reset
   isFoundingMember?: boolean; // Whether user is a founding member (50% discount for life)
   foundingMemberNumber?: string; // Unique founding member number
   foundingMemberJoinedAt?: Date | Timestamp; // When they became a founding member
   lockedInPrice?: number; // Locked-in price for founding members
   phoneNumber?: string; // User's phone number for SMS notifications
-  businessAddress?: string | BusinessAddress; // Business address for formal letters
+  businessAddress?: BusinessAddress; // Business address for formal letters
   referralCode?: string;
   profilePicture?: string;
   timezone: string;
@@ -171,8 +202,7 @@ export interface Transaction {
   freelancerId: string;
   amount: number;
   paymentMethod: string;
-  relayCommission: number;
-  recoupCommission?: number; // Alternative commission field name
+  commission: number;
   freelancerNet: number;
   commissionRate: number;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
@@ -301,4 +331,3 @@ export interface FailedWebhook {
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
 }
-

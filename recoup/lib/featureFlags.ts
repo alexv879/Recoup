@@ -29,11 +29,11 @@ export interface FeatureFlags {
     // Example: EMAIL_SEQUENCE_V2_ENABLED: boolean;
 }
 
-// Default feature flags (conservative defaults)
+// Default feature flags (updated for production readiness - Task 1.1)
 const DEFAULT_FLAGS: FeatureFlags = {
-    PRICING_V3_ENABLED: false, // Disabled by default for safety
-    PRICING_MIGRATION_MODE: 'preview', // Start in preview mode
-    PRICING_V3_ROLLOUT_PERCENTAGE: 0, // 0% rollout initially
+    PRICING_V3_ENABLED: true, // ENABLED: Pricing V3 is now the official pricing model
+    PRICING_MIGRATION_MODE: 'active', // Migration in active mode
+    PRICING_V3_ROLLOUT_PERCENTAGE: 100, // 100% rollout - all users see V3
 
     // Collections features - disabled by default until fully tested
     AGENCY_HANDOFF_ENABLED: false, // COMING SOON: Integration incomplete (40% built)

@@ -43,15 +43,20 @@
 
 ---
 
-### **STARTER TIER** - £15/month (£12/month annually)
+### **STARTER TIER** - £19/month (£15.20/month annually)
 
 **Target:** Active freelancers with 5-20 clients
+
+**Collections Limit:** 10 automated collections per month
 
 **What Users Can Do:**
 - ✅ **Unlimited invoices**
 - ✅ Professional invoice templates (10+ designs)
 - ✅ Email + SMS invoice delivery
 - ✅ **Automated payment reminders** (Day 5, 15, 30)
+- ✅ **Basic collections automation** (up to 10/month):
+  - Gentle email reminders (Day 5-14)
+  - Firm email reminders (Day 15-29)
 - ✅ Payment tracking (automatic via Stripe webhooks)
 - ✅ Late payment interest calculator
 - ✅ **HMRC MTD VAT integration** (quarterly VAT submissions)
@@ -61,45 +66,48 @@
 - ✅ Email support (24-hour response)
 - ✅ Remove Recoup branding
 - ❌ No AI features
+- ❌ No SMS collections
 - ❌ No physical letters
 - ❌ No agency escalation
 - ❌ No phone support
 
 **Your Costs Per User:**
 - Firebase: ~£0.50/month (50-100 invoices, clients, storage)
-- SendGrid: ~£0.30/month (50 emails)
-- Twilio SMS: ~£0.20/month (5 SMS)
+- SendGrid: ~£0.40/month (60 emails for collections)
+- Twilio SMS: £0 (SMS in Growth tier only)
 - HMRC API: £0 (free API)
 - Vercel: ~£0.10/month (compute)
 - Clerk: ~£0.05/month (MAU)
 - Support: ~£1/month (amortized)
-- **Total Cost: ~£2.15/month**
+- **Total Cost: ~£2.05/month**
 
 **Your Revenue:**
-- Monthly: £15
-- Annual: £144 (£12/month × 12)
-- **Profit Margin: 86% (monthly) | 93% (annual)**
+- Monthly: £19
+- Annual: £182.40 (£15.20/month × 12, 20% discount)
+- **Profit Margin: 89% (monthly) | 91% (annual)**
 
-**Conversion Goal:** 15% → Professional tier within 6 months
+**Conversion Goal:** 20% → Growth tier within 6 months
 
 **Expected User Base:** 5,000-10,000 users (year 1)
 
 ---
 
-### **PROFESSIONAL TIER** - £39/month (£32/month annually)
+### **GROWTH TIER** - £39/month (£31.20/month annually)
 
 **Target:** Established freelancers with £50k-£150k revenue
+
+**Collections Limit:** 50 automated collections per month
 
 **What Users Can Do:**
 - ✅ **Everything in Starter, PLUS:**
 - ✅ **AI invoice parsing** (snap photos of supplier invoices, auto-extract data)
 - ✅ **AI expense categorization** (automatic for tax)
 - ✅ **Receipt scanning with OCR** (mobile camera → expenses)
-- ✅ **Advanced collections automation**:
-  - Gentle reminders (Day 5, 15)
-  - Firm reminders (Day 30)
-  - Final notice (Day 45)
-  - **Physical letters via Lob** (Day 60)
+- ✅ **Advanced collections automation** (up to 50/month):
+  - Gentle email reminders (Day 5-14)
+  - Firm email + SMS reminders (Day 15-29)
+  - Final email + SMS notices (Day 30-59)
+  - **Physical letters via Lob** (Day 60+)
 - ✅ **Multi-user access** (up to 3 team members)
 - ✅ **API access** (for integrations)
 - ✅ **Advanced reporting** (P&L, cash flow, aging reports)
@@ -108,41 +116,48 @@
 - ✅ **Custom invoice domains** (invoices@yourdomain.com)
 - ✅ **Zapier integration** (future)
 - ❌ No collections agency escalation
+- ❌ No AI voice calls
 - ❌ No phone support
 - ❌ No dedicated account manager
 
 **Your Costs Per User:**
 - Firebase: ~£1.50/month (200-500 invoices, storage, queries)
 - SendGrid: ~£0.80/month (150 emails)
-- Twilio SMS: ~£0.60/month (15 SMS)
+- Twilio SMS: ~£0.80/month (20 SMS for collections)
 - OpenAI (AI parsing): ~£2/month (100 invoice parses @ 2p each)
 - Lob (physical letters): ~£3/month (2 letters @ £1.50 each)
 - Vercel: ~£0.30/month (compute)
 - Clerk: ~£0.15/month (MAU + team members)
 - Support: ~£3/month (priority support)
-- **Total Cost: ~£11.35/month**
+- **Total Cost: ~£11.55/month**
 
 **Your Revenue:**
 - Monthly: £39
-- Annual: £384 (£32/month × 12)
-- **Profit Margin: 71% (monthly) | 78% (annual)**
+- Annual: £374.40 (£31.20/month × 12, 20% discount)
+- **Profit Margin: 70% (monthly) | 77% (annual)**
 
-**Conversion Goal:** 5% → Business tier within 12 months
+**Conversion Goal:** 10% → Pro tier within 12 months
 
 **Expected User Base:** 1,000-2,000 users (year 1)
 
 ---
 
-### **BUSINESS TIER** - £99/month (£82/month annually)
+### **PRO TIER** - £75/month (£60/month annually)
 
 **Target:** High-volume freelancers, small agencies (£150k+ revenue)
 
+**Collections Limit:** Unlimited automated collections
+
 **What Users Can Do:**
-- ✅ **Everything in Professional, PLUS:**
-- ✅ **Collections agency escalation**:
-  - Automatic referral to UK debt collection agencies
-  - Lowell Financial, Cabot, Intrum integrations
-  - No-win, no-fee (agency takes 20-30% of recovered debt)
+- ✅ **Everything in Growth, PLUS:**
+- ✅ **Unlimited collections automation**:
+  - No monthly limits on automated collections
+  - All escalation levels (gentle → firm → final → agency)
+  - **AI voice calls** for final notices (Day 45+)
+  - **Collections agency escalation** (Day 60+):
+    - Automatic referral to UK debt collection agencies
+    - Lowell Financial, Cabot, Intrum integrations
+    - No-win, no-fee (agency takes 20-30% of recovered debt)
 - ✅ **Unlimited team members**
 - ✅ **Advanced RBAC** (custom roles and permissions)
 - ✅ **White-label option** (your branding only)
@@ -151,29 +166,29 @@
 - ✅ **Custom integrations** (we build for you)
 - ✅ **SLA guarantee** (99.9% uptime)
 - ✅ **Advanced analytics** (predictive cash flow, client risk scoring)
-- ✅ **Export to accounting software** (Xero, QuickBooks, Sage - optional)
+- ✅ **Export to accounting software** (Xero, QuickBooks, Sage)
 - ✅ **API rate limits increased** (10,000 requests/day vs 1,000)
 - ✅ **Data retention extended** (10 years vs 7 years)
 
 **Your Costs Per User:**
 - Firebase: ~£3/month (high volume, complex queries)
 - SendGrid: ~£1.50/month (300 emails)
-- Twilio SMS: ~£1.20/month (30 SMS)
-- OpenAI: ~£5/month (250 parses)
+- Twilio SMS + Voice: ~£2/month (30 SMS + 5 AI calls)
+- OpenAI: ~£6/month (250 parses + AI call transcripts)
 - Lob: ~£6/month (4 letters)
 - Collections Agency API: £0 (they take % of debt recovered)
 - Vercel: ~£0.80/month (high compute)
 - Clerk: ~£0.50/month (unlimited users)
 - Support: ~£10/month (phone support, quarterly reviews)
-- **Total Cost: ~£28/month**
+- **Total Cost: ~£29.80/month**
 
 **Your Revenue:**
-- Monthly: £99
-- Annual: £984 (£82/month × 12)
-- **Profit Margin: 72% (monthly) | 75% (annual)**
+- Monthly: £75
+- Annual: £720 (£60/month × 12, 20% discount)
+- **Profit Margin: 60% (monthly) | 66% (annual)**
 - **PLUS:** 5% referral fee on debt collected via agencies (average £500/user/year → £25/user/year)
 
-**Expected User Base:** 200-500 users (year 1)
+**Expected User Base:** 300-700 users (year 1)
 
 ---
 
@@ -218,30 +233,30 @@
 | Tier | Users | ARPU | MRR | ARR |
 |------|-------|------|-----|-----|
 | Free | 8,000 | £0 | £0 | £0 |
-| Starter | 3,000 | £15 | £45,000 | £540,000 |
-| Professional | 500 | £39 | £19,500 | £234,000 |
-| Business | 100 | £99 | £9,900 | £118,800 |
+| Starter | 3,000 | £19 | £57,000 | £684,000 |
+| Growth | 500 | £39 | £19,500 | £234,000 |
+| Pro | 150 | £75 | £11,250 | £135,000 |
 | Enterprise | 5 | £1,000 | £5,000 | £60,000 |
-| **Total** | **11,605** | - | **£79,400** | **£952,800** |
+| **Total** | **11,655** | - | **£92,750** | **£1,113,000** |
 
 **Additional Revenue Streams:**
-- Agency referral fees: ~£25 × 100 Business users = £2,500/month = £30,000/year
-- **Total ARR: £982,800**
+- Agency referral fees: ~£25 × 150 Pro users = £3,750/month = £45,000/year
+- **Total ARR: £1,158,000**
 
 ### **Optimistic Estimate (20% higher conversion)**
 
 | Tier | Users | ARPU | MRR | ARR |
 |------|-------|------|-----|-----|
 | Free | 10,000 | £0 | £0 | £0 |
-| Starter | 5,000 | £15 | £75,000 | £900,000 |
-| Professional | 1,000 | £39 | £39,000 | £468,000 |
-| Business | 200 | £99 | £19,800 | £237,600 |
+| Starter | 5,000 | £19 | £95,000 | £1,140,000 |
+| Growth | 1,000 | £39 | £39,000 | £468,000 |
+| Pro | 250 | £75 | £18,750 | £225,000 |
 | Enterprise | 10 | £1,500 | £15,000 | £180,000 |
-| **Total** | **16,210** | - | **£148,800** | **£1,785,600** |
+| **Total** | **16,260** | - | **£167,750** | **£2,013,000** |
 
 **Additional Revenue:**
-- Agency fees: £50,000/year
-- **Total ARR: £1,835,600**
+- Agency fees: ~£25 × 250 Pro users = £6,250/month = £75,000/year
+- **Total ARR: £2,088,000**
 
 ---
 
@@ -301,9 +316,9 @@
 ### **Conservative Scenario**
 
 **Revenue:**
-- ARR: £952,800
-- Agency fees: £30,000
-- **Total: £982,800**
+- ARR: £1,113,000
+- Agency fees: £45,000
+- **Total: £1,158,000**
 
 **Costs:**
 - Infrastructure: £22,080
@@ -311,15 +326,15 @@
 - One-time: £7,500
 - **Total: £115,380**
 
-**Net Profit: £867,420**
-**Profit Margin: 88%**
+**Net Profit: £1,042,620**
+**Profit Margin: 90%**
 
 ### **Optimistic Scenario**
 
 **Revenue:**
-- ARR: £1,785,600
-- Agency fees: £50,000
-- **Total: £1,835,600**
+- ARR: £2,013,000
+- Agency fees: £75,000
+- **Total: £2,088,000**
 
 **Costs:**
 - Infrastructure: £35,000 (higher usage)
@@ -327,8 +342,8 @@
 - One-time: £7,500
 - **Total: £162,500**
 
-**Net Profit: £1,673,100**
-**Profit Margin: 91%**
+**Net Profit: £1,925,500**
+**Profit Margin: 92%**
 
 ---
 
@@ -497,9 +512,9 @@
 ### **1. Annual Plan Discount**
 
 Offer 20% discount for annual vs monthly:
-- Starter: £144/year (save £36) vs £180/year
-- Professional: £384/year (save £84) vs £468/year
-- Business: £984/year (save £204) vs £1,188/year
+- Starter: £182.40/year (save £45.60) vs £228/year
+- Growth: £374.40/year (save £93.60) vs £468/year
+- Pro: £720/year (save £180) vs £900/year
 
 **Benefits:**
 - Upfront cash flow
