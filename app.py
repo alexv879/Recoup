@@ -6,22 +6,18 @@ Combines Node.js/Express patterns with Python/FastAPI for optimal performance
 
 from fastapi import FastAPI, HTTPException, Depends, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 import uvicorn
-from typing import Optional, Dict, List
-from datetime import datetime, timedelta
+from typing import Dict, List
+from datetime import datetime, timedelta, timezone
 import stripe
 import sendgrid
-from sendgrid.helpers.mail import Mail
 from twilio.twiml.voice_response import VoiceResponse
 import redis.asyncio as redis
-import asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 import os
 import json
-import hashlib
-import hmac
 from pydantic import BaseModel, Field
 import logging
 
@@ -110,7 +106,7 @@ class CollectionAction(BaseModel):
 async def health_check():
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "services": {
             "database": await check_database(),
             "redis": await check_redis(),
@@ -179,7 +175,7 @@ async def create_invoice(
         'due_date': invoice.due_date,
         'line_items': json.dumps(invoice.line_items),
         'status': 'draft',
-        'created_at': datetime.utcnow()
+        'created_at': datetime.now(timezone.utc)
     }
     
     db.execute(
@@ -495,7 +491,7 @@ async def handle_twilio_voice(request: Request):
     """Handle Twilio voice webhook for AI collections"""
     
     form_data = await request.form()
-    call_sid = form_data.get('CallSid')
+    _call_sid = form_data.get('CallSid')
     call_status = form_data.get('CallStatus')
     
     # Get context from Redis
@@ -525,7 +521,7 @@ async def handle_twilio_voice(request: Request):
 
 
 @app.post("/webhooks/twilio/ai-respond")
-async def handle_twilio_response(request: Request, db: Session = Depends(get_db)):
+async def handle_twilio_response(request: Request, _db: Session = Depends(get_db)):
     """Handle customer response in AI call"""
     
     form_data = await request.form()
@@ -594,7 +590,7 @@ async def create_payment_plan(
     else:  # monthly
         delta = timedelta(days=30)
     
-    for i in range(plan.num_installments):
+    for _ in range(plan.num_installments):
         current_date += delta
         schedule.append({
             'date': current_date.isoformat(),
@@ -729,43 +725,53 @@ def generate_invoice_number(user_id: str, db: Session) -> str:
     
     return f"INV-{year}-{number:05d}"
 
-async def get_current_user(request: Request) -> str:
+async def get_current_user(_request: Request) -> str:
     """Get current user from auth token"""
     # Implement your auth logic here
     # For now, return a dummy user ID
     return "user_123"
 
-async def send_collection_email(invoice: Dict, template_name: str):
+async def generate_invoice_pdf(invoice: Dict, db: Session) -> str:
+    """Generate PDF for invoice"""
+    # Implementation here
+    return f"https://storage.recoup.com/invoices/{invoice['id']}.pdf"
+
+async def send_invoice_email(invoice_id: str, user_id: str):
+    """Send invoice email to client"""
+    # Implementation here
+    pass
+
+async def send_collection_email(_invoice: Dict, _template_name: str):
     """Send collection email using SendGrid"""
     # Implementation here
     pass
 
-async def send_collection_sms(invoice: Dict):
+async def send_collection_sms(_invoice: Dict):
     """Send collection SMS using Twilio"""
     # Implementation here
     pass
 
-async def send_physical_letter(invoice: Dict):
+async def send_physical_letter(_invoice: Dict):
     """Send physical letter using Lob"""
     # Implementation here
     pass
 
-async def refer_to_agency(invoice: Dict):
+async def refer_to_agency(_invoice: Dict):
     """Refer invoice to collection agency"""
     # Implementation here
     pass
 
-async def stop_collections(invoice_id: str):
+async def stop_collections(_invoice_id: str):
     """Stop all collection activities for an invoice"""
     # Implementation here
     pass
 
-async def send_payment_confirmation(invoice_id: str, amount: float):
+async def send_payment_confirmation(_invoice_id: str, _amount: float):
     """Send payment confirmation email"""
     # Implementation here
     pass
 
-async def send_payment_plan_confirmation(invoice_id: str, plan_id: str, schedule: List):
+async def send_payment_plan_confirmation(_invoice_id: str, _plan_id: str, _schedule: List):
     """Send payment plan confirmation"""
     # Implementation here
     pass
