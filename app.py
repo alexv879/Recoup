@@ -72,6 +72,13 @@ def get_db():
     finally:
         db.close()
 
+# Dependency to get current user (must be defined before routes)
+async def get_current_user(_request: Request) -> str:
+    """Get current user from auth token"""
+    # TODO: Implement your auth logic here (Firebase, JWT, etc.)
+    # For now, return a dummy user ID for development
+    return "user_123"
+
 # Pydantic models
 class InvoiceCreate(BaseModel):
     client_id: str
@@ -725,18 +732,12 @@ def generate_invoice_number(user_id: str, db: Session) -> str:
     
     return f"INV-{year}-{number:05d}"
 
-async def get_current_user(_request: Request) -> str:
-    """Get current user from auth token"""
-    # Implement your auth logic here
-    # For now, return a dummy user ID
-    return "user_123"
-
-async def generate_invoice_pdf(invoice: Dict, db: Session) -> str:
+async def generate_invoice_pdf(invoice: Dict, _db: Session) -> str:
     """Generate PDF for invoice"""
-    # Implementation here
+    # TODO: Implement PDF generation logic
     return f"https://storage.recoup.com/invoices/{invoice['id']}.pdf"
 
-async def send_invoice_email(invoice_id: str, user_id: str):
+async def send_invoice_email(_invoice_id: str, _user_id: str):
     """Send invoice email to client"""
     # Implementation here
     pass
