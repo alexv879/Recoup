@@ -78,6 +78,10 @@ export interface User {
   phoneNumber?: string; // User's phone number for SMS notifications
   businessAddress?: BusinessAddress; // Business address for formal letters
   referralCode?: string;
+  // HMRC Making Tax Digital Add-on
+  hmrcAddonEnabled?: boolean; // Whether user has HMRC MTD add-on active
+  hmrcAddonSubscriptionId?: string; // Stripe subscription ID for HMRC addon
+  vatRegistrationNumber?: string; // VAT registration number for MTD submissions
   profilePicture?: string;
   timezone: string;
   language: string;

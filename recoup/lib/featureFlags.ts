@@ -25,6 +25,9 @@ export interface FeatureFlags {
     VOICE_AI_ENABLED: boolean; // Voice AI calling feature (BETA - Needs testing)
     SMS_COLLECTIONS_ENABLED: boolean; // SMS collections via Twilio
 
+    // Add-ons
+    HMRC_ADDON_AVAILABLE: boolean; // HMRC Making Tax Digital add-on visibility
+
     // Future flags can be added here
     // Example: EMAIL_SEQUENCE_V2_ENABLED: boolean;
 }
@@ -39,6 +42,9 @@ const DEFAULT_FLAGS: FeatureFlags = {
     AGENCY_HANDOFF_ENABLED: false, // COMING SOON: Integration incomplete (40% built)
     VOICE_AI_ENABLED: false, // BETA: Voice AI needs production testing
     SMS_COLLECTIONS_ENABLED: true, // READY: SMS collections now fully implemented
+
+    // Add-ons - disabled by default until UI is ready
+    HMRC_ADDON_AVAILABLE: false, // COMING SOON: Backend complete, UI pending (will be enabled when ready)
 };
 
 /**

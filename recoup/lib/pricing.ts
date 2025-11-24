@@ -1,22 +1,27 @@
 /**
  * Pricing Utilities & Calculations
- * 
+ *
  * Based on: pricing-implementation-framework.md §1-2
  * Research: saas-pricing-optimization-guide.md
- * 
+ *
  * Pricing V3 Structure:
+ * - FREE: 5 collections/month (truly free, not just demo)
  * - Starter: £19/month or £182/year (10 collections)
  * - Growth: £39/month or £374/year (50 collections)
  * - Pro: £75/month or £720/year (unlimited)
- * 
+ *
+ * Optional Add-ons:
+ * - HMRC MTD: £20/month or £200/year (VAT submissions, can be added to any tier)
+ *
  * Annual discount: 20% (equivalent to 2.4 months free)
- * 
+ *
  * Phase 2 Task 8
  */
 
-export type PricingTier = 'starter' | 'growth' | 'pro';
-export type LegacyTier = 'free' | 'paid' | 'business';
+export type PricingTier = 'free' | 'starter' | 'growth' | 'pro';
+export type LegacyTier = 'paid' | 'business';
 export type AllTiers = PricingTier | LegacyTier;
+export type AddonType = 'hmrc_mtd';
 
 export interface TierPricing {
     monthly: number;
@@ -28,6 +33,21 @@ export interface TierPricing {
 }
 
 export const PRICING_TIERS: Record<PricingTier, TierPricing> = {
+    free: {
+        monthly: 0,
+        annual: 0,
+        annualSavings: 0,
+        collectionsLimit: 5, // Increased from 1 to 5 - truly usable free tier
+        teamMembers: 1,
+        features: [
+            'Unlimited invoices',
+            '5 collections per month',
+            'Email reminders',
+            'BACS "I Paid" button',
+            'Manual payment tracking',
+            'Community support',
+        ],
+    },
     starter: {
         monthly: 19,
         annual: 182, // £19 × 12 × 0.8 = £182.40 (rounded down)
@@ -76,8 +96,36 @@ export const PRICING_TIERS: Record<PricingTier, TierPricing> = {
 };
 
 /**
+ * Add-on Pricing (HMRC Making Tax Digital)
+ *
+ * Separate subscription that can be added to any tier
+ */
+export interface AddonPricing {
+    monthly: number;
+    annual: number;
+    annualSavings: number;
+    features: string[];
+}
+
+export const ADDON_PRICING: Record<AddonType, AddonPricing> = {
+    hmrc_mtd: {
+        monthly: 20,
+        annual: 200, // £20 × 12 × 0.833 = £200 (17% discount)
+        annualSavings: 40, // £240 - £200 = £40
+        features: [
+            'Unlimited VAT return submissions',
+            'Automated obligation tracking',
+            'Quarterly deadline reminders',
+            'VAT calculation dashboard',
+            'HMRC OAuth integration',
+            'FCA-compliant audit trail',
+        ],
+    },
+};
+
+/**
  * Get price for a tier
- * 
+ *
  * @param tier - Tier name
  * @param isAnnual - Whether annual billing
  * @returns Price in GBP

@@ -2,6 +2,19 @@ const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Add a rewrite to proxy Python backend API requests
+    // Supports both local development and production Render deployment
+    async rewrites() {
+        const pythonBackendUrl = process.env.PYTHON_BACKEND_URL || 'http://localhost:8000';
+
+        return [
+            {
+                source: '/api/python/:path*',
+                destination: `${pythonBackendUrl}/api/:path*`,
+            },
+        ];
+    },
+
     // Enable system TLS certificates for Turbopack (fixes Google Fonts issue)
     experimental: {
         turbopackUseSystemTlsCerts: true,

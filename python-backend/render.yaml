@@ -1,0 +1,75 @@
+# Render.com deployment configuration for Recoup Python Backend
+services:
+  - type: web
+    name: recoup-python-backend
+    env: python
+    region: frankfurt  # EU region for GDPR compliance
+    plan: starter  # $7/month - upgrade to standard for production
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT --workers 2
+    healthCheckPath: /health
+
+    # Environment variables (set these in Render dashboard)
+    envVars:
+      # Redis
+      - key: REDIS_URL
+        sync: false
+
+      # OpenAI
+      - key: OPENAI_API_KEY
+        sync: false
+
+      # Twilio
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+
+      # SendGrid
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: SENDGRID_FROM_EMAIL
+        sync: false
+
+      # Stripe
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+      # Firebase
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+
+      # Database
+      - key: DATABASE_URL
+        sync: false
+
+      # Application
+      - key: API_BASE_URL
+        sync: false
+      - key: COMPANY_NAME
+        value: Recoup
+      - key: COMPANY_PHONE
+        sync: false
+      - key: PAYMENT_BASE_URL
+        sync: false
+
+      # Celery (optional)
+      - key: CELERY_BROKER_URL
+        sync: false
+
+    # Auto-deploy on push to main branch
+    autoDeploy: true
+
+    # Disk storage for ML models
+    disk:
+      name: ml-models
+      mountPath: /app/models
+      sizeGB: 1

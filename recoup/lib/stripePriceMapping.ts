@@ -38,6 +38,17 @@ export const STRIPE_PRICE_IDS = {
 } as const;
 
 /**
+ * Add-on price IDs (separate subscriptions)
+ */
+export const ADDON_PRICE_IDS = {
+  // HMRC Making Tax Digital add-on
+  hmrc_mtd: {
+    monthly: process.env.STRIPE_PRICE_HMRC_ADDON_MONTHLY || 'price_hmrc_mtd_monthly',
+    annual: process.env.STRIPE_PRICE_HMRC_ADDON_ANNUAL || 'price_hmrc_mtd_annual',
+  },
+} as const;
+
+/**
  * Reverse mapping: Stripe price ID -> tier
  */
 const PRICE_ID_TO_TIER_MAP = new Map<string, AllTiers>();

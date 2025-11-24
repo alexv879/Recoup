@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+openai
+twilio
+redis
+psycopg2-binary
+SQLAlchemy
+celery
+scikit-learn
+joblib
+pydantic
+python-multipart
+jinja2
+httpx
+stripe
+sendgrid

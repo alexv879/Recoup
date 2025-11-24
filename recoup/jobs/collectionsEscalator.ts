@@ -235,7 +235,7 @@ async function getUserAutomationConfig(userId: string): Promise<EscalationAutoma
         userId,
         channels: {
             emailEnabled: true,
-            smsEnabled: false, // SMS consent not implemented yet
+            smsEnabled: true, // SMS fully implemented with UK PECR compliance
             phoneEnabled: false, // Manual only by default
             agencyEnabled: false, // Manual only by default
         },

@@ -127,28 +127,27 @@ export default function PricingPage() {
       id: 'free',
       name: 'FREE',
       order: 4, // Listed LAST as viral entry point
-      description: 'Perfect for trying Relay with real collections',
+      description: 'Perfect for freelancers and small businesses',
       monthlyPrice: 0,
       annualPrice: 0,
       annualSavings: 0,
       foundingMonthly: 0,
       foundingYearTotal: 0,
-      collections: '1', // Correct limit per latest requirement
+      collections: '5', // Increased from 1 to 5 - truly usable free tier
       members: '1',
       overagePrice: null,
       features: [
         'Unlimited invoices',
-        '1 collection per month',
-        'Email reminders only',
-        'Manual payment tracking',
-        'Max 1 team member',
+        '5 collections per month',
+        'Email reminders',
         'BACS "I Paid" button',
-        'Experience full workflow',
+        'Manual payment tracking',
+        'Community support',
         'Upgrade anytime',
       ],
       highlight: false,
-      badge: 'TRY IT FREE',
-      roiMessage: 'Enough to see real value (5 collections = 60/year)',
+      badge: 'ALWAYS FREE',
+      roiMessage: '5 collections/month = £480/year in potential recoveries @ £8/invoice avg',
     },
   ];
 
@@ -420,6 +419,82 @@ export default function PricingPage() {
                 </div>
               </div>
             ))}
+        </div>
+
+        {/* HMRC Making Tax Digital Add-on Section */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-gray-900">Optional Add-ons</h3>
+            <p className="mt-2 text-gray-600">Enhance your Recoup experience with specialized features</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-indigo-200 p-8 relative">
+            {/* Coming Soon Badge */}
+            <div className="absolute top-4 right-4 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">
+              COMING SOON
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8 items-center">
+              {/* Left side - Icon and Description */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-4xl">🏛️</span>
+                  <h4 className="text-2xl font-bold text-gray-900">HMRC Making Tax Digital</h4>
+                </div>
+                <p className="text-gray-700 mb-4">
+                  Automate your VAT returns and stay compliant with HMRC Making Tax Digital requirements.
+                  Connect directly to HMRC and submit returns with one click.
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span>Unlimited VAT return submissions</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span>Automated obligation tracking</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span>Quarterly deadline reminders</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span>VAT calculation dashboard</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span>FCA-compliant audit trail</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Right side - Pricing */}
+              <div className="flex-shrink-0 bg-white rounded-xl p-6 shadow-lg border-2 border-indigo-200 min-w-[280px]">
+                <div className="text-center mb-4">
+                  <div className="text-sm text-gray-600 mb-1">Add to any tier</div>
+                  <div className="text-4xl font-bold text-gray-900">£20</div>
+                  <div className="text-gray-600">/month</div>
+                  <div className="mt-2 text-sm text-gray-600">
+                    or <span className="font-semibold text-indigo-600">£200/year</span>
+                  </div>
+                  <div className="text-xs text-green-600 font-semibold">Save £40 annually</div>
+                </div>
+
+                <div className="space-y-3">
+                  <button
+                    disabled
+                    className="w-full py-3 px-4 rounded-lg bg-gray-300 text-gray-500 cursor-not-allowed font-semibold"
+                  >
+                    Coming Soon
+                  </button>
+                  <p className="text-xs text-center text-gray-600">
+                    HMRC integration launching Q2 2025
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Trust Signals */}
