@@ -209,9 +209,22 @@ export default function InvoicesPage() {
                                                 <Button
                                                     variant="default"
                                                     size="sm"
-                                                    onClick={(e) => {
+                                                    onClick={async (e) => {
                                                         e.stopPropagation();
-                                                        // TODO: Send invoice
+                                                        try {
+                                                            const response = await fetch(`/api/invoices/${invoice.invoiceId}/send`, {
+                                                                method: 'POST',
+                                                            });
+
+                                                            if (response.ok) {
+                                                                // Refresh invoice list
+                                                                fetchInvoices();
+                                                            } else {
+                                                                console.error('Failed to send invoice');
+                                                            }
+                                                        } catch (error) {
+                                                            console.error('Error sending invoice:', error);
+                                                        }
                                                     }}
                                                 >
                                                     Send

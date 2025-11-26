@@ -104,7 +104,24 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       });
     }
 
-    // TODO: Implement partial update logic for other fields
+    // Partial update for other fields (description, rolloutPercentage, etc.)
+    if (body.description || body.rolloutPercentage !== undefined || body.allowedUsers || body.deniedUsers) {
+      const currentFlag = await getFeatureFlagConfig(key, environment);
+
+      if (!currentFlag) {
+        return NextResponse.json(
+          { error: 'Feature flag not found' },
+          { status: 404 }
+        );
+      }
+
+      // Note: For full partial updates, extend feature-flags-enhanced.ts with updateFeatureFlagConfig()
+      // For now, we can only toggle enabled state
+      return NextResponse.json(
+        { error: 'Partial field updates not yet supported. Use enabled toggle only.' },
+        { status: 501 }
+      );
+    }
 
     return NextResponse.json(
       { error: 'No valid update provided' },

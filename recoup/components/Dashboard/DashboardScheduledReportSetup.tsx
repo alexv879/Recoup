@@ -12,14 +12,49 @@ export function DashboardScheduledReportSetup() {
     const [selected, setSelected] = useState<string[]>([]);
     const [recipients, setRecipients] = useState<string>('');
 
-    function handleSave() {
-        // TODO: Integrate with backend scheduling API
-        alert(`Scheduled reports: ${selected.join(', ')}\nRecipients: ${recipients}`);
+    async function handleSave() {
+        try {
+            const response = await fetch('/api/reports/schedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    schedules: selected,
+                    recipients: recipients.split(',').map(e => e.trim()).filter(Boolean),
+                    reportType: 'collections',
+                }),
+            });
+
+            if (response.ok) {
+                alert(`Scheduled reports saved: ${selected.join(', ')}\nRecipients: ${recipients}`);
+            } else {
+                alert('Failed to save scheduled reports');
+            }
+        } catch (error) {
+            console.error('Error saving scheduled reports:', error);
+            alert('Error saving scheduled reports');
+        }
     }
 
-    function handleTestSend() {
-        // TODO: Integrate with backend email API
-        alert('Test report sent!');
+    async function handleTestSend() {
+        try {
+            const response = await fetch('/api/reports/send-test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    reportType: 'collections',
+                    recipients: recipients.split(',').map(e => e.trim()).filter(Boolean),
+                }),
+            });
+
+            if (response.ok) {
+                alert('Test report sent!');
+            } else {
+                alert('Failed to send test report');
+            }
+        } catch (error) {
+            console.error('Error sending test report:', error);
+            alert('Error sending test report');
+        }
     }
 
     return (

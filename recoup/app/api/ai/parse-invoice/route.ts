@@ -116,9 +116,22 @@ export async function POST(request: NextRequest) {
     let expenseId: string | undefined;
 
     if (shouldSaveAsExpense) {
-      // TODO: Uncomment when expense storage is implemented
-      // const expense = convertToExpense(parsedInvoice, userId);
-      // expenseId = await saveExpense(expense);
+      try {
+        const expense = convertToExpense(parsedInvoice, userId);
+
+        // Store expense in Firestore
+        const { db, COLLECTIONS, Timestamp } = await import('@/lib/firebase');
+        const expenseRef = await db.collection(COLLECTIONS.EXPENSES).add({
+          ...expense,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+        });
+
+        expenseId = expenseRef.id;
+      } catch (expenseError) {
+        // Log but don't fail - expense auto-save is non-critical
+        logError('Failed to auto-save expense', expenseError);
+      }
     }
 
     // Estimate cost
