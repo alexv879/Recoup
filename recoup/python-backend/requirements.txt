@@ -1,0 +1,14 @@
+# ML Payment Prediction Service Dependencies
+
+# Web framework
+Flask==3.0.0
+flask-cors==4.0.0
+
+# ML libraries
+xgboost==2.0.3
+scikit-learn==1.4.0
+numpy==1.26.3
+joblib==1.3.2
+
+# Utilities
+python-dotenv==1.0.0
