@@ -142,6 +142,7 @@ export interface Invoice {
   paymentClaimStatus?: 'pending_verification' | 'verified' | 'rejected';
   stripePaymentLinkUrl?: string;
   currency: 'GBP' | 'USD' | 'EUR';
+  industryCode?: number; // Industry code copied from client for ML features
   items: Array<{
     description: string;
     quantity: number;
@@ -178,6 +179,8 @@ export interface Client {
   taxId?: string;                  // Client tax ID
   tags?: string[];                 // Client tags/categories
   notes?: string;                  // Additional client notes
+  industry?: string;               // Client industry (for ML benchmarking)
+  industryCode?: number;           // Numeric industry code for ML features
   createdAt: string;
   updatedAt: string;
   archived: boolean;

@@ -381,7 +381,19 @@ export async function processCollections(): Promise<{
               if (!hasAddress) {
                 // Notify user to set business address
                 logInfo('Day 30 Letter skipped - no business address', { invoiceRef: invoice.reference });
-                // TODO: Send email notification to user to add business address
+
+                // Send email notification to user to add business address
+                try {
+                  const { sendNotificationEmail } = await import('@/lib/sendgrid');
+                  await sendNotificationEmail({
+                    toEmail: user.email,
+                    subject: 'Business Address Required for Physical Letters',
+                    message: `To send physical collection letters, please add your business address in Settings.`,
+                    actionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/settings`,
+                  });
+                } catch (emailError) {
+                  logError('Failed to send address required notification', emailError);
+                }
               } else if (hasConsent && isPaidUser && isBusinessAddressObject(user.businessAddress)) {
                 try {
                   const businessAddr = user.businessAddress;

@@ -1,6 +1,7 @@
 // Main Client Management UI integrating all features
 
 import React, { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
 import ClientSelector from './ClientSelector';
 import ClientList from './ClientList';
 import ClientDetailModal from './ClientDetailModal';
@@ -8,9 +9,8 @@ import ClientAnalytics from './ClientAnalytics';
 import { Client } from '../types/client';
 import * as clientService from '../services/clientService';
 
-const USER_ID = 'currentUserId'; // TODO: Replace with actual user context
-
 const ClientManagement: React.FC = () => {
+    const { user } = useUser();
     const [clients, setClients] = useState<Client[]>([]);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [showModal, setShowModal] = useState(false);
@@ -22,8 +22,9 @@ const ClientManagement: React.FC = () => {
 
     // Fetch clients from backend with search and filters
     useEffect(() => {
+        if (!user?.id) return;
         setLoading(true);
-        clientService.getClients(USER_ID, search, 1, 50, filters)
+        clientService.getClients(user.id, search, 1, 50, filters)
             .then(data => {
                 setClients(data);
                 setLoading(false);
@@ -32,7 +33,7 @@ const ClientManagement: React.FC = () => {
                 setError('Failed to load clients');
                 setLoading(false);
             });
-    }, [search, filters]);
+    }, [user?.id, search, filters]);
 
     const handleSelectClient = async (client: Client) => {
         try {
@@ -49,9 +50,10 @@ const ClientManagement: React.FC = () => {
     };
 
     const handleAddNewClient = async (name: string) => {
+        if (!user?.id) return;
         try {
             setLoading(true);
-            const newClientId = await clientService.addClient(USER_ID, { name });
+            const newClientId = await clientService.addClient(user.id, { name });
             const newClient = await clientService.getClientDetails(newClientId);
             setClients([newClient, ...clients]);
             setSelectedClient(newClient);

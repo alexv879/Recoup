@@ -375,11 +375,22 @@ export async function processRecurringInvoices(): Promise<{
 
   for (const recurringInvoice of dueInvoices) {
     try {
-      await generateInvoiceFromRecurring(recurringInvoice.id!);
+      const newInvoiceId = await generateInvoiceFromRecurring(recurringInvoice.id!);
       results.succeeded++;
 
-      // TODO: Send email notification to user
-      // await sendRecurringInvoiceGeneratedEmail(recurringInvoice);
+      // Send email notification to user
+      try {
+        const { sendNotificationEmail } = await import('@/lib/sendgrid');
+        await sendNotificationEmail({
+          toEmail: recurringInvoice.userId!,
+          subject: `New recurring invoice generated: ${recurringInvoice.reference}`,
+          message: `A new invoice has been automatically generated from your recurring invoice template.`,
+          actionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/invoices/${newInvoiceId}`,
+        });
+      } catch (emailError) {
+        // Log but don't fail the job if email fails
+        console.error('Failed to send recurring invoice notification:', emailError);
+      }
     } catch (error: any) {
       results.failed++;
       results.errors.push({

@@ -29,11 +29,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // TODO: Add admin role check here
-    // const user = await getUserFromClerk(userId);
-    // if (user.role !== 'admin') {
-    //   return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
-    // }
+    // Admin role check via Clerk metadata
+    const { clerkClient } = await import('@clerk/nextjs/server');
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const isAdmin = user.publicMetadata?.role === 'admin' || user.publicMetadata?.isAdmin === true;
+
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
+    }
 
     const environment = request.nextUrl.searchParams.get('environment') as any || getCurrentEnvironment();
 
@@ -65,7 +69,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // TODO: Add admin role check here
+    // Admin role check via Clerk metadata
+    const { clerkClient } = await import('@clerk/nextjs/server');
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const isAdmin = user.publicMetadata?.role === 'admin' || user.publicMetadata?.isAdmin === true;
+
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
+    }
 
     const body = await request.json();
 

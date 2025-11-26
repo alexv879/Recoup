@@ -10,7 +10,7 @@ import Fastify from 'fastify';
 import fastifyWebsocket from '@fastify/websocket';
 import { config, validateConfig } from './config';
 import { twilioHandler, CallSummary } from './services/twilio-handler';
-import { recoupWebhookService } from './services/recoup-webhook';
+import { recoupWebhookService } from './services/relay-webhook';
 import { CallContext } from './prompts/fca-compliant-prompts';
 
 const fastify = Fastify({
@@ -40,8 +40,7 @@ fastify.get('/health', async (request, reply) => {
  * URL: wss://your-render-app.onrender.com/voice-stream?invoiceId=xxx
  */
 fastify.register(async (fastify) => {
-  fastify.get('/voice-stream', { websocket: true }, async (connection, request) => {
-    const { socket } = connection;
+  fastify.get('/voice-stream', { websocket: true }, async (socket, request) => {
 
     // Extract call context from query params (sent by Recoup app when initiating call)
     const query = request.query as any;

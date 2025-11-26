@@ -1,16 +1,24 @@
 // Behavioral trigger logic for invoice creation and sending
-// TODO: Implement invoiceService
-// import { listInvoices } from '@/services/invoiceService';
 import { Notification, User, Invoice } from '@/types/models';
 import { db, Timestamp, COLLECTIONS } from '@/lib/firebase';
 import { sendNotificationEmail } from '@/lib/sendgrid';
 import { emitEvent } from '@/lib/analytics/emitter';
 
+// Helper function to list invoices from Firestore
+async function listInvoices(userId: string, status?: string): Promise<Invoice[]> {
+    let query = db.collection(COLLECTIONS.INVOICES).where('freelancerId', '==', userId);
+
+    if (status) {
+        query = query.where('status', '==', status);
+    }
+
+    const snapshot = await query.get();
+    return snapshot.docs.map(doc => doc.data() as Invoice);
+}
+
 // Trigger 1: Incomplete Invoice Creation
 export async function triggerIncompleteInvoiceCreation(user: User) {
-    // TODO: Implement listInvoices service
-    const invoices: any[] = [];
-    // const { invoices } = await listInvoices({ userId: user.userId });
+    const invoices = await listInvoices(user.userId);
     if (!invoices || invoices.length === 0) {
         // User opened onboarding email but did not create invoice in 24h
         const notification: Notification = {
@@ -42,9 +50,7 @@ export async function triggerIncompleteInvoiceCreation(user: User) {
 
 // Trigger 2: Invoice Created but Not Sent
 export async function triggerInvoiceCreatedNotSent(user: User) {
-    // TODO: Implement listInvoices service
-    const invoices: any[] = [];
-    // const { invoices } = await listInvoices({ userId: user.userId, status: 'draft' });
+    const invoices = await listInvoices(user.userId, 'draft');
     if (invoices.length > 0) {
         for (const invoice of invoices) {
             const notification: Notification = {

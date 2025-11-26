@@ -63,6 +63,7 @@ const ClientDetailModal: React.FC<ClientDetailModalProps> = ({ client, onClose, 
                         <div>
                             <p className="mb-1 text-gray-700">Email: <span className="font-mono">{client.email}</span></p>
                             {client.phone && <p className="mb-1 text-gray-700">Phone: <span className="font-mono">{client.phone}</span></p>}
+                            {client.industry && <p className="mb-1 text-gray-700">Industry: <span className="font-mono">{client.industry}</span></p>}
                             {client.billingAddress && (
                                 <div className="mb-1 text-gray-700">
                                     <div>Billing Address:</div>
