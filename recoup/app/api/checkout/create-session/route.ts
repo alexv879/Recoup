@@ -77,7 +77,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       stripeCustomerId = customer.id;
 
       // Update Clerk user metadata with Stripe customer ID
-      await clerkClient().users.updateUserMetadata(userId, {
+      const client2 = await clerkClient(); await client2.users.updateUserMetadata(userId, {
         publicMetadata: {
           stripeCustomerId,
         },

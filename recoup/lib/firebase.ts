@@ -72,6 +72,7 @@ export const storage = typeof window === 'undefined' ? getStorage() : null;
 export const COLLECTIONS = {
   USERS: 'users',
   INVOICES: 'invoices',
+  EXPENSES: 'expenses',
   PAYMENT_CONFIRMATIONS: 'payment_confirmations',
   PAYMENT_CLAIMS: 'payment_claims',
   COLLECTION_ATTEMPTS: 'collection_attempts',

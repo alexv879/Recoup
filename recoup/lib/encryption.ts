@@ -64,7 +64,7 @@ function deriveUserKey(userId: string): Buffer {
 
         // HKDF-SHA256
         const prk = crypto.createHmac('sha256', salt).update(masterKey).digest();
-        const okm = crypto.createHmac('sha256', prk).update(Buffer.concat([info, Buffer.from([1])]))digest();
+        const okm = crypto.createHmac('sha256', prk).update(Buffer.concat([info, Buffer.from([1])])).digest();
 
         return okm.slice(0, KEY_LENGTH);
     } catch (error) {
