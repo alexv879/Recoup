@@ -80,14 +80,18 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // TODO: Add admin role check
-        // const user = await getUserFromClerk(userId);
-        // if (user.role !== 'admin') {
-        //   return NextResponse.json(
-        //     { success: false, error: 'Forbidden - Admin only' },
-        //     { status: 403 }
-        //   );
-        // }
+        // Admin role check via Clerk metadata
+        const { clerkClient } = await import('@clerk/nextjs/server');
+        const client = await clerkClient();
+        const user = await client.users.getUser(userId);
+        const isAdmin = user.publicMetadata?.role === 'admin' || user.publicMetadata?.isAdmin === true;
+
+        if (!isAdmin) {
+            return NextResponse.json(
+                { success: false, error: 'Forbidden - Admin only' },
+                { status: 403 }
+            );
+        }
 
         const body = await request.json();
 

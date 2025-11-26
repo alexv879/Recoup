@@ -70,11 +70,18 @@ export async function POST(
 
         const claim = claimSnap.data()!;
 
-        // Verify ownership (must be the client who created the claim)
-        // Note: Payment claims are created by clients (not freelancers), so we check clientEmail
-        // In a production app, you'd have proper client authentication
-        // For now, we'll allow any authenticated user to upload evidence
-        // TODO: Implement proper client authentication check
+        // Verify ownership - client must match the claim's clientEmail
+        const { clerkClient } = await import('@clerk/nextjs/server');
+        const client = await clerkClient();
+        const user = await client.users.getUser(userId);
+        const userEmail = user.primaryEmailAddress?.emailAddress;
+
+        if (userEmail !== claim.clientEmail && claim.freelancerId !== userId) {
+            return NextResponse.json(
+                { error: 'UNAUTHORIZED', message: 'You can only upload evidence for your own claims' },
+                { status: 403 }
+            );
+        }
 
         // Parse form data
         const formData = await req.formData();
