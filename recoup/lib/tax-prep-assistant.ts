@@ -5,7 +5,7 @@
 
 import { logger } from '@/utils/logger';
 import { Expense, ExpenseCategory } from '@/types/expense';
-import { getGemini } from '@/lib/ai-service';
+import { generateJSON } from '@/lib/ai-service';
 
 export interface TaxYear {
   startDate: Date; // April 6
@@ -435,9 +435,6 @@ export async function getTaxAdvice(params: {
 }> {
   const { taxSummary, specificQuestion } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-
   const prompt = `You are a UK tax advisor specializing in self-assessment for self-employed individuals.
 
 Tax Summary:
@@ -466,16 +463,11 @@ Format as JSON:
   "warnings": ["Warning 1", "Warning 2", ...]
 }`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  const parsed = await generateJSON(prompt);
 
-  // Parse JSON response
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
+  if (!parsed) {
     throw new Error('Failed to parse AI tax advice');
   }
-
-  const parsed = JSON.parse(jsonMatch[0]);
 
   logger.info('Generated AI tax advice', {
     taxYear: taxSummary.taxYear.year,
