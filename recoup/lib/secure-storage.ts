@@ -280,7 +280,9 @@ class UserSecureStorage extends SecureStorage<any> {
 
         // Remove undefined values
         Object.keys(encrypted).forEach(key => {
-            if (encrypted[key] === undefined) delete encrypted[key];
+            if (encrypted[key as keyof typeof encrypted] === undefined) {
+                delete encrypted[key as keyof typeof encrypted];
+            }
         });
 
         await db.collection(COLLECTIONS.USERS).doc(userId).update({
