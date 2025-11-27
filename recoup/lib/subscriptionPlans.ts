@@ -5,6 +5,7 @@ export type SubscriptionPlan = {
     id: string; // Local plan ID
     clerkPlanId?: string; // Clerk plan ID (if applicable)
     stripeProductId?: string; // Stripe product ID
+    stripePriceId?: string; // Stripe price ID (for subscription mapping)
     name: string;
     description: string;
     monthlyPrice: number;
@@ -13,6 +14,7 @@ export type SubscriptionPlan = {
     collectionsLimit: number | null; // null = unlimited
     features: string[];
     isFoundingMemberEligible?: boolean;
+    tier?: 'free' | 'starter' | 'growth' | 'pro'; // Pricing tier
 };
 
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
