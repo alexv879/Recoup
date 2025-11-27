@@ -11,6 +11,7 @@ export interface User {
   lastName?: string;
   businessName?: string;
   businessType?: 'freelancer' | 'agency' | 'consultant';
+  phoneNumber?: string;
   subscriptionTier: 'free' | 'starter' | 'growth' | 'pro';
   subscriptionStatus?: 'active' | 'inactive' | 'cancelled';
   stripeCustomerId?: string;
