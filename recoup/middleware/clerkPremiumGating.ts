@@ -93,7 +93,7 @@ export async function checkClerkFeatureAccess(
     // 3. Check usage quota for collection features
     if (feature.startsWith('collections_limit_')) {
       const limit = COLLECTIONS_LIMITS[tier as keyof typeof COLLECTIONS_LIMITS];
-      const used = user.collectionsUsedThisMonth || 0;
+      const used = user.collectionsDemoUsedThisMonth || 0;
       const remaining = limit === Infinity ? Infinity : Math.max(0, limit - used);
 
       // Check if quota exceeded
