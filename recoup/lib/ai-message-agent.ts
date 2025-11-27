@@ -21,7 +21,7 @@
 
 import { db, COLLECTIONS } from '@/lib/firebase';
 import { predictPaymentTime } from '@/lib/ml-payment-predictor';
-import { decryptField } from '@/lib/encryption';
+import { decrypt } from '@/lib/encryption';
 import { logInfo, logError } from '@/utils/logger';
 
 /**
@@ -128,9 +128,9 @@ export async function extractMessageContext(
     const freelancer = freelancerDoc.exists ? freelancerDoc.data()! : null;
 
     // Decrypt sensitive fields
-    const clientName = invoice.clientName ? decryptField(invoice.clientName, freelancerId) : 'Client';
-    const clientEmail = invoice.clientEmail ? decryptField(invoice.clientEmail, freelancerId) : undefined;
-    const clientPhone = invoice.clientPhone ? decryptField(invoice.clientPhone, freelancerId) : undefined;
+    const clientName = invoice.clientName ? decrypt(invoice.clientName) : 'Client';
+    const clientEmail = invoice.clientEmail ? decrypt(invoice.clientEmail) : undefined;
+    const clientPhone = invoice.clientPhone ? decrypt(invoice.clientPhone) : undefined;
 
     // Calculate days overdue
     const dueDate = invoice.dueDate?.toDate?.() || new Date(invoice.dueDate);

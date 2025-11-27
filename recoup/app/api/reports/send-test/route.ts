@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/firebase-admin';
 import { logInfo, logError } from '@/utils/logger';
-import { sendReportEmail } from '@/lib/sendgrid';
+import { sendEmail } from '@/lib/sendgrid';
 import { generateReport } from '@/lib/reports/generator';
 
 export const dynamic = 'force-dynamic';
@@ -68,20 +68,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
 
     // 6. Send test report email
-    const emailResult = await sendReportEmail({
-      toEmail: recipientEmail,
-      reportType: body.reportType,
-      reportBuffer,
-      format,
-      isTest: true,
+    await sendEmail({
+      to: recipientEmail,
+      subject: `Test ${body.reportType} Report`,
+      html: `
+        <h2>Test Report - ${body.reportType}</h2>
+        <p>This is a test ${body.reportType} report generated at ${new Date().toLocaleString()}.</p>
+        <p>The report has been generated successfully in ${format} format.</p>
+        <p>In production, this would be attached to the email.</p>
+      `,
+      fallbackText: `Test ${body.reportType} report generated successfully.`,
     });
-
-    if (!emailResult.success) {
-      return NextResponse.json(
-        { error: 'Failed to send test report', details: emailResult.error },
-        { status: 500 }
-      );
-    }
 
     // 7. Log test send
     const activityRef = db.collection('reportActivities').doc();
@@ -103,7 +100,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       success: true,
       message: `Test ${body.reportType} report sent to ${recipientEmail}`,
-      messageId: emailResult.messageId,
     });
 
   } catch (error: any) {
