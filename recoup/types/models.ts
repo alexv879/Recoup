@@ -17,6 +17,14 @@ export interface User {
   stripeCustomerId?: string;
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
+  collectionsConsent?: {
+    smsOptedOut?: boolean;
+    emailOptedOut?: boolean;
+    callOptedOut?: boolean;
+    smsConsent?: boolean;
+    emailConsent?: boolean;
+    callConsent?: boolean;
+  };
   referralCode?: string;
   profilePicture?: string;
   timezone: string;
