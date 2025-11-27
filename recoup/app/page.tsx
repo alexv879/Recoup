@@ -1,4 +1,4 @@
-/**
+/*
  * RECOUP LANDING PAGE
  * CRO-Optimized for 10-12%+ Conversion Rate
  *
@@ -44,7 +44,7 @@ export default function LandingPage() {
                 <Button variant="ghost">Sign In</Button>
               </Link>
               <Link href="/sign-up">
-                <Button variant="cta" size="lg">Start Free Trial</Button>
+                <Button variant="default" size="lg">Start Free Trial</Button>
               </Link>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function LandingPage() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Copy + CTA */}
           <div>
-            <Badge variant="info" className="mb-4">
+            <Badge variant="secondary" className="mb-4">
               <Zap className="w-3 h-3" />
               Trusted by 2,000+ UK Freelancers
             </Badge>
@@ -73,12 +73,12 @@ export default function LandingPage() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Link href="/sign-up">
-                <Button variant="cta" size="xl" className="w-full sm:w-auto min-w-[200px]">
+                <Button variant="default" size="lg" className="w-full sm:w-auto min-w-[200px]">
                   Start Free Trial
                 </Button>
               </Link>
               <Link href="#how-it-works">
-                <Button variant="outline" size="xl" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   See How It Works
                 </Button>
               </Link>
@@ -193,7 +193,7 @@ export default function LandingPage() {
                 Add client details and invoice amount in under 30 seconds.
                 Send via email, SMS, or payment link.
               </p>
-              <Badge variant="neutral" className="mx-auto">Takes 30 seconds</Badge>
+              <Badge variant="outline" className="mx-auto">Takes 30 seconds</Badge>
             </Card>
 
             {/* Step 2 */}
@@ -206,7 +206,7 @@ export default function LandingPage() {
                 Client commits to a payment date. Automated reminders keep them on track.
                 No more awkward follow-ups.
               </p>
-              <Badge variant="warning" className="mx-auto">Automated</Badge>
+              <Badge variant="secondary" className="mx-auto">Automated</Badge>
             </Card>
 
             {/* Step 3 */}
@@ -219,7 +219,7 @@ export default function LandingPage() {
                 Payment received via Stripe. Automatic MTD record created.
                 Celebrate with confetti!
               </p>
-              <Badge variant="success" className="mx-auto">Money in bank</Badge>
+              <Badge variant="default" className="mx-auto">Money in bank</Badge>
             </Card>
           </div>
         </div>
@@ -381,7 +381,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <Link href="/sign-up">
-                <Button variant="cta" size="lg" className="w-full">
+                <Button variant="default" size="lg" className="w-full">
                   Start 30-Day Trial
                 </Button>
               </Link>
@@ -499,8 +499,8 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up">
               <Button
-                variant="cta"
-                size="xl"
+                variant="default"
+                size="lg"
                 className="bg-white text-[#0078D4] hover:bg-gray-100 min-w-[250px]"
               >
                 Start Free Trial — No Card Required
