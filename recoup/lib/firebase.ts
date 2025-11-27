@@ -87,6 +87,7 @@ export const COLLECTIONS = {
   EMAILS_SENT: 'emails_sent',
   ONBOARDING_PROGRESS: 'onboarding_progress',
   AGENCY_HANDOFFS: 'agency_handoffs',
+  PROCESSED_EVENTS: 'processed_events',
 
   // NEW: Expense tracking
   EXPENSES: 'expenses',

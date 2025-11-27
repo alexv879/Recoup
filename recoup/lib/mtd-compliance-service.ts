@@ -390,7 +390,10 @@ export function generateQuarterlySubmission(params: {
     id: `qtr-${Date.now()}`,
     quarter,
     taxYear,
-    quarterPeriod,
+    quarterPeriod: {
+      startDate: quarterPeriod.start,
+      endDate: quarterPeriod.end,
+    },
     income: {
       totalIncome,
       bySource: incomeBySource,

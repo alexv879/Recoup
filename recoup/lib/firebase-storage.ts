@@ -28,7 +28,13 @@ export async function uploadFile(
     const fileRef = bucket.file(path);
 
     // Convert File to Buffer if needed (for client-side File objects)
-    const buffer = file instanceof Buffer ? file : Buffer.from(await file.arrayBuffer());
+    let buffer: Buffer;
+    if (file instanceof Buffer) {
+        buffer = file;
+    } else {
+        // File object (client-side)
+        buffer = Buffer.from(await (file as File).arrayBuffer());
+    }
 
     await fileRef.save(buffer, {
         metadata: {
@@ -171,7 +177,7 @@ export async function uploadMultipleReceipts(
 }
 
 /**
- * Delete receipt file
+ * Delete receipt file (using Admin SDK)
  * @param path - Storage path to delete
  */
 export async function deleteReceiptFile(path: string): Promise<void> {
@@ -180,9 +186,9 @@ export async function deleteReceiptFile(path: string): Promise<void> {
     }
 
     try {
-        const storageRef = ref(storage, path);
-        const { deleteObject } = await import('firebase/storage');
-        await deleteObject(storageRef);
+        const bucket = storage.bucket();
+        const fileRef = bucket.file(path);
+        await fileRef.delete();
     } catch (error) {
         console.error('Failed to delete receipt:', path, error);
         throw new Error('Failed to delete receipt file');
