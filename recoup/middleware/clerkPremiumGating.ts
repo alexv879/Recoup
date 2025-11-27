@@ -194,7 +194,7 @@ export async function incrementUsageCounter(
     const userRef = db.collection('users').doc(userId);
 
     await userRef.update({
-      collectionsUsedThisMonth: FieldValue.increment(1),
+      collectionsDemoUsedThisMonth: FieldValue.increment(1),
       updatedAt: FieldValue.serverTimestamp(),
     });
 
@@ -221,7 +221,7 @@ export async function resetMonthlyUsage(userId?: string): Promise<void> {
     if (userId) {
       // Reset single user
       await db.collection('users').doc(userId).update({
-        collectionsUsedThisMonth: 0,
+        collectionsDemoUsedThisMonth: 0,
         monthlyUsageResetDate: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });
@@ -233,7 +233,7 @@ export async function resetMonthlyUsage(userId?: string): Promise<void> {
 
       usersSnapshot.docs.forEach((doc) => {
         batch.update(doc.ref, {
-          collectionsUsedThisMonth: 0,
+          collectionsDemoUsedThisMonth: 0,
           monthlyUsageResetDate: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         });
@@ -273,7 +273,7 @@ export async function getUserQuotaInfo(userId: string): Promise<{
   const user = userDoc.data() as User;
   const tier = normalizeTier(user.subscriptionTier);
   const limit = COLLECTIONS_LIMITS[tier as keyof typeof COLLECTIONS_LIMITS];
-  const used = user.collectionsUsedThisMonth || 0;
+  const used = user.collectionsDemoUsedThisMonth || 0;
   const remaining = limit === Infinity ? Infinity : Math.max(0, limit - used);
   const percentageUsed = limit === Infinity ? 0 : (used / limit) * 100;
   const isNearLimit = percentageUsed >= 80;
