@@ -44,8 +44,10 @@ export function CollectionsTimeline({ events, onEventClick }: CollectionsTimelin
 
     if (events.length === 0) {
         return (
-            <div className="text-center py-8 text-gray-500">
-                <p className="text-sm">No collection activities yet</p>
+            <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <span className="text-4xl mb-4 block">📋</span>
+                <p className="text-lg font-semibold text-[#1F2937] mb-2">No collection activities yet</p>
+                <p className="text-sm text-[#6B7280]">When you enable collections, all activities will appear here</p>
             </div>
         );
     }
@@ -84,32 +86,55 @@ export function CollectionsTimeline({ events, onEventClick }: CollectionsTimelin
                 const isExpanded = expandedEvents.has(event.eventId);
                 const isLast = index === sortedEvents.length - 1;
 
-                // Event type styling
-                const eventTypeStyles: Record<string, { icon: string; color: string; bgColor: string }> = {
+                // Event type styling - CRO-optimized colors
+                const eventTypeStyles: Record<string, { icon: string; color: string; bgColor: string; label: string }> = {
                     escalated: {
-                        icon: '⬆️',
-                        color: '#991B1B',
-                        bgColor: '#FEE2E2',
+                        icon: '⚠️',
+                        color: '#DC2626',
+                        bgColor: '#FEF2F2',
+                        label: 'Escalated',
                     },
                     paused: {
                         icon: '⏸️',
-                        color: '#D97706',
-                        bgColor: '#FEF3C7',
+                        color: '#F59E0B',
+                        bgColor: '#FFFBEB',
+                        label: 'Paused',
                     },
                     resumed: {
                         icon: '▶️',
-                        color: '#059669',
-                        bgColor: '#D1FAE5',
+                        color: '#22C55E',
+                        bgColor: '#F0FDF4',
+                        label: 'Resumed',
                     },
                     reminder_sent: {
                         icon: '📧',
-                        color: '#0891B2',
-                        bgColor: '#CFFAFE',
+                        color: '#0078D4',
+                        bgColor: '#EFF6FF',
+                        label: 'Reminder Sent',
                     },
                     payment_received: {
                         icon: '✅',
-                        color: '#16A34A',
-                        bgColor: '#DCFCE7',
+                        color: '#22C55E',
+                        bgColor: '#F0FDF4',
+                        label: 'Payment Received',
+                    },
+                    promised: {
+                        icon: '🟡',
+                        color: '#F59E0B',
+                        bgColor: '#FFFBEB',
+                        label: 'Promised',
+                    },
+                    overdue: {
+                        icon: '🔴',
+                        color: '#DC2626',
+                        bgColor: '#FEF2F2',
+                        label: 'Overdue',
+                    },
+                    pending: {
+                        icon: '⏳',
+                        color: '#9CA3AF',
+                        bgColor: '#F9FAFB',
+                        label: 'Pending',
                     },
                 };
 

@@ -10,13 +10,23 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+          "border-transparent bg-[#0078D4] text-white [a&]:hover:bg-[#106EBE]",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "border-transparent bg-[#208094] text-white [a&]:hover:bg-[#1A6B7D]",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "border-transparent bg-[#DC2626] text-white [a&]:hover:bg-[#991B1B] focus-visible:ring-destructive/20",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        success:
+          "border-[#22C55E]/20 bg-[#F0FDF4] text-[#166534] [a&]:hover:bg-[#DCFCE7]",
+        warning:
+          "border-[#F59E0B]/20 bg-[#FFFBEB] text-[#92400E] [a&]:hover:bg-[#FEF3C7]",
+        danger:
+          "border-[#DC2626]/20 bg-[#FEF2F2] text-[#991B1B] [a&]:hover:bg-[#FEE2E2]",
+        neutral:
+          "border-[#9CA3AF]/20 bg-[#F9FAFB] text-[#374151] [a&]:hover:bg-[#F3F4F6]",
+        info:
+          "border-[#0891B2]/20 bg-[#ECFEFF] text-[#164E63] [a&]:hover:bg-[#CFFAFE]",
       },
     },
     defaultVariants: {

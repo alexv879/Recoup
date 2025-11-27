@@ -33,84 +33,120 @@ export default async function DashboardPage() {
     const summary = summaryRes.ok ? await summaryRes.json() : null;
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#FAFBF9]">
             {/* Pass userId and summary to client component for interactivity */}
             <DashboardClient userId={userId} summary={summary} />
 
-            {/* Header */}
-            <div className="bg-white border-b">
-                <div className="container mx-auto px-4 py-6">
-                    <div className="flex items-center justify-between">
+            {/* Hero Card - Above the Fold */}
+            <div className="bg-gradient-to-br from-[#0078D4] to-[#208094] text-white">
+                <div className="container mx-auto px-4 py-12">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                            <p className="text-gray-600 mt-1">Welcome back! Here's your business overview</p>
+                            <h1 className="text-4xl font-bold mb-2">Welcome back! 👋</h1>
+                            <p className="text-blue-100 text-lg">Here's what needs your attention today</p>
                         </div>
-                        <div className="flex gap-3">
-                            <Link href="/dashboard/invoices/new">
-                                <Button>+ Create Invoice</Button>
-                            </Link>
+                        <Link href="/dashboard/invoices/new">
+                            <Button variant="cta" size="xl" className="bg-white text-[#0078D4] hover:bg-gray-100 min-w-[200px]">
+                                + Create Invoice
+                            </Button>
+                        </Link>
+                    </div>
+
+                    {/* Outstanding Amount - Hero Metric */}
+                    <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                        <p className="text-blue-100 text-sm font-medium mb-2">OUTSTANDING</p>
+                        <p className="text-5xl font-bold mb-2">
+                            £{summary?.financial?.totalInvoiced?.toLocaleString() || '0'}
+                        </p>
+                        <div className="flex items-center gap-4 text-sm">
+                            <span className="text-green-300">
+                                ↑ {summary?.financial?.monthlyGrowth || '0'}% from last month
+                            </span>
+                            {summary?.invoices?.overdue > 0 && (
+                                <Link href="/dashboard/invoices?status=overdue" className="text-yellow-300 hover:underline">
+                                    {summary.invoices.overdue} overdue →
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
 
             <div className="container mx-auto px-4 py-8">
+                {/* Today's Actions - Quick Access */}
+                {(summary?.invoices?.overdue > 0 || summary?.recentActivity?.recentInvoices?.length > 0) && (
+                    <Card className="mb-8 p-6 bg-gradient-to-r from-[#FFFBEB] to-white border-l-4 border-[#F59E0B]">
+                        <h2 className="text-xl font-bold text-[#1F2937] mb-4 flex items-center gap-2">
+                            <span className="text-2xl">⚡</span>
+                            Today's Actions
+                        </h2>
+                        <div className="space-y-3">
+                            {summary?.invoices?.overdue > 0 && (
+                                <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-[#F59E0B]/20">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse"></div>
+                                        <div>
+                                            <p className="font-semibold text-[#1F2937]">
+                                                Send payment reminders
+                                            </p>
+                                            <p className="text-sm text-[#6B7280]">
+                                                {summary.invoices.overdue} invoice{summary.invoices.overdue > 1 ? 's' : ''} overdue
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Link href="/dashboard/invoices?status=overdue">
+                                        <Button variant="warning" size="sm">Take Action</Button>
+                                    </Link>
+                                </div>
+                            )}
+                            {!summary?.invoices?.overdue && (
+                                <div className="flex items-center gap-3 p-4 bg-[#F0FDF4] rounded-lg border border-[#22C55E]/20">
+                                    <span className="text-2xl">✅</span>
+                                    <div>
+                                        <p className="font-semibold text-[#166534]">All caught up!</p>
+                                        <p className="text-sm text-[#22C55E]">No overdue invoices. Keep up the great work.</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+                )}
+
                 {/* Financial Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    {/* Total Revenue */}
-                    <Card className="p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow duration-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {/* Overdue - Priority */}
+                    <Card className="p-6 border-l-4 border-[#F59E0B] hover:shadow-lg transition-shadow duration-200">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Total Owed</p>
-                                <p className="text-3xl font-bold text-gray-900">
-                                    £{summary?.financial?.totalInvoiced?.toLocaleString() || '0'}
+                                <p className="text-xs font-semibold text-[#92400E] uppercase tracking-wider mb-2">Overdue</p>
+                                <p className="text-3xl font-bold text-[#F59E0B]">
+                                    £{summary?.financial?.totalOutstanding?.toLocaleString() || '0'}
                                 </p>
-                                <div className="mt-2 flex items-center gap-2">
-                                    <p className="text-xs text-green-600 font-medium">
-                                        ↑ {summary?.financial?.monthlyGrowth || '0'}% from last month
-                                    </p>
-                                </div>
+                                <p className="text-xs text-[#6B7280] mt-2">
+                                    <strong>{summary?.invoices?.overdue || 0}</strong> invoice{summary?.invoices?.overdue !== 1 ? 's' : ''} past due
+                                </p>
                                 {summary?.invoices?.overdue > 0 && (
-                                    <Link href="/dashboard/invoices?status=overdue" className="text-xs text-blue-600 hover:underline mt-1 inline-block">
-                                        View overdue →
+                                    <Link href="/dashboard/invoices?status=overdue">
+                                        <Button variant="warning" size="sm" className="mt-3">
+                                            Send Reminders
+                                        </Button>
                                     </Link>
                                 )}
                             </div>
-                            <div className="text-4xl">💰</div>
-                        </div>
-                    </Card>
-
-                    {/* Outstanding */}
-                    <Card className="p-6 border-l-4 border-orange-500 bg-orange-50/50 hover:shadow-lg transition-shadow duration-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Overdue</p>
-                                <p className="text-3xl font-bold text-orange-600">
-                                    £{summary?.financial?.totalOutstanding?.toLocaleString() || '0'}
-                                </p>
-                                <p className="text-xs text-gray-600 mt-2">
-                                    <strong>{summary?.invoices?.overdue || 0}</strong> invoices past due
-                                </p>
-                                {summary?.invoices?.overdue > 0 && (
-                                    <button className="mt-2 text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors">
-                                        Send Reminders
-                                    </button>
-                                )}
-                            </div>
-                            <div className="text-4xl">⚠</div>
+                            <div className="text-4xl">⚠️</div>
                         </div>
                     </Card>
 
                     {/* Collected */}
-                    <Card className="p-6 border-l-4 border-green-500 hover:shadow-lg transition-shadow duration-200">
+                    <Card className="p-6 border-l-4 border-[#22C55E] hover:shadow-lg transition-shadow duration-200">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Collected</p>
-                                <p className="text-3xl font-bold text-green-600">
+                                <p className="text-xs font-semibold text-[#166534] uppercase tracking-wider mb-2">Collected</p>
+                                <p className="text-3xl font-bold text-[#22C55E]">
                                     £{summary?.financial?.totalCollected?.toLocaleString() || '0'}
                                 </p>
-                                <p className="text-xs text-gray-600 mt-2">
-                                    {summary?.invoices?.paid || 0} paid invoices
+                                <p className="text-xs text-[#6B7280] mt-2">
+                                    {summary?.invoices?.paid || 0} paid invoice{summary?.invoices?.paid !== 1 ? 's' : ''}
                                 </p>
                             </div>
                             <div className="text-4xl">✅</div>
@@ -118,16 +154,21 @@ export default async function DashboardPage() {
                     </Card>
 
                     {/* XP Level */}
-                    <Card className="p-6 border-l-4 border-purple-500 hover:shadow-lg transition-shadow duration-200">
+                    <Card className="p-6 border-l-4 border-[#0078D4] hover:shadow-lg transition-shadow duration-200">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">XP Level</p>
-                                <p className="text-3xl font-bold text-purple-600">
+                                <p className="text-xs font-semibold text-[#0078D4] uppercase tracking-wider mb-2">XP Level</p>
+                                <p className="text-3xl font-bold text-[#0078D4]">
                                     {summary?.gamification?.level || 1}
                                 </p>
-                                <p className="text-xs text-gray-600 mt-2">
+                                <p className="text-xs text-[#6B7280] mt-2">
                                     {summary?.gamification?.xp || 0} XP
                                 </p>
+                                <Link href="/dashboard/gamification">
+                                    <Button variant="ghost" size="sm" className="mt-3 text-[#0078D4]">
+                                        View Progress
+                                    </Button>
+                                </Link>
                             </div>
                             <div className="text-4xl">⭐</div>
                         </div>
@@ -150,15 +191,15 @@ export default async function DashboardPage() {
                                     <div key={invoice.invoiceId} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3">
-                                                <p className="font-semibold text-gray-900">{invoice.reference}</p>
+                                                <p className="font-semibold text-[#1F2937]">{invoice.reference}</p>
                                                 <Badge variant={
-                                                    invoice.status === 'paid' ? 'default' :
-                                                        invoice.status === 'overdue' ? 'destructive' :
-                                                            invoice.status === 'sent' ? 'default' : 'secondary'
-                                                }
-                                                    className={invoice.status === 'paid' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                                                >
-                                                    {invoice.status}
+                                                    invoice.status === 'paid' ? 'success' :
+                                                        invoice.status === 'overdue' ? 'danger' :
+                                                            invoice.status === 'sent' ? 'info' : 'neutral'
+                                                }>
+                                                    {invoice.status === 'paid' ? '✓ Paid' :
+                                                     invoice.status === 'overdue' ? '⚠ Overdue' :
+                                                     invoice.status === 'sent' ? '📧 Sent' : invoice.status}
                                                 </Badge>
                                             </div>
                                             <p className="text-sm text-gray-600 mt-1">
@@ -206,8 +247,8 @@ export default async function DashboardPage() {
                                     <div key={payment.transactionId} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3">
-                                                <p className="font-semibold text-gray-900">{payment.invoiceReference}</p>
-                                                <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Paid</Badge>
+                                                <p className="font-semibold text-[#1F2937]">{payment.invoiceReference}</p>
+                                                <Badge variant="success">✓ Paid</Badge>
                                             </div>
                                             <p className="text-sm text-gray-600 mt-1">
                                                 {new Date(payment.createdAt._seconds * 1000).toLocaleDateString('en-GB')} • {payment.paymentMethod}

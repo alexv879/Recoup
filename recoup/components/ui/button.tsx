@@ -9,24 +9,28 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-[#0078D4] text-white hover:bg-[#106EBE] shadow-sm",
+        cta: "bg-[#E67E50] text-white hover:bg-[#D4673F] shadow-md hover:shadow-lg font-semibold tracking-wide focus-visible:ring-[#E67E50]/30",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-[#DC2626] text-white hover:bg-[#991B1B] focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-[#208094] text-white hover:bg-[#1A6B7D]",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+        link: "text-[#0078D4] underline-offset-4 hover:underline",
+        success: "bg-[#22C55E] text-white hover:bg-[#1F7E4F]",
+        warning: "bg-[#F59E0B] text-white hover:bg-[#D97706]",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        lg: "h-11 rounded-md px-8 has-[>svg]:px-6 text-base min-w-[44px]",
+        xl: "h-12 rounded-lg px-10 has-[>svg]:px-8 text-lg min-w-[44px]",
         icon: "size-9",
         "icon-sm": "size-8",
-        "icon-lg": "size-10",
+        "icon-lg": "size-11 min-w-[44px] min-h-[44px]",
       },
     },
     defaultVariants: {
