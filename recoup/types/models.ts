@@ -425,3 +425,25 @@ export interface RevenueRecoveryMetrics {
   lastMonth: number;
   thisYear: number;
 }
+
+// ============================================================================
+// WEBHOOK RETRY SYSTEM
+// ============================================================================
+
+export interface FailedWebhook {
+  webhookId: string;
+  source: 'stripe' | 'clerk' | 'sendgrid' | 'twilio';
+  eventType: string;
+  eventId?: string;
+  payload: any;
+  signature?: string;
+  error: string;
+  retryCount: number;
+  maxRetries: number;
+  nextRetryAt: Date | Timestamp;
+  lastAttemptAt: Date | Timestamp;
+  status: 'pending_retry' | 'dead_letter' | 'resolved';
+  resolvedAt?: Date | Timestamp;
+  createdAt: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
+}
