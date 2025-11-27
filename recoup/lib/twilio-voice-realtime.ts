@@ -218,7 +218,7 @@ export async function initiateAICollectionCall(params: AICallParams): Promise<AI
 
     // Start the call with a connect to stream
     const connect = twiml.connect();
-    connect.stream({
+    (connect.stream as any)({
       url: `wss://${process.env.NEXT_PUBLIC_APP_URL?.replace('https://', '') || 'your-app.vercel.app'}/api/webhooks/twilio/voice-stream`,
       parameters: {
         invoiceId: params.invoiceId,
