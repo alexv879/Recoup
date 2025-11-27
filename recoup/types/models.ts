@@ -15,6 +15,7 @@ export interface User {
   subscriptionTier: 'free' | 'starter' | 'growth' | 'pro';
   subscriptionStatus?: 'active' | 'inactive' | 'cancelled';
   stripeCustomerId?: string;
+  isFoundingMember?: boolean; // Locked into 50% discount pricing
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
   collectionsConsent?: {
