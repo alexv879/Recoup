@@ -20,7 +20,7 @@
  */
 
 import { logger } from '@/utils/logger';
-import { getGemini } from '@/lib/ai-service';
+import { generateJSON } from '@/lib/ai-service';
 
 export interface ProjectScope {
   id: string;
@@ -457,9 +457,6 @@ export async function detectScopeChange(params: {
 }> {
   const { scope, clientRequest } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-
   const prompt = `You are a project scope expert analyzing client requests.
 
 Original Project Scope:
@@ -486,19 +483,7 @@ Respond in JSON format:
   "suggestedResponse": "Template response to client"
 }`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    return {
-      isScopeChange: false,
-      confidence: 50,
-      reasoning: 'Unable to analyze request',
-    };
-  }
-
-  const parsed = JSON.parse(jsonMatch[0]);
+  const parsed = await generateJSON(prompt);
 
   logger.info('Scope change detection', {
     projectId: scope.projectId,
