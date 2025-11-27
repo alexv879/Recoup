@@ -36,6 +36,7 @@ export interface RecurringInvoice {
   clientEmail: string;
 
   // Invoice details
+  reference?: string; // Template reference/name
   description: string;
   lineItems: LineItem[];
   subtotal: number; // In pence
