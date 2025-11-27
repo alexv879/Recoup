@@ -61,6 +61,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const invoice = invoiceDoc.data();
 
+    if (!invoice) {
+      throw new Error('Invoice data not found');
+    }
+
     // 5. Authorization check
     if (invoice.freelancerId !== userId) {
       throw new UnauthorizedError();
@@ -143,12 +147,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
 
 /**
- * GET /api/collections/ai-call-python/[callSid]
+ * GET /api/collections/ai-call-python?callSid=xxx
  * Get AI call status and transcript
  */
 export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ callSid: string }> }
+  req: NextRequest
 ): Promise<NextResponse> {
   const startTime = Date.now();
 
@@ -158,7 +161,10 @@ export async function GET(
       throw new UnauthorizedError();
     }
 
-    const { callSid } = await params;
+    const callSid = req.nextUrl.searchParams.get('callSid');
+    if (!callSid) {
+      return NextResponse.json({ error: 'callSid is required' }, { status: 400 });
+    }
 
     // Call Python service to get status
     const response = await fetch(`${PYTHON_AI_VOICE_SERVICE_URL}/call-status/${callSid}`);

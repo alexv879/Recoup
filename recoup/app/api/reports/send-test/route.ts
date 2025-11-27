@@ -34,7 +34,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // 2. Get user email from Clerk
     const { clerkClient } = await import('@clerk/nextjs/server');
-    const user = await clerkClient().users.getUser(userId);
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
 
     if (!user.primaryEmailAddress) {
       return NextResponse.json(

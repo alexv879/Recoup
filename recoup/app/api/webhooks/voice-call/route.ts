@@ -195,10 +195,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
         // Send SMS with payment link
         await sendCollectionSMS({
-          to: invoiceData.clientPhone,
-          message: `Thank you for agreeing to pay invoice ${callSummary.callContext.invoiceReference}. ` +
-            `Pay securely here: ${paymentLinkUrl} - ${callSummary.callContext.businessName}`,
+          recipientPhone: invoiceData.clientPhone,
+          invoiceReference: callSummary.callContext.invoiceReference,
+          amount: invoiceData.amount,
+          dueDate: invoiceData.dueDate?.toDate?.()?.toISOString() || new Date().toISOString(),
+          template: 'payment_link',
+          paymentLink: paymentLinkUrl,
+          businessName: callSummary.callContext.businessName,
           invoiceId,
+          freelancerId: invoiceData.freelancerId,
         });
 
         logInfo('Payment link SMS sent', { invoiceId, correlationId });

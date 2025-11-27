@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      expenses.push({ expenseId: expenseDoc.id, ...expense });
+      expenses.push({ ...expense, expenseId: expenseDoc.id });
     }
 
     // Get client details

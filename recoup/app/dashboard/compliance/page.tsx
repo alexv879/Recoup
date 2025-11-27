@@ -13,11 +13,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/UI/Card';
+import { Badge } from '@/components/UI/Badge';
+import { Button } from '@/components/UI/Button';
+import { Alert, AlertDescription } from '@/components/UI/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/UI/Tabs';
 import {
   Table,
   TableBody,
@@ -25,8 +25,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Progress } from '@/components/ui/progress';
+} from '@/components/UI/table';
+import { Progress } from '@/components/UI/Progress';
 import { AlertTriangle, CheckCircle, Shield, Phone, Mail, MessageSquare, Users } from 'lucide-react';
 
 export default function ComplianceDashboard() {
@@ -38,7 +38,7 @@ export default function ComplianceDashboard() {
   const todayEmails = 45;
   const todaySMS = 8;
   const vulnerableCustomers = 3;
-  const violations = 1;
+  const violations: number = 1;
 
   return (
     <div className="p-8 space-y-6">
@@ -311,7 +311,7 @@ export default function ComplianceDashboard() {
                   <TableRow>
                     <TableCell className="font-medium">Emma Davis</TableCell>
                     <TableCell>
-                      <Badge variant="warning">Financial Difficulty</Badge>
+                      <Badge variant="secondary">Financial Difficulty</Badge>
                     </TableCell>
                     <TableCell>1 week ago</TableCell>
                     <TableCell>

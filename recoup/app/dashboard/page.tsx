@@ -46,7 +46,7 @@ export default async function DashboardPage() {
                             <p className="text-blue-100 text-lg">Here's what needs your attention today</p>
                         </div>
                         <Link href="/dashboard/invoices/new">
-                            <Button variant="cta" size="xl" className="bg-white text-[#0078D4] hover:bg-gray-100 min-w-[200px]">
+                            <Button variant="default" size="lg" className="bg-white text-[#0078D4] hover:bg-gray-100 min-w-[200px]">
                                 + Create Invoice
                             </Button>
                         </Link>
@@ -95,7 +95,7 @@ export default async function DashboardPage() {
                                         </div>
                                     </div>
                                     <Link href="/dashboard/invoices?status=overdue">
-                                        <Button variant="warning" size="sm">Take Action</Button>
+                                        <Button variant="secondary" size="sm">Take Action</Button>
                                     </Link>
                                 </div>
                             )}
@@ -127,7 +127,7 @@ export default async function DashboardPage() {
                                 </p>
                                 {summary?.invoices?.overdue > 0 && (
                                     <Link href="/dashboard/invoices?status=overdue">
-                                        <Button variant="warning" size="sm" className="mt-3">
+                                        <Button variant="secondary" size="sm" className="mt-3">
                                             Send Reminders
                                         </Button>
                                     </Link>
@@ -193,9 +193,9 @@ export default async function DashboardPage() {
                                             <div className="flex items-center gap-3">
                                                 <p className="font-semibold text-[#1F2937]">{invoice.reference}</p>
                                                 <Badge variant={
-                                                    invoice.status === 'paid' ? 'success' :
-                                                        invoice.status === 'overdue' ? 'danger' :
-                                                            invoice.status === 'sent' ? 'info' : 'neutral'
+                                                    invoice.status === 'paid' ? 'default' :
+                                                        invoice.status === 'overdue' ? 'destructive' :
+                                                            invoice.status === 'sent' ? 'secondary' : 'outline'
                                                 }>
                                                     {invoice.status === 'paid' ? '✓ Paid' :
                                                      invoice.status === 'overdue' ? '⚠ Overdue' :
@@ -248,7 +248,7 @@ export default async function DashboardPage() {
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3">
                                                 <p className="font-semibold text-[#1F2937]">{payment.invoiceReference}</p>
-                                                <Badge variant="success">✓ Paid</Badge>
+                                                <Badge variant="default">✓ Paid</Badge>
                                             </div>
                                             <p className="text-sm text-gray-600 mt-1">
                                                 {new Date(payment.createdAt._seconds * 1000).toLocaleDateString('en-GB')} • {payment.paymentMethod}

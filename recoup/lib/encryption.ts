@@ -112,3 +112,33 @@ export function decryptObject<T>(ciphertext: string): T {
   const decrypted = decrypt(ciphertext);
   return JSON.parse(decrypted);
 }
+
+/**
+ * Encrypt a single field value
+ * @param value - The field value to encrypt
+ * @param userId - Optional user ID for context (not used in encryption, for audit purposes)
+ * @returns Encrypted string
+ */
+export function encryptField(value: string, userId?: string): string {
+  return encrypt(value);
+}
+
+/**
+ * Decrypt a single field value
+ * @param encryptedValue - The encrypted field value
+ * @param userId - Optional user ID for context (not used in decryption, for audit purposes)
+ * @returns Decrypted string
+ */
+export function decryptField(encryptedValue: string, userId?: string): string {
+  return decrypt(encryptedValue);
+}
+
+/**
+ * Encrypted fields configuration for different data types
+ */
+export const ENCRYPTED_FIELDS = {
+  INVOICE: ['clientName', 'clientEmail', 'clientPhone', 'clientAddress', 'notes'],
+  COMMUNICATION: ['recipientPhone', 'recipientEmail', 'messageBody', 'emailContent', 'smsContent', 'recordingUrl'],
+  INTEGRATION: ['apiKey', 'apiSecret', 'webhookSecret', 'accessToken', 'refreshToken'],
+  USER: ['fullName', 'phoneNumber', 'businessAddress', 'taxId'],
+};

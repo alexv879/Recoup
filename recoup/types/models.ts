@@ -13,6 +13,7 @@ export interface User {
   businessType?: 'freelancer' | 'agency' | 'consultant';
   subscriptionTier: 'free' | 'starter' | 'growth' | 'pro';
   subscriptionStatus?: 'active' | 'inactive' | 'cancelled';
+  stripeCustomerId?: string;
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
   referralCode?: string;

@@ -1,24 +1,51 @@
 // Simple logger for development - replace with proper logging service in production
 export const logger = {
-    info: (data: any, message?: string) => {
-        if (message) {
-            console.log(`[INFO] ${message}`, data);
+    info: (dataOrMessage: any, messageOrData?: any) => {
+        // Support both (data, message) and (message, data) parameter orders
+        if (typeof dataOrMessage === 'string' && typeof messageOrData === 'object') {
+            // Called as (message, data)
+            console.log(`[INFO] ${dataOrMessage}`, messageOrData);
+        } else if (typeof dataOrMessage === 'object' && typeof messageOrData === 'string') {
+            // Called as (data, message)
+            console.log(`[INFO] ${messageOrData}`, dataOrMessage);
+        } else if (messageOrData) {
+            // Called as (data, message) with data being non-object
+            console.log(`[INFO] ${messageOrData}`, dataOrMessage);
         } else {
-            console.log('[INFO]', data);
+            // Only one parameter
+            console.log('[INFO]', dataOrMessage);
         }
     },
-    error: (data: any, message?: string) => {
-        if (message) {
-            console.error(`[ERROR] ${message}`, data);
+    error: (dataOrMessage: any, messageOrData?: any) => {
+        // Support both (data, message) and (message, data) parameter orders
+        if (typeof dataOrMessage === 'string' && typeof messageOrData === 'object') {
+            // Called as (message, data)
+            console.error(`[ERROR] ${dataOrMessage}`, messageOrData);
+        } else if (typeof dataOrMessage === 'object' && typeof messageOrData === 'string') {
+            // Called as (data, message)
+            console.error(`[ERROR] ${messageOrData}`, dataOrMessage);
+        } else if (messageOrData) {
+            // Called as (data, message) with data being non-object
+            console.error(`[ERROR] ${messageOrData}`, dataOrMessage);
         } else {
-            console.error('[ERROR]', data);
+            // Only one parameter
+            console.error('[ERROR]', dataOrMessage);
         }
     },
-    warn: (data: any, message?: string) => {
-        if (message) {
-            console.warn(`[WARN] ${message}`, data);
+    warn: (dataOrMessage: any, messageOrData?: any) => {
+        // Support both (data, message) and (message, data) parameter orders
+        if (typeof dataOrMessage === 'string' && typeof messageOrData === 'object') {
+            // Called as (message, data)
+            console.warn(`[WARN] ${dataOrMessage}`, messageOrData);
+        } else if (typeof dataOrMessage === 'object' && typeof messageOrData === 'string') {
+            // Called as (data, message)
+            console.warn(`[WARN] ${messageOrData}`, dataOrMessage);
+        } else if (messageOrData) {
+            // Called as (data, message) with data being non-object
+            console.warn(`[WARN] ${messageOrData}`, dataOrMessage);
         } else {
-            console.warn('[WARN]', data);
+            // Only one parameter
+            console.warn('[WARN]', dataOrMessage);
         }
     },
 };

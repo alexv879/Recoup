@@ -20,7 +20,7 @@ interface SendInvoiceRequest {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     // 1. Authentication
@@ -33,7 +33,7 @@ export async function POST(
       );
     }
 
-    const invoiceId = params.id;
+    const { id: invoiceId } = await params;
 
     // 2. Get invoice from Firestore
     const invoiceRef = db.collection('invoices').doc(invoiceId);
@@ -66,24 +66,17 @@ export async function POST(
     }
 
     // 6. Send invoice email
-    const emailResult = await sendInvoiceEmail({
+    await sendInvoiceEmail({
       toEmail: invoiceData.clientEmail,
-      clientName: invoiceData.clientName,
       invoiceReference: invoiceData.reference,
       amount: invoiceData.amount,
+      currency: invoiceData.currency || 'GBP',
+      freelancerName: invoiceData.businessName || 'Recoup',
       dueDate: invoiceData.dueDate?.toDate?.() || new Date(invoiceData.dueDate),
-      items: invoiceData.items || [],
-      businessName: invoiceData.businessName || 'Recoup',
-      paymentLink,
-      customMessage: body.message,
+      description: body.message,
+      stripeLink: paymentLink,
+      confirmationUrl: `${process.env.NEXT_PUBLIC_APP_URL}/invoices/${invoiceId}`,
     });
-
-    if (!emailResult.success) {
-      return NextResponse.json(
-        { error: 'Failed to send invoice email', details: emailResult.error },
-        { status: 500 }
-      );
-    }
 
     // 7. Update invoice status
     await invoiceRef.update({
@@ -114,7 +107,6 @@ export async function POST(
       success: true,
       invoiceId,
       sentTo: invoiceData.clientEmail,
-      messageId: emailResult.messageId,
     });
 
   } catch (error: any) {

@@ -10,7 +10,7 @@ import { RevenueRecoveryDashboard } from '@/components/RevenueRecovery/RevenueRe
 
 export const metadata = {
   title: 'Revenue Recovery | Recoup',
-  description: 'Track the money you're recovering from client recharges and tax deductions',
+  description: "Track the money you're recovering from client recharges and tax deductions",
 };
 
 export default async function RevenueRecoveryPage() {

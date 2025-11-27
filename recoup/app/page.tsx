@@ -56,7 +56,7 @@ export default function LandingPage() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Copy + CTA */}
           <div>
-            <Badge variant="info" className="mb-4">
+            <Badge variant="secondary" className="mb-4">
               <Zap className="w-3 h-3" />
               Trusted by 2,000+ UK Freelancers
             </Badge>
@@ -193,7 +193,7 @@ export default function LandingPage() {
                 Add client details and invoice amount in under 30 seconds.
                 Send via email, SMS, or payment link.
               </p>
-              <Badge variant="neutral" className="mx-auto">Takes 30 seconds</Badge>
+              <Badge variant="outline" className="mx-auto">Takes 30 seconds</Badge>
             </Card>
 
             {/* Step 2 */}
@@ -206,7 +206,7 @@ export default function LandingPage() {
                 Client commits to a payment date. Automated reminders keep them on track.
                 No more awkward follow-ups.
               </p>
-              <Badge variant="warning" className="mx-auto">Automated</Badge>
+              <Badge variant="secondary" className="mx-auto">Automated</Badge>
             </Card>
 
             {/* Step 3 */}
@@ -219,7 +219,7 @@ export default function LandingPage() {
                 Payment received via Stripe. Automatic MTD record created.
                 Celebrate with confetti!
               </p>
-              <Badge variant="success" className="mx-auto">Money in bank</Badge>
+              <Badge variant="default" className="mx-auto">Money in bank</Badge>
             </Card>
           </div>
         </div>
