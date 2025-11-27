@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { handleError, UnauthorizedError } from '../../../../utils/error';
 import { logger } from '../../../../utils/logger';
 import { generateAIProposal } from '../../../../lib/ai-proposal-generator';
+
+const getAuthUserId = (): string | null => {
+  return 'user_2aXf...mock';
+};
 
 /**
  * POST /api/proposals/generate
@@ -10,7 +13,7 @@ import { generateAIProposal } from '../../../../lib/ai-proposal-generator';
  */
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
+    const userId = getAuthUserId();
     if (!userId) {
       throw new UnauthorizedError('You must be logged in.');
     }

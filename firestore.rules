@@ -1,0 +1,148 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+
+    // Invoices collection
+    match /invoices/{invoiceId} {
+      allow read: if isAuthenticated() && (
+        resource.data.freelancerId == request.auth.uid ||
+        resource.data.clientId == request.auth.uid
+      );
+      allow create: if isAuthenticated() && request.resource.data.freelancerId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+    }
+
+    // Expenses collection (NEW)
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Expense receipts collection (NEW)
+    match /expense_receipts/{receiptId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Clients collection
+    match /clients/{clientId} {
+      allow read: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // Transactions collection
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+      allow write: if false; // Only server can write transactions
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false; // Only server can write notifications
+    }
+
+    // MTD Authorizations (NEW - highly sensitive)
+    match /mtd_authorizations/{authId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false; // Only server can write (contains encrypted tokens)
+    }
+
+    // MTD Submissions (NEW)
+    match /mtd_submissions/{submissionId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false; // Only server can write submissions
+    }
+
+    // MTD Obligations (NEW)
+    match /mtd_obligations/{obligationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false; // Only server can write
+    }
+
+    // HMRC API Logs (NEW - for audit trail)
+    match /hmrc_api_logs/{logId} {
+      allow read: if false; // Only server can read
+      allow write: if false; // Only server can write
+    }
+
+    // Payment confirmations
+    match /payment_confirmations/{confirmationId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only server
+    }
+
+    // Payment claims
+    match /payment_claims/{claimId} {
+      allow read: if isAuthenticated() && (
+        resource.data.freelancerId == request.auth.uid ||
+        resource.data.clientId == request.auth.uid
+      );
+      allow write: if isAuthenticated();
+    }
+
+    // Collection attempts
+    match /collection_attempts/{attemptId} {
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+      allow write: if false; // Only server
+    }
+
+    // User stats
+    match /user_stats/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false; // Only server can update stats
+    }
+
+    // User events (analytics)
+    match /user_events/{eventId} {
+      allow read: if false; // Only server
+      allow write: if false; // Only server
+    }
+
+    // Referrals
+    match /referrals/{referralId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Referral credits
+    match /referral_credits/{creditId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false; // Only server
+    }
+
+    // Agency handoffs
+    match /agency_handoffs/{handoffId} {
+      allow read: if isAuthenticated() && resource.data.freelancerId == request.auth.uid;
+      allow write: if false; // Only server
+    }
+
+    // Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

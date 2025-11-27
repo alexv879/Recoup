@@ -1,7 +1,6 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
-import { logInfo, logError } from '@/utils/logger';
 
 // Only initialize Firebase on the server side
 if (typeof window === 'undefined') {
@@ -22,15 +21,15 @@ if (typeof window === 'undefined') {
             privateKey,
           }),
         });
-        logInfo('Firebase Admin initialized successfully');
+        console.log('✅ Firebase Admin initialized successfully');
       } else {
-        logInfo('Firebase credentials not configured - app will not function at runtime');
+        console.warn('⚠️  Firebase credentials not configured - app will not function at runtime');
       }
     } catch (error) {
-      logError('Firebase Admin initialization error', error);
+      console.error('❌ Firebase Admin initialization error:', error);
       // Don't throw during build - allow build to complete
       if (process.env.NODE_ENV !== 'production') {
-        logInfo('Continuing despite Firebase error (build mode)');
+        console.warn('⚠️  Continuing despite Firebase error (build mode)');
       }
     }
   }
@@ -72,7 +71,6 @@ export const storage = typeof window === 'undefined' ? getStorage() : null;
 export const COLLECTIONS = {
   USERS: 'users',
   INVOICES: 'invoices',
-  EXPENSES: 'expenses',
   PAYMENT_CONFIRMATIONS: 'payment_confirmations',
   PAYMENT_CLAIMS: 'payment_claims',
   COLLECTION_ATTEMPTS: 'collection_attempts',
@@ -89,13 +87,16 @@ export const COLLECTIONS = {
   EMAILS_SENT: 'emails_sent',
   ONBOARDING_PROGRESS: 'onboarding_progress',
   AGENCY_HANDOFFS: 'agency_handoffs',
-  FAILED_WEBHOOKS: 'failed_webhooks',
-  ESCALATION_STATES: 'escalation_states',
-  ESCALATION_TIMELINE: 'escalation_timeline',
-  PROCESSED_EVENTS: 'processed_events',
-  SMS_OPT_OUTS: 'sms_opt_outs',
-  SMS_OPT_OUT_AUDIT: 'sms_opt_out_audit',
-  SMS_REPLIES: 'sms_replies',
+
+  // NEW: Expense tracking
+  EXPENSES: 'expenses',
+  EXPENSE_RECEIPTS: 'expense_receipts',
+
+  // NEW: MTD (Making Tax Digital) - Feature flagged
+  MTD_AUTHORIZATIONS: 'mtd_authorizations',
+  MTD_SUBMISSIONS: 'mtd_submissions',
+  MTD_OBLIGATIONS: 'mtd_obligations',
+  HMRC_API_LOGS: 'hmrc_api_logs', // For audit trail
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date

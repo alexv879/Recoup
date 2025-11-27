@@ -1,4 +1,47 @@
 {
+  "buildCommand": "npm run build",
+  "regions": ["lhr1"],
+  "framework": "nextjs",
+  "functions": {
+    "app/api/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "app/api/voice/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    },
+    "app/api/dashboard/export/**/*.ts": {
+      "memory": 2048,
+      "maxDuration": 60
+    },
+    "app/api/webhooks/**/*.ts": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With, Content-Type, Authorization"
+        }
+      ]
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron/reset-monthly-usage",

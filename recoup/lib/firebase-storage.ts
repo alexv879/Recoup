@@ -3,125 +3,176 @@
  * Handles file uploads and storage operations
  */
 
-import { getStorage } from 'firebase-admin/storage';
+import { storage } from './firebase';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 export interface UploadResult {
-    success: boolean;
-    storagePath?: string;
-    url?: string;
-    error?: string;
+    url: string;
+    path: string;
+    size: number;
 }
 
 /**
- * Upload a file to Firebase Storage (Admin SDK)
+ * Upload a file to Firebase Storage
  */
 export async function uploadFile(
-    fileBuffer: Buffer,
+    file: File,
     path: string,
     metadata?: { contentType?: string }
 ): Promise<UploadResult> {
-    try {
-        const storage = getStorage();
-        const bucket = storage.bucket();
-        const file = bucket.file(path);
-
-        await file.save(fileBuffer, {
-            metadata: {
-                contentType: metadata?.contentType || 'application/octet-stream',
-            },
-        });
-
-        // Make the file publicly accessible
-        await file.makePublic();
-
-        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${path}`;
-
-        return {
-            success: true,
-            storagePath: path,
-            url: publicUrl,
-        };
-    } catch (error) {
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-        };
+    if (!storage) {
+        throw new Error('Firebase Storage is not available');
     }
+
+    const storageRef = ref(storage, path);
+    const uploadResult = await uploadBytes(storageRef, file, metadata);
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+
+    return {
+        url: downloadURL,
+        path: uploadResult.ref.fullPath,
+        size: uploadResult.metadata.size,
+    };
 }
 
 /**
  * Upload communication history for agency handoff
  */
-export async function uploadCommunicationHistory(params: {
-    contentBuffer: Buffer;
-    fileName: string;
-    contentType: string;
-    handoffId: string;
-    freelancerId: string;
-}): Promise<UploadResult> {
-    const path = `agency-handoff/${params.freelancerId}/${params.handoffId}/${params.fileName}`;
-    return uploadFile(params.contentBuffer, path, { contentType: params.contentType });
-}
-
-/**
- * Upload communication history (legacy signature for backward compatibility)
- */
-export async function uploadCommunicationHistoryLegacy(
+export async function uploadCommunicationHistory(
     userId: string,
     invoiceId: string,
     history: any
 ): Promise<UploadResult> {
     const fileName = `agency-handoff/${userId}/${invoiceId}/${Date.now()}.json`;
-    const fileBuffer = Buffer.from(JSON.stringify(history), 'utf-8');
+    const file = new File([JSON.stringify(history)], fileName, {
+        type: 'application/json',
+    });
 
-    return uploadFile(fileBuffer, fileName, { contentType: 'application/json' });
+    return uploadFile(file, fileName);
 }
+
+// ============================================================================
+// RECEIPT UPLOADS (NEW)
+// ============================================================================
+
+export const STORAGE_PATHS = {
+    RECEIPTS: 'receipts',
+    RECEIPTS_THUMBNAILS: 'receipts/thumbnails',
+    AGENCY_HANDOFF: 'agency-handoff',
+} as const;
+
+const ALLOWED_RECEIPT_TYPES = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'application/pdf',
+];
+
+const MAX_RECEIPT_SIZE = 10 * 1024 * 1024; // 10MB
+
 /**
- * List agency handoff documents for a user/invoice
+ * Validate receipt file
  */
-export async function listHandoffDocuments(
-    handoffId: string,
-    userId: string
-): Promise<{ success: boolean; documents?: Array<{ storagePath: string; name: string }>; error?: string }> {
-    try {
-        const storage = getStorage();
-        const bucket = storage.bucket();
-        const prefix = `agency-handoff/${userId}/${handoffId}/`;
+function validateReceiptFile(file: File): void {
+    // Check file type
+    if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
+        throw new Error(`Invalid file type. Allowed: ${ALLOWED_RECEIPT_TYPES.join(', ')}`);
+    }
 
-        const [files] = await bucket.getFiles({ prefix });
-        const documents = files.map(file => ({
-            storagePath: file.name,
-            name: file.name.split('/').pop() || file.name,
-        }));
+    // Check file size
+    if (file.size > MAX_RECEIPT_SIZE) {
+        throw new Error(`File too large. Maximum size: ${MAX_RECEIPT_SIZE / 1024 / 1024}MB`);
+    }
 
-        return {
-            success: true,
-            documents,
-        };
-    } catch (error) {
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-        };
+    // Check file name
+    if (!file.name || file.name.length > 255) {
+        throw new Error('Invalid file name');
     }
 }
 
 /**
- * Delete a document from Firebase Storage
+ * Sanitize filename to prevent path traversal
  */
-export async function deleteDocument(path: string): Promise<{ success: boolean; error?: string }> {
+function sanitizeFilename(filename: string): string {
+    return filename
+        .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace unsafe chars
+        .replace(/\.{2,}/g, '_') // Prevent directory traversal
+        .slice(0, 255); // Limit length
+}
+
+/**
+ * Upload receipt file
+ * @param userId - Owner user ID
+ * @param expenseId - Associated expense ID
+ * @param file - Receipt file (image or PDF)
+ * @returns Upload result with URL and thumbnail URL (if image)
+ */
+export async function uploadReceiptFile(
+    userId: string,
+    expenseId: string,
+    file: File
+): Promise<{ url: string; thumbnailUrl?: string; path: string; size: number }> {
+    // Validate file
+    validateReceiptFile(file);
+
+    // Generate safe path
+    const timestamp = Date.now();
+    const safeFilename = sanitizeFilename(file.name);
+    const filePath = `${STORAGE_PATHS.RECEIPTS}/${userId}/${expenseId}/${timestamp}_${safeFilename}`;
+
+    // Upload main file
+    const result = await uploadFile(file, filePath, {
+        contentType: file.type,
+    });
+
+    // TODO: Generate thumbnail for images (requires client-side canvas or server-side image processing)
+    // For now, return without thumbnail
+    return {
+        url: result.url,
+        path: result.path,
+        size: result.size,
+    };
+}
+
+/**
+ * Upload multiple receipt files
+ */
+export async function uploadMultipleReceipts(
+    userId: string,
+    expenseId: string,
+    files: File[]
+): Promise<Array<{ url: string; thumbnailUrl?: string; path: string; size: number }>> {
+    const results = [];
+
+    for (const file of files) {
+        try {
+            const result = await uploadReceiptFile(userId, expenseId, file);
+            results.push(result);
+        } catch (error) {
+            console.error('Failed to upload receipt:', file.name, error);
+            // Continue with other files
+        }
+    }
+
+    return results;
+}
+
+/**
+ * Delete receipt file
+ * @param path - Storage path to delete
+ */
+export async function deleteReceiptFile(path: string): Promise<void> {
+    if (!storage) {
+        throw new Error('Firebase Storage is not available');
+    }
+
     try {
-        const storage = getStorage();
-        const bucket = storage.bucket();
-        const file = bucket.file(path);
-
-        await file.delete();
-
-        return { success: true };
+        const storageRef = ref(storage, path);
+        const { deleteObject } = await import('firebase/storage');
+        await deleteObject(storageRef);
     } catch (error) {
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-        };
+        console.error('Failed to delete receipt:', path, error);
+        throw new Error('Failed to delete receipt file');
     }
 }
