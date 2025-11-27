@@ -166,7 +166,7 @@ export function escapeRegex(str: string): string {
  * Sanitize object keys to prevent prototype pollution
  */
 export function sanitizeObjectKeys<T extends Record<string, any>>(obj: T): T {
-  const dangerous Keys = ['__proto__', 'constructor', 'prototype'];
+  const dangerousKeys = ['__proto__', 'constructor', 'prototype'];
 
   const sanitized: any = {};
 
