@@ -19,7 +19,7 @@
  */
 
 export type PricingTier = 'free' | 'starter' | 'growth' | 'pro';
-export type LegacyTier = 'paid' | 'business';
+export type LegacyTier = 'free' | 'paid' | 'business';
 export type AllTiers = PricingTier | LegacyTier;
 export type AddonType = 'hmrc_mtd';
 
