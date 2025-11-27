@@ -117,7 +117,7 @@ function mapStripePriceToTier(priceId?: string): string {
     // Map Stripe price IDs to tiers based on subscription plans
     for (const plan of SUBSCRIPTION_PLANS) {
         if (plan.stripePriceId === priceId) {
-            return plan.tier;
+            return plan.tier || plan.id;
         }
     }
 
