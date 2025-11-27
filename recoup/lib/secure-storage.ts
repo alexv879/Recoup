@@ -17,7 +17,7 @@
  */
 
 import { db, COLLECTIONS, Timestamp, FieldValue } from '@/lib/firebase';
-import { encryptField, decryptField, encryptObject, decryptObject, ENCRYPTED_FIELDS } from '@/lib/encryption';
+import { encryptField, decryptField, ENCRYPTED_FIELDS } from '@/lib/encryption';
 import { logError, logWarn } from '@/utils/logger';
 
 /**
@@ -31,12 +31,12 @@ abstract class SecureStorage<T extends Record<string, any>> {
 
     /**
      * Create document with encrypted fields
+     * Note: Field-level encryption should be done by caller before calling this method
      */
     async create(userId: string, data: T): Promise<string> {
         try {
-            const encrypted = encryptObject(data, this.encryptedFields, userId);
             const docRef = await db.collection(this.collectionName).add({
-                ...encrypted,
+                ...data,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
             });
@@ -49,12 +49,12 @@ abstract class SecureStorage<T extends Record<string, any>> {
 
     /**
      * Update document with encrypted fields
+     * Note: Field-level encryption should be done by caller before calling this method
      */
     async update(userId: string, docId: string, data: Partial<T>): Promise<void> {
         try {
-            const encrypted = encryptObject(data as T, this.encryptedFields, userId);
             await db.collection(this.collectionName).doc(docId).update({
-                ...encrypted,
+                ...data,
                 updatedAt: Timestamp.now(),
             });
         } catch (error) {
@@ -65,6 +65,7 @@ abstract class SecureStorage<T extends Record<string, any>> {
 
     /**
      * Get document with decrypted fields
+     * Note: Field-level decryption should be done by caller after calling this method
      */
     async get(userId: string, docId: string): Promise<T | null> {
         try {
@@ -72,7 +73,7 @@ abstract class SecureStorage<T extends Record<string, any>> {
             if (!doc.exists) return null;
 
             const data = doc.data() as T;
-            return decryptObject(data, this.encryptedFields, userId);
+            return data;
         } catch (error) {
             logError(`Failed to get encrypted ${this.collectionName} document`, error);
             throw error;
@@ -81,6 +82,7 @@ abstract class SecureStorage<T extends Record<string, any>> {
 
     /**
      * Query documents with decrypted fields
+     * Note: Field-level decryption should be done by caller after calling this method
      */
     async query(userId: string, filters: { field: string; operator: FirebaseFirestore.WhereFilterOp; value: any }[]): Promise<T[]> {
         try {
@@ -93,7 +95,7 @@ abstract class SecureStorage<T extends Record<string, any>> {
             const snapshot = await query.get();
             return snapshot.docs.map(doc => {
                 const data = doc.data() as T;
-                return decryptObject(data, this.encryptedFields, userId);
+                return data;
             });
         } catch (error) {
             logError(`Failed to query encrypted ${this.collectionName} documents`, error);
