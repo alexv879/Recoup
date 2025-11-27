@@ -128,6 +128,7 @@ export interface PermissionContext {
     type: ResourceType;
     id: string;
     ownerId?: string;
+    organizationId?: string;
   };
 
   /** Additional context */
