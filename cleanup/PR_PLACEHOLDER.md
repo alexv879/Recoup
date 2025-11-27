@@ -1,2 +1,1 @@
-# PR: Cleanup branch prune - placeholder
-This PR will be used to propose cleanup of stale branches. See `BRANCH_TIPS_2025-11-27.md` on branch `archive/branch-tips-2025-11-27`.
+Would like to open a PR to `main` with the cleanup plan — this branch contains `CLEANUP_PROPOSAL_2025-11-27.md` and references the archive branch `archive/branch-tips-2025-11-27`.
