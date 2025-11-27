@@ -98,6 +98,9 @@ export const COLLECTIONS = {
   MTD_SUBMISSIONS: 'mtd_submissions',
   MTD_OBLIGATIONS: 'mtd_obligations',
   HMRC_API_LOGS: 'hmrc_api_logs', // For audit trail
+
+  // Webhook retry system
+  FAILED_WEBHOOKS: 'failed_webhooks',
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date
