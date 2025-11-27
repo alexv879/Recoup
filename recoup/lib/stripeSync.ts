@@ -50,7 +50,7 @@ export async function handleStripeWebhook(event: Stripe.Event): Promise<void> {
                 subscriptionStatus: 'active',
                 subscriptionId: subscription.id,
                 subscriptionTier: mapStripePriceToTier(subscription.items.data[0]?.price.id),
-                subscriptionPeriodEnd: new Date(subscription.current_period_end * 1000),
+                subscriptionPeriodEnd: new Date(subscription.currentPeriodEnd * 1000),
             });
             break;
         }
@@ -63,7 +63,7 @@ export async function handleStripeWebhook(event: Stripe.Event): Promise<void> {
             // Update user subscription status to cancelled
             await updateUserSubscription(customerId, {
                 subscriptionStatus: 'cancelled',
-                subscriptionPeriodEnd: new Date(subscription.current_period_end * 1000),
+                subscriptionPeriodEnd: new Date(subscription.currentPeriodEnd * 1000),
             });
             break;
         }
@@ -77,7 +77,7 @@ export async function handleStripeWebhook(event: Stripe.Event): Promise<void> {
             await updateUserSubscription(customerId, {
                 subscriptionStatus: subscription.status === 'active' ? 'active' : 'inactive',
                 subscriptionTier: mapStripePriceToTier(subscription.items.data[0]?.price.id),
-                subscriptionPeriodEnd: new Date(subscription.current_period_end * 1000),
+                subscriptionPeriodEnd: new Date(subscription.currentPeriodEnd * 1000),
             });
             break;
         }
