@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { handleError, UnauthorizedError } from '../../../../utils/error';
 import { logger } from '../../../../utils/logger';
 import { generateCashFlowForecast } from '../../../../lib/income-smoothing-service';
-
-const getAuthUserId = (): string | null => {
-  return 'user_2aXf...mock';
-};
 
 /**
  * POST /api/income-smoothing/forecast
@@ -13,7 +10,7 @@ const getAuthUserId = (): string | null => {
  */
 export async function POST(req: Request) {
   try {
-    const userId = getAuthUserId();
+    const { userId } = await auth();
     if (!userId) {
       throw new UnauthorizedError('You must be logged in.');
     }
