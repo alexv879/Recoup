@@ -111,7 +111,7 @@ export function UpgradeFlow({ selectedPlan }: UpgradeFlowProps) {
         <div className="bg-blue-600 text-white text-center py-4">
           <span className="text-4xl">{plan.icon}</span>
           <h2 className="text-2xl font-bold mt-2">{plan.name}</h2>
-          {plan.badge && (
+          {'badge' in plan && plan.badge && (
             <span className="inline-block bg-purple-500 text-white text-xs px-3 py-1 rounded-full mt-2">
               {plan.badge}
             </span>

@@ -69,6 +69,7 @@ export interface Invoice {
   clientId: string;
   clientName: string;
   clientEmail: string;
+  clientPhone?: string;
   reference: string;
   amount: number; // in pence
   status: 'draft' | 'sent' | 'paid' | 'overdue' | 'in_collections' | 'disputed' | 'cancelled';
@@ -101,6 +102,7 @@ export interface Client {
   company?: string;
   phone?: string;
   poNumber?: string;
+  industry?: string;
   billingAddress?: {
     street: string;
     street2?: string;

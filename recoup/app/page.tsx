@@ -44,7 +44,7 @@ export default function LandingPage() {
                 <Button variant="ghost">Sign In</Button>
               </Link>
               <Link href="/sign-up">
-                <Button variant="cta" size="lg">Start Free Trial</Button>
+                <Button variant="default" size="lg">Start Free Trial</Button>
               </Link>
             </div>
           </div>
@@ -73,12 +73,12 @@ export default function LandingPage() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Link href="/sign-up">
-                <Button variant="cta" size="xl" className="w-full sm:w-auto min-w-[200px]">
+                <Button variant="default" size="lg" className="w-full sm:w-auto min-w-[200px]">
                   Start Free Trial
                 </Button>
               </Link>
               <Link href="#how-it-works">
-                <Button variant="outline" size="xl" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   See How It Works
                 </Button>
               </Link>
@@ -381,7 +381,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <Link href="/sign-up">
-                <Button variant="cta" size="lg" className="w-full">
+                <Button variant="default" size="lg" className="w-full">
                   Start 30-Day Trial
                 </Button>
               </Link>
@@ -499,8 +499,8 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up">
               <Button
-                variant="cta"
-                size="xl"
+                variant="default"
+                size="lg"
                 className="bg-white text-[#0078D4] hover:bg-gray-100 min-w-[250px]"
               >
                 Start Free Trial — No Card Required
