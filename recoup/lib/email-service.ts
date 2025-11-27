@@ -131,7 +131,7 @@ async function sendViaResend(params: EmailParams): Promise<EmailResult> {
     subject: params.subject,
     html: params.html,
     text: params.text,
-    reply_to: params.replyTo,
+    replyTo: params.replyTo,
     cc: params.cc,
     bcc: params.bcc,
     tags: params.tags,

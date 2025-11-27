@@ -4,7 +4,6 @@
  */
 
 import { storage } from './firebase';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 export interface UploadResult {
     url: string;
@@ -13,10 +12,10 @@ export interface UploadResult {
 }
 
 /**
- * Upload a file to Firebase Storage
+ * Upload a file to Firebase Storage (using Admin SDK)
  */
 export async function uploadFile(
-    file: File,
+    file: Buffer | File,
     path: string,
     metadata?: { contentType?: string }
 ): Promise<UploadResult> {
@@ -24,14 +23,27 @@ export async function uploadFile(
         throw new Error('Firebase Storage is not available');
     }
 
-    const storageRef = ref(storage, path);
-    const uploadResult = await uploadBytes(storageRef, file, metadata);
-    const downloadURL = await getDownloadURL(uploadResult.ref);
+    // Firebase Admin SDK uses bucket().file() instead of ref()
+    const bucket = storage.bucket();
+    const fileRef = bucket.file(path);
+
+    // Convert File to Buffer if needed (for client-side File objects)
+    const buffer = file instanceof Buffer ? file : Buffer.from(await file.arrayBuffer());
+
+    await fileRef.save(buffer, {
+        metadata: {
+            contentType: metadata?.contentType || 'application/octet-stream',
+        },
+    });
+
+    // Make the file publicly accessible and get download URL
+    await fileRef.makePublic();
+    const downloadURL = `https://storage.googleapis.com/${bucket.name}/${path}`;
 
     return {
         url: downloadURL,
-        path: uploadResult.ref.fullPath,
-        size: uploadResult.metadata.size,
+        path: path,
+        size: buffer.length,
     };
 }
 

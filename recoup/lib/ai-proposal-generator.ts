@@ -658,6 +658,7 @@ function generateProposalInsights(params: {
   pricing: any;
   clientHistory?: ProposalGenerationRequest['clientHistory'];
   winProbability: number;
+  paymentTerms?: string;
 }): AIProposal['aiInsights'] {
   const suggestedImprovements: string[] = [];
 

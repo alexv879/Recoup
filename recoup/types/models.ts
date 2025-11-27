@@ -24,6 +24,8 @@ export interface User {
     smsConsent?: boolean;
     emailConsent?: boolean;
     callConsent?: boolean;
+    smsOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
+    emailOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
   };
   referralCode?: string;
   profilePicture?: string;

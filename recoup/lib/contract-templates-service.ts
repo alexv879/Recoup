@@ -4,7 +4,7 @@
  */
 
 import { logger } from '@/utils/logger';
-import { getGemini } from '@/lib/ai-service';
+import { generateJSON, generateCompletion } from '@/lib/ai-service';
 
 export enum ContractType {
   SERVICE_AGREEMENT = 'service_agreement',
@@ -244,9 +244,6 @@ export async function reviewContractWithAI(params: {
 }): Promise<AIReviewResult> {
   const { contract, jurisdiction, focusAreas = [] } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-
   const prompt = `You are a legal expert specializing in freelance contracts in ${jurisdiction}.
 
 Review the following contract and provide analysis:
@@ -273,16 +270,7 @@ Provide analysis in JSON format:
 
 Focus on practical, actionable feedback for a self-employed freelancer.`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-
-  // Parse JSON response
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('Failed to parse AI contract review');
-  }
-
-  const parsed = JSON.parse(jsonMatch[0]);
+  const parsed = await generateJSON(prompt);
 
   const review: AIReviewResult = {
     score: parsed.score,
@@ -328,9 +316,6 @@ export async function generateContractWithAI(params: {
     jurisdiction,
   } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-
   const prompt = `You are a legal expert creating freelance service agreements for ${jurisdiction}.
 
 Generate a comprehensive freelance service agreement with the following details:
@@ -352,8 +337,7 @@ The contract must include:
 
 Format in clean markdown. Make it professional but easy to understand for freelancers and clients.`;
 
-  const result = await model.generateContent(prompt);
-  const content = result.response.text();
+  const content = await generateCompletion(prompt);
 
   const contract: GeneratedContract = {
     id: generateId(),
@@ -399,9 +383,6 @@ export async function extractContractTerms(params: {
 }> {
   const { contractContent } = params;
 
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-
   const prompt = `Extract key terms from this contract:
 
 ${contractContent}
@@ -417,15 +398,12 @@ Provide in JSON format:
   "keyObligations": ["Obligation 1", "Obligation 2"]
 }`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
+  try {
+    return await generateJSON(prompt);
+  } catch (error) {
+    logger.error('Failed to extract key terms from contract', error);
     return {};
   }
-
-  return JSON.parse(jsonMatch[0]);
 }
 
 /**
@@ -445,9 +423,6 @@ export async function compareToStandardTerms(params: {
   overallRisk: 'low' | 'medium' | 'high';
 }> {
   const { contract, standardTemplate } = params;
-
-  const client = getGemini();
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
   const prompt = `Compare this contract to standard terms and identify deviations:
 
@@ -477,15 +452,12 @@ Provide in JSON format:
   "overallRisk": "low" | "medium" | "high"
 }`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
+  try {
+    return await generateJSON(prompt);
+  } catch (error) {
+    logger.error('Failed to compare contract to standard terms', error);
     return { deviations: [], overallRisk: 'low' };
   }
-
-  return JSON.parse(jsonMatch[0]);
 }
 
 /**
@@ -581,7 +553,7 @@ export function checkContractTemplateLimit(params: {
         eSignature: true,
         unlimitedContracts: true,
       },
-      maxContractsPerMonth: 'unlimited',
+      maxContractsPerMonth: 'unlimited' as const,
     },
   };
 

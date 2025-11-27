@@ -220,7 +220,7 @@ export function generateProfitLossReport(params: {
   const byMonth = groupByMonth(periodInvoices, startDate, endDate, (inv) => ({
     invoiced: inv.amount,
     received: inv.amountPaid,
-  }));
+  })) as Array<{ month: string; invoiced: number; received: number; }>;
 
   // Calculate expenses
   const totalExpenses = periodExpenses.reduce((sum, exp) => sum + exp.amount, 0);
@@ -238,7 +238,7 @@ export function generateProfitLossReport(params: {
 
   const expensesByMonth = groupByMonth(periodExpenses, startDate, endDate, (exp) => ({
     total: exp.amount,
-  }));
+  })) as Array<{ month: string; total: number; }>;
 
   // Calculate profit
   const grossProfit = totalReceived - totalExpenses;
@@ -620,7 +620,7 @@ function groupByMonth<T>(
   endDate: Date,
   aggregator: (item: T) => Record<string, number>
 ): Array<Record<string, any>> {
-  const months: Record<string, Record<string, number>> = {};
+  const months: Record<string, Record<string, any>> = {};
 
   items.forEach((item: any) => {
     const monthKey = `${item.date.getFullYear()}-${String(item.date.getMonth() + 1).padStart(2, '0')}`;
@@ -633,7 +633,7 @@ function groupByMonth<T>(
     }
   });
 
-  return Object.values(months).sort((a, b) => a.month.localeCompare(b.month));
+  return Object.values(months).sort((a, b) => a.month.localeCompare(b.month)) as Array<Record<string, any>>;
 }
 
 function groupByWeek<T>(
