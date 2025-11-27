@@ -10,5 +10,10 @@ scikit-learn==1.4.0
 numpy==1.26.3
 joblib==1.3.2
 
-# Utilities
+# Security & utilities
 python-dotenv==1.0.0
+
+# Optional: Advanced features (uncomment if needed)
+# shap==0.44.0  # For explainable AI (SHAP values)
+# mlflow==2.9.2  # For experiment tracking
+# optuna==3.5.0  # For hyperparameter optimization
