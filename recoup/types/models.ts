@@ -194,6 +194,7 @@ export interface Transaction {
   amount: number;
   paymentMethod: string;
   relayCommission: number;
+  recoupCommission: number;
   freelancerNet: number;
   commissionRate: number;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
@@ -202,6 +203,25 @@ export interface Transaction {
   completedAt?: Date | Timestamp;
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
+}
+
+export interface PaymentConfirmation {
+  confirmationId: string;
+  invoiceId: string;
+  freelancerId: string;
+  clientEmail: string;
+  confirmationToken: string;
+  tokenExpiresAt?: Date | Timestamp;
+  status: 'pending_client' | 'client_confirmed' | 'freelancer_verified' | 'disputed';
+  freelancerVerifiedReceived: boolean;
+  expectedAmount: number;
+  clientConfirmedAmount?: number;
+  clientPaymentMethod?: 'bank_transfer' | 'card';
+  clientConfirmedDate?: string;
+  clientConfirmedAt?: Date | Timestamp;
+  clientNotes?: string;
+  createdAt: Date | Timestamp;
+  expiresAt: Date | Timestamp;
 }
 
 // ============================================================================
