@@ -16,6 +16,9 @@ export interface User {
   subscriptionStatus?: 'active' | 'inactive' | 'cancelled';
   stripeCustomerId?: string;
   isFoundingMember?: boolean; // Locked into 50% discount pricing
+  foundingMemberNumber?: number; // Founding member sequential number
+  foundingMemberJoinedAt?: Date | Timestamp; // When they became a founding member
+  lockedInPrice?: number; // Price locked in for founding members (in pence)
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
   lastDemoResetDate?: Date | Timestamp;
@@ -29,8 +32,10 @@ export interface User {
     callRecordingConsent?: boolean;
     physicalMailConsent?: boolean;
     physicalMailOptedOut?: boolean;
+    dataStorageConsent?: boolean;
     consentVersion?: string;
     consentGivenAt?: Date | Timestamp;
+    consentDate?: Date | Timestamp;
     smsOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
     emailOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
   };
@@ -72,17 +77,30 @@ export interface User {
   lastActiveAt?: Date | Timestamp;
 }
 
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  xpRequired: number;
+  category: string;
+  dateAwarded: Date | Timestamp;
+}
+
 export interface UserStats {
   userId: string;
   totalInvoiced: number;
   totalCollected: number;
+  totalReferrals?: number;
+  collectionAttempts?: number;
+  collectionSuccess?: number;
   averagePaymentDays: number;
   onTimePercentage: number;
   streak: number;
   badges: string[];
   level: number;
   rank?: number;
-  achievements: any[];
+  achievements: Achievement[];
   gamificationXP?: number; // Gamification experience points
   churnRiskScore?: number;
   engagementLevel?: 'low' | 'medium' | 'high';

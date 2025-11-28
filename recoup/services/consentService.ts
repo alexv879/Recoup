@@ -21,7 +21,7 @@
 
 import { db, FieldValue } from '@/lib/firebase';
 import { User } from '@/types/models';
-import { logError, logInfo } from '@/utils/logger';
+import { logError, logInfo, logWarn } from '@/utils/logger';
 import { isCollectionsConsentObject, toDate } from '@/utils/helpers';
 
 /**
@@ -74,8 +74,8 @@ export async function getUserConsent(userId: string): Promise<{
       callRecordingConsent: isCollectionsConsentObject(consent) ? consent?.callRecordingConsent || false : false,
       physicalMailConsent: isCollectionsConsentObject(consent) ? consent?.physicalMailConsent || false : false,
       dataStorageConsent: isCollectionsConsentObject(consent) ? consent?.dataStorageConsent || false : false,
-      consentDate: isCollectionsConsentObject(consent) && consent.consentDate ? toDate(consent.consentDate) : undefined,
-      consentVersion: isCollectionsConsentObject(consent) ? consent.consentVersion : undefined,
+      consentDate: isCollectionsConsentObject(consent) && consent?.consentDate ? toDate(consent.consentDate) : undefined,
+      consentVersion: isCollectionsConsentObject(consent) ? consent?.consentVersion : undefined,
       needsUpdate,
     };
 

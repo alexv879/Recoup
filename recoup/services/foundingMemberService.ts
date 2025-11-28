@@ -73,7 +73,7 @@ export async function registerAsFoundingMember(
   tier: 'starter' | 'growth' | 'pro'
 ): Promise<{
   success: boolean;
-  memberNumber?: string;
+  memberNumber?: number;
   lockedInPrice?: number;
   reason?: string;
   alreadyMember?: boolean;
@@ -123,8 +123,8 @@ export async function registerAsFoundingMember(
         throw new Error('All founding member spots have been claimed');
       }
 
-      // Assign member number (1-indexed) as string
-      const memberNumber = String(currentCount + 1);
+      // Assign member number (1-indexed)
+      const memberNumber = currentCount + 1;
 
       // Get locked-in price (50% off)
       const lockedInPrice = FOUNDING_MEMBER_PRICING[tier];
@@ -174,7 +174,7 @@ export async function registerAsFoundingMember(
  */
 export async function getFoundingMemberDetails(userId: string): Promise<{
   isFoundingMember: boolean;
-  memberNumber?: string;
+  memberNumber?: number;
   joinedAt?: Date;
   lockedInPrice?: number;
 } | null> {
