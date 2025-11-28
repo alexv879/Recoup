@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Documents - Recoup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #0066cc;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        .intro {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .document-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+            transition: all 0.3s;
+        }
+        .document-card:hover {
+            border-color: #0066cc;
+            box-shadow: 0 4px 12px rgba(0,102,204,0.1);
+            transform: translateY(-2px);
+        }
+        .document-card h3 {
+            color: #0066cc;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .document-card p {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+        .document-card .meta {
+            font-size: 0.85em;
+            color: #999;
+            margin-bottom: 15px;
+        }
+        .document-card a {
+            display: inline-block;
+            background: #0066cc;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .document-card a:hover {
+            background: #0052a3;
+        }
+        .compliance-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 30px 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .contact-info {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Legal Documents</h1>
+
+        <div class="intro">
+            <strong>Welcome to Recoup's Legal Documentation Centre</strong>
+            <p style="margin: 10px 0 0 0;">
+                All our legal documents are UK-specific and designed to comply with current UK legislation.
+                We maintain transparency and version control for all legal documents.
+            </p>
+        </div>
+
+        <div class="compliance-badges">
+            <span class="badge">✓ UK GDPR Compliant</span>
+            <span class="badge">✓ PECR Compliant</span>
+            <span class="badge">✓ Late Payment Act 1998</span>
+            <span class="badge">✓ ICO Registered</span>
+            <span class="badge">✓ England & Wales Law</span>
+        </div>
+
+        <h2>Core Legal Documents</h2>
+
+        <div class="document-grid">
+            <div class="document-card">
+                <h3>Terms of Service</h3>
+                <p>
+                    Our terms governing use of the Recoup platform, including Late Payment Act 1998
+                    provisions for UK freelancers and small businesses.
+                </p>
+                <div class="meta">Version 1.0 | Effective: 18 November 2025</div>
+                <a href="terms-of-service.html">Read Terms of Service →</a>
+            </div>
+
+            <div class="document-card">
+                <h3>Privacy Policy</h3>
+                <p>
+                    Comprehensive privacy notice detailing how we collect, use, and protect your
+                    personal data under UK GDPR.
+                </p>
+                <div class="meta">Version 1.0 | Effective: 18 November 2025</div>
+                <a href="privacy-policy.html">Read Privacy Policy →</a>
+            </div>
+
+            <div class="document-card">
+                <h3>Cookie Policy</h3>
+                <p>
+                    Detailed information about cookies we use, cookie management options, and
+                    PECR compliance.
+                </p>
+                <div class="meta">Version 1.0 | Effective: 18 November 2025</div>
+                <a href="cookie-policy.html">Read Cookie Policy →</a>
+            </div>
+
+            <div class="document-card">
+                <h3>Data Processing Agreement</h3>
+                <p>
+                    UK GDPR Article 28 compliant DPA governing our role as data processor for
+                    your client data.
+                </p>
+                <div class="meta">Version 1.0 | Effective: 18 November 2025</div>
+                <a href="dpa.html">Read DPA →</a>
+            </div>
+
+            <div class="document-card">
+                <h3>Service Level Agreement</h3>
+                <p>
+                    Our commitments regarding uptime, support response times, and service credits
+                    for all subscription tiers.
+                </p>
+                <div class="meta">Version 1.0 | Effective: 18 November 2025</div>
+                <a href="sla.html">Read SLA →</a>
+            </div>
+
+            <div class="document-card">
+                <h3>IR35 Compliance Checklist</h3>
+                <p>
+                    Guidance for UK freelancers on IR35 off-payroll working rules, including
+                    interactive checklist and risk assessment.
+                </p>
+                <div class="meta">Version 1.0 | Effective: 18 November 2025</div>
+                <a href="ir35-compliance-checklist.html">View Checklist →</a>
+            </div>
+        </div>
+
+        <h2>Version Control & Transparency</h2>
+
+        <p>
+            We maintain version control for all legal documents in accordance with UK GDPR transparency
+            requirements. Key features:
+        </p>
+
+        <ul>
+            <li><strong>Version Tracking:</strong> All changes are documented with version numbers and dates</li>
+            <li><strong>Advance Notice:</strong> 30 days minimum notice for material changes</li>
+            <li><strong>Change Documentation:</strong> Detailed changelog of all updates</li>
+            <li><strong>Historical Access:</strong> Previous versions available upon request</li>
+            <li><strong>Annual Review:</strong> All documents reviewed annually (November)</li>
+        </ul>
+
+        <h2>Your Rights</h2>
+
+        <p>Under UK GDPR, you have the following rights regarding your personal data:</p>
+
+        <div class="document-grid">
+            <div class="document-card" style="border-color: #17a2b8;">
+                <h3 style="color: #17a2b8;">Right of Access</h3>
+                <p>Request a copy of your personal data we hold</p>
+            </div>
+
+            <div class="document-card" style="border-color: #17a2b8;">
+                <h3 style="color: #17a2b8;">Right to Rectification</h3>
+                <p>Correct inaccurate or incomplete data</p>
+            </div>
+
+            <div class="document-card" style="border-color: #17a2b8;">
+                <h3 style="color: #17a2b8;">Right to Erasure</h3>
+                <p>Request deletion of your personal data</p>
+            </div>
+
+            <div class="document-card" style="border-color: #17a2b8;">
+                <h3 style="color: #17a2b8;">Right to Portability</h3>
+                <p>Receive your data in a machine-readable format</p>
+            </div>
+
+            <div class="document-card" style="border-color: #17a2b8;">
+                <h3 style="color: #17a2b8;">Right to Object</h3>
+                <p>Object to processing based on legitimate interests</p>
+            </div>
+
+            <div class="document-card" style="border-color: #17a2b8;">
+                <h3 style="color: #17a2b8;">Right to Restrict Processing</h3>
+                <p>Limit how we use your personal data</p>
+            </div>
+        </div>
+
+        <p style="margin-top: 20px;">
+            To exercise any of these rights, contact us at <strong>privacy@recoup.com</strong>.
+            We will respond within one month.
+        </p>
+
+        <h2>Downloads & Additional Resources</h2>
+
+        <ul>
+            <li><a href="https://ico.org.uk" target="_blank">Information Commissioner's Office (ICO)</a> - UK Data Protection Authority</li>
+            <li><a href="https://www.gov.uk/guidance/understanding-off-payroll-working-ir35" target="_blank">HMRC IR35 Guidance</a> - Off-payroll working rules</li>
+            <li><a href="https://www.gov.uk/guidance/check-employment-status-for-tax" target="_blank">HMRC CEST Tool</a> - Check Employment Status for Tax</li>
+            <li><a href="https://www.legislation.gov.uk/ukpga/1998/20/contents" target="_blank">Late Payment Act 1998</a> - Legislation text</li>
+        </ul>
+
+        <div class="contact-info">
+            <h2 style="margin-top: 0;">Contact Information</h2>
+
+            <p><strong>General Legal Inquiries</strong><br>
+            Email: <a href="mailto:legal@recoup.com">legal@recoup.com</a></p>
+
+            <p><strong>Data Protection & Privacy</strong><br>
+            Email: <a href="mailto:privacy@recoup.com">privacy@recoup.com</a><br>
+            DPO: <a href="mailto:dpo@recoup.com">dpo@recoup.com</a></p>
+
+            <p><strong>Cookie Questions</strong><br>
+            Email: <a href="mailto:cookies@recoup.com">cookies@recoup.com</a></p>
+
+            <p><strong>Security & Data Breaches</strong><br>
+            Email: <a href="mailto:security@recoup.com">security@recoup.com</a></p>
+
+            <p><strong>Service Level Agreement</strong><br>
+            Email: <a href="mailto:sla@recoup.com">sla@recoup.com</a></p>
+
+            <p><strong>General Support</strong><br>
+            Email: <a href="mailto:support@recoup.com">support@recoup.com</a></p>
+
+            <hr style="margin: 20px 0;">
+
+            <p><strong>Recoup Ltd</strong><br>
+            [Registered Address]<br>
+            Company Number: [Company Registration Number]<br>
+            VAT Number: [VAT Registration Number]<br>
+            ICO Registration: [ICO Registration Number]</p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 Recoup Ltd. All rights reserved.</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                All legal documents are governed by the laws of England and Wales.
+            </p>
+            <p style="margin-top: 20px;">
+                <a href="/" style="color: #0066cc; text-decoration: none;">← Back to Recoup</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

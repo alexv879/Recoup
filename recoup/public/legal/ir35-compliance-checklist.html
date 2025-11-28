@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IR35 Compliance Checklist - Recoup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #0066cc;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #333;
+            margin-top: 20px;
+        }
+        .version-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 30px;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .legal-reference {
+            background: #f0f0f0;
+            border-left: 4px solid #666;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+        .checklist {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .checklist h4 {
+            color: #0066cc;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        .checklist-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
+        .checklist-item label {
+            font-weight: bold;
+            color: #333;
+        }
+        .checklist-item p {
+            margin: 5px 0 0 30px;
+            color: #666;
+            font-size: 0.95em;
+        }
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .status-table th,
+        .status-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .status-table th {
+            background-color: #0066cc;
+            color: white;
+        }
+        .status-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .risk-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .risk-low {
+            background: #d4edda;
+            color: #155724;
+        }
+        .risk-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .risk-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="version-info">
+        <strong>Document Version:</strong> 1.0<br>
+        <strong>Effective Date:</strong> 18 November 2025<br>
+        <strong>Last Updated:</strong> 18 November 2025<br>
+        <strong>Purpose:</strong> Guidance for Recoup users on IR35 considerations
+    </div>
+
+    <h1>IR35 Compliance Checklist for Recoup Users</h1>
+
+    <div class="warning">
+        <strong>⚠️ Important Disclaimer:</strong> This checklist is provided for informational purposes only
+        and does not constitute legal or tax advice. IR35 status is complex and depends on your specific circumstances.
+        Recoup recommends consulting a qualified accountant or IR35 specialist for personalized advice.
+        <br><br>
+        <strong>Recoup's Role:</strong> Recoup is a software tool for managing invoices and payments.
+        Using Recoup does not determine your IR35 status. Your tax status depends on the nature of your
+        working relationship with your clients, not the tools you use for invoicing.
+    </div>
+
+    <h2>1. What is IR35?</h2>
+
+    <h3>1.1 Overview</h3>
+    <p>
+        IR35 is UK tax legislation (officially called "off-payroll working rules") designed to combat tax avoidance
+        by workers supplying their services through an intermediary (usually a limited company or partnership)
+        who would be employees if the intermediary were not used.
+    </p>
+
+    <div class="legal-reference">
+        <strong>Legal Framework:</strong>
+        <ul>
+            <li><strong>Original Legislation:</strong> Finance Act 2000, Chapter 8</li>
+            <li><strong>Private Sector Reform:</strong> Finance Act 2017 (public sector), Finance Act 2021 (medium/large private sector)</li>
+            <li><strong>Governing Body:</strong> HM Revenue & Customs (HMRC)</li>
+            <li><strong>Official Tool:</strong> HMRC Check Employment Status for Tax (CEST) tool</li>
+        </ul>
+    </div>
+
+    <h3>1.2 Who Does IR35 Apply To?</h3>
+
+    <table class="status-table">
+        <thead>
+            <tr>
+                <th>Scenario</th>
+                <th>IR35 Applies?</th>
+                <th>Responsibility</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Public sector contractor</td>
+                <td>Yes</td>
+                <td>Client determines status (since 2017)</td>
+            </tr>
+            <tr>
+                <td>Private sector - Medium/Large client (£10.2m+ turnover, 50+ employees, £5.1m+ balance sheet)</td>
+                <td>Yes</td>
+                <td>Client determines status (since April 2021)</td>
+            </tr>
+            <tr>
+                <td>Private sector - Small client</td>
+                <td>Yes</td>
+                <td>Contractor determines own status</td>
+            </tr>
+            <tr>
+                <td>Working overseas (outside UK)</td>
+                <td>Potentially - complex</td>
+                <td>Depends on tax residency and location of work</td>
+            </tr>
+            <tr>
+                <td>Sole trader (no intermediary)</td>
+                <td>No</td>
+                <td>Self-employed tax rules apply</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>1.3 IR35 Status Outcomes</h3>
+
+    <ul>
+        <li><strong>"Inside IR35" (Deemed Employment):</strong>
+            <ul>
+                <li>You're treated as an employee for tax purposes</li>
+                <li>Income tax and National Insurance deducted at source (if client determines status)</li>
+                <li>Or you must operate PAYE through your company (if you determine status)</li>
+                <li>Cannot claim as many business expenses</li>
+            </ul>
+        </li>
+        <li><strong>"Outside IR35" (Genuinely Self-Employed):</strong>
+            <ul>
+                <li>You pay corporation tax on company profits</li>
+                <li>Can draw salary and dividends tax-efficiently</li>
+                <li>Can claim legitimate business expenses</li>
+                <li>More administrative flexibility</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h2>2. Key IR35 Tests</h2>
+
+    <p>
+        HMRC and courts assess employment status using three main tests and additional factors:
+    </p>
+
+    <h3>2.1 The Three Primary Tests</h3>
+
+    <div class="checklist">
+        <h4>1. Control</h4>
+        <div class="checklist-item">
+            <strong>Question:</strong> Does the client control what you do, how you do it, when you do it, and where you do it?
+            <p>
+                <strong>Outside IR35 indicators:</strong> You decide how to complete work, set your own hours,
+                work from your own location, use your own methods/tools.
+            </p>
+            <p>
+                <strong>Inside IR35 indicators:</strong> Client sets your hours, location, directs your methods,
+                requires presence at client site, manages you like an employee.
+            </p>
+        </div>
+
+        <h4>2. Substitution (Personal Service)</h4>
+        <div class="checklist-item">
+            <strong>Question:</strong> Can you send someone else to do the work in your place?
+            <p>
+                <strong>Outside IR35 indicators:</strong> Contract allows substitution, you have genuinely
+                exercised this right or could do so, client accepts substitutes.
+            </p>
+            <p>
+                <strong>Inside IR35 indicators:</strong> You must personally perform the work, no substitution
+                allowed, client hired you specifically for your personal skills.
+            </p>
+        </div>
+
+        <h4>3. Mutuality of Obligation (MOO)</h4>
+        <div class="checklist-item">
+            <strong>Question:</strong> Is the client obligated to offer you work, and are you obligated to accept it?
+            <p>
+                <strong>Outside IR35 indicators:</strong> Project-based work, no guarantee of ongoing work,
+                you can refuse work without consequences.
+            </p>
+            <p>
+                <strong>Inside IR35 indicators:</strong> Continuous work relationship, expectation of ongoing
+                work, obligation to accept work offered.
+            </p>
+        </div>
+    </div>
+
+    <h3>2.2 Additional Factors</h3>
+
+    <table class="status-table">
+        <thead>
+            <tr>
+                <th>Factor</th>
+                <th>Outside IR35 (Self-Employed)</th>
+                <th>Inside IR35 (Employee-Like)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Financial Risk</strong></td>
+                <td>You bear financial risk, can make profit/loss, invest in business</td>
+                <td>Paid fixed rate regardless of outcomes, no financial risk</td>
+            </tr>
+            <tr>
+                <td><strong>Equipment</strong></td>
+                <td>Provide own equipment, tools, software</td>
+                <td>Client provides equipment and tools</td>
+            </tr>
+            <tr>
+                <td><strong>Part and Parcel</strong></td>
+                <td>Not integrated into organization, clearly external contractor</td>
+                <td>Treated like employee, included in org structure, given company email/badge</td>
+            </tr>
+            <tr>
+                <td><strong>Exclusivity</strong></td>
+                <td>Work for multiple clients simultaneously</td>
+                <td>Exclusive or near-exclusive to one client</td>
+            </tr>
+            <tr>
+                <td><strong>Benefits</strong></td>
+                <td>No employee benefits (pension, sick pay, holiday pay)</td>
+                <td>Receive benefits similar to employees</td>
+            </tr>
+            <tr>
+                <td><strong>Contracts</strong></td>
+                <td>Fixed-term or project-based contracts</td>
+                <td>Rolling or indefinite contracts</td>
+            </tr>
+            <tr>
+                <td><strong>Termination Notice</strong></td>
+                <td>Short or no notice period (contractual)</td>
+                <td>Long notice periods (like employees)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>3. IR35 Compliance Checklist</h2>
+
+    <div class="info-box">
+        <strong>How to Use This Checklist:</strong>
+        <ol>
+            <li>Answer honestly based on your actual working arrangements, not what your contract says</li>
+            <li>Consider each client engagement separately - status may vary</li>
+            <li>More "Yes" answers indicate stronger outside IR35 position</li>
+            <li>This is a guide only - use HMRC's CEST tool and consult a professional</li>
+        </ol>
+    </div>
+
+    <div class="checklist">
+        <h4>Contract and Documentation</h4>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="contract1">
+            <label for="contract1">Written contract clearly states self-employed/contractor relationship</label>
+            <p>Your contract explicitly states you're providing services as an independent contractor, not as an employee.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="contract2">
+            <label for="contract2">Contract includes right of substitution (and it's genuine)</label>
+            <p>You have the contractual right to send a substitute, and this right is real (not just on paper).</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="contract3">
+            <label for="contract3">Fixed-term or project-based contract (not rolling indefinitely)</label>
+            <p>Contract has clear start and end dates, or is tied to specific deliverables/projects.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="contract4">
+            <label for="contract4">Contract allows you to work for other clients simultaneously</label>
+            <p>No exclusivity clause preventing you from working for multiple clients at once.</p>
+        </div>
+
+        <h4>Control and Independence</h4>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="control1">
+            <label for="control1">You control HOW the work is done (methods, processes)</label>
+            <p>Client tells you what needs to be achieved, but you decide how to do it.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="control2">
+            <label for="control2">You control WHEN you work (set your own hours)</label>
+            <p>You're not required to work specific hours or be available at set times.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="control3">
+            <label for="control3">You control WHERE you work (location flexibility)</label>
+            <p>You can work from home, your office, or other locations - not required to be at client site.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="control4">
+            <label for="control4">No line management or supervision by client</label>
+            <p>Client doesn't manage you day-to-day like an employee; you work autonomously.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="control5">
+            <label for="control5">No requirement to attend client meetings/events</label>
+            <p>Not expected to attend team meetings, training sessions, or company events.</p>
+        </div>
+
+        <h4>Financial Risk and Reward</h4>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="financial1">
+            <label for="financial1">You bear financial risk (can make loss on project)</label>
+            <p>If project takes longer than expected or has issues, you bear the cost - not paid hourly.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="financial2">
+            <label for="financial2">Fixed price or deliverable-based pricing (not just day rate)</label>
+            <p>Paid for outcomes/deliverables, not just time spent.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="financial3">
+            <label for="financial3">You provide own equipment and tools</label>
+            <p>Use your own computer, software licenses, office space, phone, etc.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="financial4">
+            <label for="financial4">You incur business expenses and can claim them</label>
+            <p>Pay for professional development, insurance, software, office costs, etc.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="financial5">
+            <label for="financial5">Professional indemnity and/or public liability insurance</label>
+            <p>You carry business insurance to cover professional risks.</p>
+        </div>
+
+        <h4>Business Structure and Operations</h4>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="business1">
+            <label for="business1">Multiple clients (not dependent on single client)</label>
+            <p>You actively work for multiple clients, or actively market to new clients.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="business2">
+            <label for="business2">Business bank account, website, marketing materials</label>
+            <p>You operate as a business with professional branding and marketing.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="business3">
+            <label for="business3">Registered business (Ltd company, LLP, or sole trader)</label>
+            <p>Formally registered with Companies House (if limited company) and HMRC.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="business4">
+            <label for="business4">Invoice clients (not on client payroll)</label>
+            <p>You submit invoices for payment, not timesheets to payroll department.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="business5">
+            <label for="business5">Own payment terms (30 days, etc.)</label>
+            <p>You set payment terms and chase late payments (Recoup helps with this!).</p>
+        </div>
+
+        <h4>Integration and Culture</h4>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="integration1">
+            <label for="integration1">Not part of client's organizational structure</label>
+            <p>Not listed on org chart, not included in team hierarchy.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="integration2">
+            <label for="integration2">No employee benefits (pension, sick pay, holiday pay)</label>
+            <p>Client doesn't provide any employment benefits.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="integration3">
+            <label for="integration3">No company email address or systems access beyond necessary</label>
+            <p>You use your own business email; client access is minimal and project-specific.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="integration4">
+            <label for="integration4">Not subject to company policies (grievance, disciplinary, etc.)</label>
+            <p>Employee handbooks and HR policies don't apply to you.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="integration5">
+            <label for="integration5">Clearly identified as external contractor to others</label>
+            <p>Client's staff know you're a contractor, not an employee.</p>
+        </div>
+
+        <h4>Substitution and Personal Service</h4>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="substitution1">
+            <label for="substitution1">Genuine right to send substitute</label>
+            <p>Contract allows it and client would accept a suitable substitute you provide.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="substitution2">
+            <label for="substitution2">Have actually used substitution or could genuinely do so</label>
+            <p>You've sent a substitute before, or have people identified who could step in.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="substitution3">
+            <label for="substitution3">Client didn't hire you for specific personal skills</label>
+            <p>Client hired your company for expertise, not you personally.</p>
+        </div>
+
+        <h4>Mutuality of Obligation</h4>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="moo1">
+            <label for="moo1">No obligation on client to provide continuous work</label>
+            <p>Contract is for specific project(s); no guarantee of future work.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="moo2">
+            <label for="moo2">No obligation on you to accept additional work</label>
+            <p>You can turn down new projects or additional tasks without consequences.</p>
+        </div>
+
+        <div class="checklist-item">
+            <input type="checkbox" id="moo3">
+            <label for="moo3">Gaps between engagements with same client</label>
+            <p>Work is project-based with clear starts/ends, not continuous rolling contracts.</p>
+        </div>
+    </div>
+
+    <h2>4. Risk Assessment</h2>
+
+    <div class="info-box">
+        <h3>Scoring Guide</h3>
+        <p>Count how many boxes you checked above:</p>
+        <ul>
+            <li><span class="risk-indicator risk-low">25-36 boxes</span>: <strong>Lower IR35 Risk</strong> - Strong indicators of self-employment</li>
+            <li><span class="risk-indicator risk-medium">15-24 boxes</span>: <strong>Medium IR35 Risk</strong> - Mixed indicators; seek professional advice</li>
+            <li><span class="risk-indicator risk-high">0-14 boxes</span>: <strong>Higher IR35 Risk</strong> - Many employment indicators; likely inside IR35</li>
+        </ul>
+        <p>
+            <strong>Important:</strong> This is an informal guide only. Even one strong employment indicator
+            (e.g., lack of substitution) can place you inside IR35. Always use the official HMRC CEST tool
+            and consult an IR35 specialist.
+        </p>
+    </div>
+
+    <h2>5. Using Recoup While Managing IR35 Status</h2>
+
+    <h3>5.1 Recoup is IR35-Neutral</h3>
+    <p>
+        Using Recoup to manage invoices and payments does not affect your IR35 status. IR35 is determined by
+        your working relationship with clients, not the administrative tools you use.
+    </p>
+
+    <h3>5.2 How Recoup Can Support Outside IR35 Status</h3>
+
+    <table class="status-table">
+        <thead>
+            <tr>
+                <th>IR35 Factor</th>
+                <th>How Recoup Helps</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Professional Invoicing</td>
+                <td>Create professional invoices showing your business details, reinforcing contractor status</td>
+            </tr>
+            <tr>
+                <td>Payment Terms</td>
+                <td>Set and enforce your own payment terms (e.g., 30 days), not client payroll terms</td>
+            </tr>
+            <tr>
+                <td>Business Operations</td>
+                <td>Automated systems show you run a business, not just work as disguised employee</td>
+            </tr>
+            <tr>
+                <td>Multiple Clients</td>
+                <td>Manage invoices for multiple clients, demonstrating diverse client base</td>
+            </tr>
+            <tr>
+                <td>Late Payment Rights</td>
+                <td>Exercise Late Payment Act rights (statutory interest & compensation) - employees can't do this</td>
+            </tr>
+            <tr>
+                <td>Record Keeping</td>
+                <td>Maintain professional records for HMRC compliance and potential IR35 investigations</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>5.3 Best Practices for Recoup Users</h3>
+
+    <ul>
+        <li><strong>Invoice from Your Company:</strong> Ensure invoices show your limited company/business name, not personal name</li>
+        <li><strong>Include Company Details:</strong> Company registration number, VAT number (if registered), registered address</li>
+        <li><strong>Professional Payment Terms:</strong> Set clear payment terms (30 days, etc.) on all invoices</li>
+        <li><strong>Track Multiple Clients:</strong> Use Recoup to manage invoices for all clients, showing diversified business</li>
+        <li><strong>Apply Late Payment Interest:</strong> Use Recoup's late payment calculation features when appropriate</li>
+        <li><strong>Maintain Records:</strong> Keep all invoice and payment records for at least 6 years (HMRC requirement)</li>
+    </ul>
+
+    <h2>6. What to Do If You're Inside IR35</h2>
+
+    <h3>6.1 Client Determines Status (Medium/Large Private Sector, Public Sector)</h3>
+
+    <p>
+        If your client determines you're inside IR35:
+    </p>
+    <ul>
+        <li>Client (or fee-payer) will deduct income tax and National Insurance at source</li>
+        <li>You'll receive a Status Determination Statement (SDS)</li>
+        <li>You can challenge the determination if you disagree</li>
+        <li>Still invoice through your company, but net of tax/NI deductions</li>
+        <li>Can still use Recoup for invoicing and tracking</li>
+    </ul>
+
+    <h3>6.2 You Determine Status (Small Private Sector Clients)</h3>
+
+    <p>
+        If you determine you're inside IR35:
+    </p>
+    <ul>
+        <li>Operate PAYE through your company for income from that contract</li>
+        <li>Deduct income tax and employee/employer National Insurance</li>
+        <li>Pay yourself a salary (subject to PAYE) from the contract income</li>
+        <li>Consider using an accountant to ensure compliance</li>
+        <li>Keep detailed records</li>
+        <li>Can still use Recoup for client invoicing</li>
+    </ul>
+
+    <h2>7. HMRC CEST Tool</h2>
+
+    <h3>7.1 What is CEST?</h3>
+    <p>
+        Check Employment Status for Tax (CEST) is HMRC's official online tool for determining IR35 status.
+    </p>
+
+    <p>
+        <strong>Access CEST:</strong> <a href="https://www.gov.uk/guidance/check-employment-status-for-tax" target="_blank">
+            www.gov.uk/guidance/check-employment-status-for-tax
+        </a>
+    </p>
+
+    <h3>7.2 Using CEST</h3>
+    <ul>
+        <li>Complete for each client engagement separately</li>
+        <li>Answer based on actual working practices, not just contract terms</li>
+        <li>Be honest - HMRC can challenge inaccurate assessments</li>
+        <li>Save the result and determination reference</li>
+        <li>Review periodically, especially if working arrangements change</li>
+    </ul>
+
+    <h3>7.3 CEST Limitations</h3>
+    <div class="warning">
+        <strong>Note:</strong> CEST doesn't cover all scenarios and has limitations:
+        <ul>
+            <li>Doesn't work well for complex arrangements</li>
+            <li>May give "unable to determine" result</li>
+            <li>Not legally binding, but HMRC says they'll stand by result if you answer honestly</li>
+            <li>Consider professional advice if result is unclear</li>
+        </ul>
+    </div>
+
+    <h2>8. Professional Advice and Resources</h2>
+
+    <h3>8.1 When to Seek Professional Help</h3>
+    <p>
+        Consult an IR35 specialist or accountant if:
+    </p>
+    <ul>
+        <li>Your CEST result is unclear or "unable to determine"</li>
+        <li>Your client has determined you inside IR35 and you disagree</li>
+        <li>Your working arrangements are complex or unusual</li>
+        <li>You work for multiple clients with different statuses</li>
+        <li>You're concerned about an HMRC investigation</li>
+        <li>You're considering challenging an inside IR35 determination</li>
+        <li>You want to restructure contracts to improve IR35 position</li>
+    </ul>
+
+    <h3>8.2 Professional Bodies and Resources</h3>
+
+    <ul>
+        <li><strong>HMRC IR35 Guidance:</strong> <a href="https://www.gov.uk/guidance/understanding-off-payroll-working-ir35" target="_blank">
+            www.gov.uk/guidance/understanding-off-payroll-working-ir35</a>
+        </li>
+        <li><strong>HMRC Helpline:</strong> 0300 200 3500</li>
+        <li><strong>Institute of Chartered Accountants (ICAEW):</strong> Find qualified accountants</li>
+        <li><strong>Association of Taxation Technicians (ATT):</strong> Tax specialists</li>
+        <li><strong>Contractor Accountants:</strong> Specialists in contractor/freelancer tax (Crunch, Qdos, etc.)</li>
+        <li><strong>ContractorCalculator:</strong> <a href="https://www.contractorcalculator.co.uk/" target="_blank">
+            www.contractorcalculator.co.uk</a> - News and guidance
+        </li>
+    </ul>
+
+    <h3>8.3 Insurance</h3>
+    <p>
+        Consider IR35 insurance to cover:
+    </p>
+    <ul>
+        <li>Professional fees if HMRC investigates your status</li>
+        <li>Potential tax liabilities if determination is overturned</li>
+        <li>Legal representation in disputes</li>
+    </ul>
+
+    <h2>9. Recoup's Position</h2>
+
+    <div class="info-box">
+        <h3>How Recoup Supports You</h3>
+        <ul>
+            <li><strong>Education:</strong> We provide this checklist as a courtesy to help you understand IR35</li>
+            <li><strong>Professional Invoicing:</strong> Our platform helps you invoice professionally as a business</li>
+            <li><strong>Record Keeping:</strong> Maintain comprehensive records for compliance and audits</li>
+            <li><strong>Flexibility:</strong> Works regardless of your IR35 status</li>
+        </ul>
+
+        <h3>What Recoup Cannot Do</h3>
+        <ul>
+            <li>Determine your IR35 status (only you, your client, or HMRC can do this)</li>
+            <li>Provide tax or legal advice</li>
+            <li>Guarantee any particular IR35 outcome</li>
+            <li>Represent you in HMRC disputes</li>
+        </ul>
+
+        <p>
+            <strong>Recommendation:</strong> Engage a qualified IR35 specialist or contractor accountant
+            for personalized advice on your specific circumstances.
+        </p>
+    </div>
+
+    <h2>10. Document Retention</h2>
+
+    <p>
+        For IR35 compliance, retain the following for at least 6 years:
+    </p>
+    <ul>
+        <li>All client contracts and statements of work</li>
+        <li>Status Determination Statements (SDS) from clients</li>
+        <li>CEST assessment results</li>
+        <li>All invoices and payment records (Recoup helps with this!)</li>
+        <li>Correspondence about working arrangements</li>
+        <li>Evidence of substitution rights or use</li>
+        <li>Records of other clients and business activities</li>
+        <li>Business expense records</li>
+        <li>Professional advice received</li>
+    </ul>
+
+    <h2>11. Changes and Updates</h2>
+
+    <p>
+        IR35 legislation and HMRC guidance evolve. Stay informed:
+    </p>
+    <ul>
+        <li>Subscribe to HMRC email updates on off-payroll working</li>
+        <li>Follow contractor-focused accountants and advisors</li>
+        <li>Review your status annually or when contracts change</li>
+        <li>Check Recoup's legal resources for updates to this checklist</li>
+    </ul>
+
+    <div class="version-info" style="margin-top: 30px;">
+        <strong>Next Review Date:</strong> 18 November 2026<br>
+        <strong>Feedback:</strong> If you have suggestions for improving this checklist, email legal@recoup.com
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Recoup Ltd. All rights reserved.</p>
+        <p>
+            <a href="terms-of-service.html">Terms of Service</a> |
+            <a href="privacy-policy.html">Privacy Policy</a> |
+            <a href="cookie-policy.html">Cookie Policy</a> |
+            <a href="dpa.html">Data Processing Agreement</a> |
+            <a href="sla.html">Service Level Agreement</a>
+        </p>
+        <p style="margin-top: 20px; font-size: 0.9em; color: #999;">
+            This checklist is provided for informational purposes only and does not constitute legal, tax,
+            or financial advice. Consult a qualified professional for advice specific to your circumstances.
+        </p>
+    </div>
+</body>
+</html>
