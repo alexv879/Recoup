@@ -254,8 +254,8 @@ export async function processCollections(): Promise<{
 
               // Check SMS consent and subscription tier
               const hasConsent = isCollectionsConsentObject(user.collectionsConsent)
-                && user.collectionsConsent.smsConsent
-                && !user.collectionsConsent.smsOptedOut;
+                && user.collectionsConsent?.smsConsent
+                && !user.collectionsConsent?.smsOptedOut;
               const isPaidUser = user.subscriptionTier !== 'free';
 
               if (hasConsent && isPaidUser && user.phoneNumber) {
@@ -373,8 +373,8 @@ export async function processCollections(): Promise<{
 
               // Check consent, subscription tier, and business address
               const hasConsent = isCollectionsConsentObject(user.collectionsConsent)
-                && user.collectionsConsent.physicalMailConsent
-                && !user.collectionsConsent.physicalMailOptedOut;
+                && user.collectionsConsent?.physicalMailConsent
+                && !user.collectionsConsent?.physicalMailOptedOut;
               const isPaidUser = user.subscriptionTier !== 'free';
               const hasAddress = !!user.businessAddress && isBusinessAddressObject(user.businessAddress);
 
@@ -396,7 +396,7 @@ export async function processCollections(): Promise<{
                 }
               } else if (hasConsent && isPaidUser && isBusinessAddressObject(user.businessAddress)) {
                 try {
-                  const businessAddr = user.businessAddress;
+                  const businessAddr = user.businessAddress!; // Type guard ensures this is defined
                   const invoiceDateObj = toDate(invoice.invoiceDate);
 
                   // Send physical letter via Lob

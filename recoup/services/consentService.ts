@@ -65,15 +65,15 @@ export async function getUserConsent(userId: string): Promise<{
 
     // Check if consent exists and is current version
     const needsUpdate = !isCollectionsConsentObject(consent) ||
-      !consent.consentVersion ||
-      consent.consentVersion !== CURRENT_CONSENT_VERSION;
+      !consent?.consentVersion ||
+      consent?.consentVersion !== CURRENT_CONSENT_VERSION;
 
     return {
-      smsConsent: isCollectionsConsentObject(consent) ? consent.smsConsent || false : false,
-      callConsent: isCollectionsConsentObject(consent) ? consent.callConsent || false : false,
-      callRecordingConsent: isCollectionsConsentObject(consent) ? consent.callRecordingConsent || false : false,
-      physicalMailConsent: isCollectionsConsentObject(consent) ? consent.physicalMailConsent || false : false,
-      dataStorageConsent: isCollectionsConsentObject(consent) ? consent.dataStorageConsent || false : false,
+      smsConsent: isCollectionsConsentObject(consent) ? consent?.smsConsent || false : false,
+      callConsent: isCollectionsConsentObject(consent) ? consent?.callConsent || false : false,
+      callRecordingConsent: isCollectionsConsentObject(consent) ? consent?.callRecordingConsent || false : false,
+      physicalMailConsent: isCollectionsConsentObject(consent) ? consent?.physicalMailConsent || false : false,
+      dataStorageConsent: isCollectionsConsentObject(consent) ? consent?.dataStorageConsent || false : false,
       consentDate: isCollectionsConsentObject(consent) && consent.consentDate ? toDate(consent.consentDate) : undefined,
       consentVersion: isCollectionsConsentObject(consent) ? consent.consentVersion : undefined,
       needsUpdate,

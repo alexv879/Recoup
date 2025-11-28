@@ -18,6 +18,7 @@ export interface User {
   isFoundingMember?: boolean; // Locked into 50% discount pricing
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
+  lastDemoResetDate?: Date | Timestamp;
   collectionsConsent?: {
     smsOptedOut?: boolean;
     emailOptedOut?: boolean;
@@ -25,11 +26,23 @@ export interface User {
     smsConsent?: boolean;
     emailConsent?: boolean;
     callConsent?: boolean;
+    callRecordingConsent?: boolean;
+    physicalMailConsent?: boolean;
+    physicalMailOptedOut?: boolean;
+    consentVersion?: string;
+    consentGivenAt?: Date | Timestamp;
     smsOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
     emailOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
   };
   referralCode?: string;
   profilePicture?: string;
+  businessAddress?: {
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    postcode: string;
+    country?: string;
+  };
   timezone: string;
   language: string;
   notifications: {
@@ -70,6 +83,7 @@ export interface UserStats {
   level: number;
   rank?: number;
   achievements: any[];
+  gamificationXP?: number; // Gamification experience points
   churnRiskScore?: number;
   engagementLevel?: 'low' | 'medium' | 'high';
   calculatedAt: Date | Timestamp;
@@ -425,6 +439,79 @@ export interface RevenueRecoveryMetrics {
   thisMonth: number;
   lastMonth: number;
   thisYear: number;
+}
+
+// ============================================================================
+// COLLECTION ATTEMPTS
+// ============================================================================
+
+export interface CollectionAttempt {
+  attemptId: string;
+  invoiceId: string;
+  freelancerId: string;
+  attemptType: 'email_reminder' | 'sms_reminder' | 'whatsapp_message' | 'ai_call' | 'phone_call' | 'physical_letter' | 'manual_contact';
+  attemptDate: Date | Timestamp;
+  attemptNumber: number;
+  result: 'pending' | 'success' | 'failed' | 'bounced' | 'no_answer';
+  resultDetails?: string;
+  paymentRecovered?: number; // Amount recovered in pence
+  reminderLevel?: number; // Escalation level (1 = first reminder, 2 = second, etc.)
+  escalatedToAgency?: boolean;
+  agencyHandoffId?: string;
+  escalationDate?: Date | Timestamp;
+  isPremiumFeature?: boolean;
+  createdAt: Date | Timestamp;
+}
+
+// ============================================================================
+// AGENCY HANDOFF (PREMIUM FEATURE)
+// ============================================================================
+
+export interface AgencyHandoff {
+  handoffId: string;
+  invoiceId: string;
+  freelancerId: string;
+  agencyId: string;
+  handoffDate: Date | Timestamp;
+  handoffStatus: 'pending' | 'in_progress' | 'collected' | 'closed' | 'failed';
+
+  // Agency info
+  agencyName: string;
+  agencyContactEmail: string;
+  agencyContactPhone: string;
+
+  // Invoice details
+  originalAmount: number; // in pence
+  outstandingAmount: number; // in pence
+  daysPastDue: number;
+
+  // Documents & Evidence
+  documents: string[]; // Cloud storage URLs
+  communicationHistory: any[];
+
+  // Financial terms
+  commissionPercentage: number; // e.g., 25 for 25%
+  commissionAmount?: number; // Calculated after recovery
+  recoveryAmount?: number; // Amount recovered by agency
+  recoveryDate?: Date | Timestamp;
+  recoveryOutcome?: 'full_recovery' | 'partial_recovery' | 'settlement' | 'failed' | 'written_off';
+
+  // Notes
+  notes?: string;
+
+  // Status updates from agency
+  agencyUpdates: Array<{
+    date: Date | Timestamp;
+    status: string;
+    notes: string;
+    actionTaken?: string;
+  }>;
+
+  // Timestamps
+  lastUpdate?: Date | Timestamp;
+  closedAt?: Date | Timestamp;
+  createdAt: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
 }
 
 // ============================================================================

@@ -470,18 +470,14 @@ We'll notify you of any developments.`,
         },
       };
 
-      const historyBuffer = Buffer.from(JSON.stringify(communicationHistoryJson, null, 2), 'utf-8');
+      const uploadResult = await uploadCommunicationHistory(
+        params.freelancerId,
+        params.invoiceId,
+        communicationHistoryJson
+      );
 
-      const uploadResult = await uploadCommunicationHistory({
-        contentBuffer: historyBuffer,
-        fileName: `communication-history-${Date.now()}.json`,
-        contentType: 'application/json',
-        handoffId: handoffRef.id,
-        freelancerId: params.freelancerId,
-      });
-
-      if (uploadResult.success && uploadResult.storagePath) {
-        uploadedDocuments.push(uploadResult.storagePath);
+      if (uploadResult.path) {
+        uploadedDocuments.push(uploadResult.path);
 
         // Update handoff with document references
         await handoffRef.update({
@@ -495,7 +491,7 @@ We'll notify you of any developments.`,
 
         logInfo('Communication history uploaded to storage', {
           handoffId: handoffRef.id,
-          storagePath: uploadResult.storagePath,
+          storagePath: uploadResult.path,
         });
       }
 

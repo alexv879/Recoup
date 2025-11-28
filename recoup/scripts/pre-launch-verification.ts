@@ -186,7 +186,7 @@ async function checkStripeConfiguration() {
         });
 
         // Test API key
-        const account = await stripe.account.retrieve();
+        const account = await stripe.accounts.retrieve();
         addResult('Stripe', 'API Connection', 'pass', `Connected to Stripe account: ${account.business_profile?.name || account.id}`);
 
         // Verify webhook endpoint exists
