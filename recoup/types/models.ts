@@ -212,7 +212,7 @@ export interface PaymentConfirmation {
   clientEmail: string;
   confirmationToken: string;
   tokenExpiresAt?: Date | Timestamp;
-  status: 'pending_client' | 'client_confirmed' | 'freelancer_verified' | 'disputed';
+  status: 'pending_client' | 'client_confirmed' | 'freelancer_verified' | 'both_confirmed' | 'disputed';
   freelancerVerifiedReceived: boolean;
   expectedAmount: number;
   clientConfirmedAmount?: number;
@@ -551,6 +551,10 @@ export interface AgencyHandoff {
   createdAt: Date | Timestamp;
   updatedAt?: Date | Timestamp;
 }
+
+export type AgencyRecoveryTransactionResult =
+  | { success: true; transactionId: string }
+  | { success: false; error: string };
 
 // ============================================================================
 // WEBHOOK RETRY SYSTEM
