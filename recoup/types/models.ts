@@ -3,6 +3,32 @@ export interface Timestamp {
   toDate: () => Date;
 }
 
+export interface CollectionsConsent {
+  smsOptedOut?: boolean;
+  emailOptedOut?: boolean;
+  callOptedOut?: boolean;
+  smsConsent?: boolean;
+  emailConsent?: boolean;
+  callConsent?: boolean;
+  callRecordingConsent?: boolean;
+  physicalMailConsent?: boolean;
+  physicalMailOptedOut?: boolean;
+  dataStorageConsent?: boolean;
+  consentVersion?: string;
+  consentGivenAt?: Date | Timestamp;
+  consentDate?: Date | Timestamp;
+  smsOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
+  emailOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
+}
+
+export interface BusinessAddress {
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  postcode: string;
+  country?: string;
+}
+
 export interface User {
   userId: string;
   email: string;
@@ -22,32 +48,10 @@ export interface User {
   collectionsEnabled: boolean;
   collectionsDemoUsedThisMonth?: number;
   lastDemoResetDate?: Date | Timestamp;
-  collectionsConsent?: {
-    smsOptedOut?: boolean;
-    emailOptedOut?: boolean;
-    callOptedOut?: boolean;
-    smsConsent?: boolean;
-    emailConsent?: boolean;
-    callConsent?: boolean;
-    callRecordingConsent?: boolean;
-    physicalMailConsent?: boolean;
-    physicalMailOptedOut?: boolean;
-    dataStorageConsent?: boolean;
-    consentVersion?: string;
-    consentGivenAt?: Date | Timestamp;
-    consentDate?: Date | Timestamp;
-    smsOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
-    emailOptOuts?: Record<string, { optedOutAt?: string | Date; reason?: string }>;
-  };
+  collectionsConsent?: CollectionsConsent;
   referralCode?: string;
   profilePicture?: string;
-  businessAddress?: {
-    addressLine1: string;
-    addressLine2?: string;
-    city: string;
-    postcode: string;
-    country?: string;
-  };
+  businessAddress?: BusinessAddress;
   timezone: string;
   language: string;
   notifications: {
