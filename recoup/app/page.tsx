@@ -1,4 +1,4 @@
-/**
+/*
  * RECOUP LANDING PAGE
  * CRO-Optimized for 10-12%+ Conversion Rate
  *
