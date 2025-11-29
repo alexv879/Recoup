@@ -8,6 +8,7 @@ export const InvoiceCreateSchema = z.object({
     clientName: z.string().min(1, { message: 'Client name is required.' }),
     clientEmail: z.string().email({ message: 'A valid client email is required.' }),
     amount: z.number().positive({ message: 'Amount must be a positive number.' }),
+    currency: z.enum(['GBP', 'USD', 'EUR']).optional().default('GBP'),
     dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
         message: 'Due date must be a valid date.',
     }),

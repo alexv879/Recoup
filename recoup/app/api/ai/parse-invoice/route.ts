@@ -16,6 +16,8 @@ import {
 } from '@/lib/ai-invoice-parser';
 import { logError } from '@/utils/logger';
 
+export const dynamic = 'force-dynamic';
+
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 /**

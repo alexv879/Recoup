@@ -40,6 +40,7 @@ export async function POST(req: Request) {
     const invoice: Omit<Invoice, 'invoiceId'> = {
       reference,
       freelancerId: userId,
+      clientId: '', // Will be set when client is linked
       clientName: validatedData.clientName,
       clientEmail: validatedData.clientEmail,
       amount: validatedData.amount,
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
       dueDate: Timestamp.fromDate(new Date(validatedData.dueDate)),
       invoiceDate: Timestamp.now(),
       status: 'draft',
-      paymentMethods: validatedData.paymentMethods || ['bank_transfer'],
+      items: [], // Will be populated by frontend
       collectionsEnabled: false,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
